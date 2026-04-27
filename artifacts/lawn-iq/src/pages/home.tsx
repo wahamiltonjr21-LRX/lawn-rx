@@ -18,6 +18,7 @@ export default function Home() {
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const [upgradeMessage, setUpgradeMessage] = useState("");
 
@@ -162,43 +163,81 @@ export default function Home() {
               Lawn Photo
             </h2>
             
-            <div 
-              onClick={() => fileInputRef.current?.click()}
-              className={`relative group cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed transition-all duration-200 ${
-                photo 
-                  ? "border-primary/50 bg-primary/5" 
-                  : "border-border hover:border-primary/50 bg-muted/50 hover:bg-muted"
-              }`}
-            >
-              {photo ? (
+            {photo ? (
+              <div className="relative group rounded-2xl overflow-hidden border-2 border-primary/50 bg-primary/5">
                 <div className="relative aspect-video w-full">
                   <img src={photo} alt="Lawn issue" className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <span className="text-white font-medium flex items-center gap-2 bg-black/50 px-4 py-2 rounded-full">
-                      <Camera className="w-4 h-4" /> Retake Photo
-                    </span>
+                </div>
+                <div className="flex gap-2 p-3 border-t border-primary/10 bg-primary/5">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="flex-1 rounded-lg"
+                    onClick={() => cameraInputRef.current?.click()}
+                  >
+                    <Camera className="w-4 h-4 mr-1.5" /> Retake
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="flex-1 rounded-lg"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Upload className="w-4 h-4 mr-1.5" /> Change
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-2xl border-2 border-dashed border-border bg-muted/30 overflow-hidden">
+                <div className="aspect-video w-full flex flex-col items-center justify-center p-6 text-center gap-5">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                    <Camera className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg mb-1">Add a lawn photo</h3>
+                    <p className="text-sm text-muted-foreground max-w-[260px]">
+                      Take a new photo or upload one from your device.
+                    </p>
+                  </div>
+                  <div className="flex gap-3">
+                    <Button
+                      type="button"
+                      variant="default"
+                      className="rounded-xl"
+                      onClick={() => cameraInputRef.current?.click()}
+                    >
+                      <Camera className="w-4 h-4 mr-2" /> Take Photo
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="rounded-xl"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Upload className="w-4 h-4 mr-2" /> Upload Image
+                    </Button>
                   </div>
                 </div>
-              ) : (
-                <div className="aspect-video w-full flex flex-col items-center justify-center p-6 text-center">
-                  <div className="w-16 h-16 mb-4 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                    <Upload className="w-8 h-8" />
-                  </div>
-                  <h3 className="font-semibold text-lg mb-1">Tap to upload</h3>
-                  <p className="text-sm text-muted-foreground max-w-[250px]">
-                    Take a clear photo of the problem area in good lighting.
-                  </p>
-                </div>
-              )}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                className="hidden"
-                onChange={handlePhotoUpload}
-              />
-            </div>
+              </div>
+            )}
+
+            <input
+              ref={cameraInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={handlePhotoUpload}
+            />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handlePhotoUpload}
+            />
           </div>
 
           <div className="space-y-4 pt-4 border-t border-border/50">
