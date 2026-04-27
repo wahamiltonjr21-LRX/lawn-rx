@@ -53,11 +53,11 @@ export default function Home() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Check size (limit to ~2MB)
-    if (file.size > 2 * 1024 * 1024) {
+    // Check size (limit to 20MB)
+    if (file.size > 20 * 1024 * 1024) {
       toast({
         title: "File too large",
-        description: "Please select an image smaller than 2MB.",
+        description: "Please select an image smaller than 20MB.",
         variant: "destructive",
       });
       return;
