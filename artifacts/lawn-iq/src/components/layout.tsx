@@ -16,7 +16,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <header className="md:hidden sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border px-4 py-3 flex items-center justify-center">
         <Link href="/" className="flex items-center gap-2 text-primary">
           <Leaf className="w-6 h-6" />
-          <span className="font-bold text-lg tracking-tight">LawnIQ</span>
+          <span className="font-bold text-lg tracking-tight">LawnRX</span>
         </Link>
       </header>
 
@@ -25,7 +25,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="p-6">
           <Link href="/" className="flex items-center gap-2 text-sidebar-primary">
             <Leaf className="w-8 h-8" />
-            <span className="font-bold text-2xl tracking-tight">LawnIQ</span>
+            <span className="font-bold text-2xl tracking-tight">LawnRX</span>
           </Link>
         </div>
         <nav className="flex-1 px-4 space-y-2">

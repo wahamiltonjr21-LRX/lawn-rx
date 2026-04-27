@@ -151,6 +151,27 @@ export const LogoutSuccessValue = {
 } as const;
 export type LogoutSuccess = typeof LogoutSuccessValue;
 
+export interface UpgradeRequestBody {
+  /** @maxLength 1000 */
+  message: string;
+}
+
+export type UpgradeRequestStatusStatus =
+  | (typeof UpgradeRequestStatusStatus)[keyof typeof UpgradeRequestStatusStatus]
+  | null;
+
+export const UpgradeRequestStatusStatus = {
+  pending: "pending",
+  fulfilled: "fulfilled",
+} as const;
+
+export interface UpgradeRequestStatus {
+  submitted: boolean;
+  status: UpgradeRequestStatusStatus;
+  message?: string | null;
+  createdAt?: string | null;
+}
+
 export interface ErrorEnvelope {
   error: string;
 }

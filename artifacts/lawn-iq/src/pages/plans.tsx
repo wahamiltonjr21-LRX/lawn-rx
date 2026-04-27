@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { format } from "date-fns";
-import { Leaf, Activity, ArrowRight, Trash2 } from "lucide-react";
-import { useListDiagnoses, useGetDiagnosesSummary, useDeleteDiagnosis, getListDiagnosesQueryKey, getGetDiagnosesSummaryQueryKey } from "@workspace/api-client-react";
+import { Leaf, Activity, ArrowRight, Trash2, Sparkles } from "lucide-react";
+import { useListDiagnoses, useGetDiagnosesSummary, useDeleteDiagnosis, useGetDiagnosisUsage, useGetUpgradeRequest, getListDiagnosesQueryKey, getGetDiagnosesSummaryQueryKey } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,9 +12,14 @@ import { useQueryClient } from "@tanstack/react-query";
 export default function Plans() {
   const { data: diagnoses, isLoading: isLoadingDiagnoses } = useListDiagnoses();
   const { data: summary, isLoading: isLoadingSummary } = useGetDiagnosesSummary();
+  const { data: usage } = useGetDiagnosisUsage();
+  const { data: upgradeRequest } = useGetUpgradeRequest();
   const deleteDiagnosis = useDeleteDiagnosis();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  const limitReached = usage !== undefined && usage.remaining <= 0;
+  const alreadyRequested = upgradeRequest?.submitted === true;
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.preventDefault(); // prevent navigation
@@ -44,6 +49,28 @@ export default function Plans() {
         <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">My Plans</h1>
         <p className="text-muted-foreground text-lg">Track your lawn's journey to perfect health.</p>
       </div>
+
+      {limitReached && (
+        <div className={`flex items-center justify-between gap-3 px-4 py-3 rounded-xl border text-sm ${
+          alreadyRequested
+            ? "bg-primary/5 border-primary/20 text-foreground/80"
+            : "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/50 text-amber-900 dark:text-amber-200"
+        }`}>
+          <span className="flex items-center gap-2 font-medium">
+            <Sparkles className="w-4 h-4 shrink-0" />
+            {alreadyRequested
+              ? "Upgrade request received — we'll unlock more analyses for you soon."
+              : "You've used all 5 free AI analyses."}
+          </span>
+          {!alreadyRequested && (
+            <Link href="/">
+              <Button size="sm" variant="outline" className="shrink-0 rounded-lg border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/40">
+                Request more
+              </Button>
+            </Link>
+          )}
+        </div>
+      )}
 
       {!isEmpty && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

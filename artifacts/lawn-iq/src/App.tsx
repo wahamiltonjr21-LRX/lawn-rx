@@ -32,7 +32,7 @@ function SignInScreen({ onLogin }: { onLogin: () => void }) {
       <div className="max-w-md w-full text-center space-y-8">
         <div className="flex items-center justify-center gap-2">
           <Leaf className="h-9 w-9 text-emerald-600" />
-          <span className="text-3xl font-bold tracking-tight">LawnIQ</span>
+          <span className="text-3xl font-bold tracking-tight">LawnRX</span>
         </div>
         <div className="space-y-3">
           <h1 className="text-3xl font-bold leading-tight">Diagnose your lawn with AI</h1>

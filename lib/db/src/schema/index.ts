@@ -19,3 +19,4 @@
 
 export * from "./diagnoses";
 export * from "./auth";
+export * from "./upgrade-requests";

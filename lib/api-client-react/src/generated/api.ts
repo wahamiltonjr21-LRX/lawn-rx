@@ -30,6 +30,8 @@ import type {
   MobileTokenExchangeRequest,
   MobileTokenExchangeSuccess,
   SaveDiagnosisBody,
+  UpgradeRequestBody,
+  UpgradeRequestStatus,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
@@ -680,6 +682,167 @@ export function useGetDiagnosisUsage<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetDiagnosisUsageQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Submit a request for more free AI analyses
+ */
+export const getCreateUpgradeRequestUrl = () => {
+  return `/api/upgrade-request`;
+};
+
+export const createUpgradeRequest = async (
+  upgradeRequestBody: UpgradeRequestBody,
+  options?: RequestInit,
+): Promise<UpgradeRequestStatus> => {
+  return customFetch<UpgradeRequestStatus>(getCreateUpgradeRequestUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(upgradeRequestBody),
+  });
+};
+
+export const getCreateUpgradeRequestMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createUpgradeRequest>>,
+    TError,
+    { data: BodyType<UpgradeRequestBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createUpgradeRequest>>,
+  TError,
+  { data: BodyType<UpgradeRequestBody> },
+  TContext
+> => {
+  const mutationKey = ["createUpgradeRequest"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createUpgradeRequest>>,
+    { data: BodyType<UpgradeRequestBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createUpgradeRequest(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateUpgradeRequestMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createUpgradeRequest>>
+>;
+export type CreateUpgradeRequestMutationBody = BodyType<UpgradeRequestBody>;
+export type CreateUpgradeRequestMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Submit a request for more free AI analyses
+ */
+export const useCreateUpgradeRequest = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createUpgradeRequest>>,
+    TError,
+    { data: BodyType<UpgradeRequestBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createUpgradeRequest>>,
+  TError,
+  { data: BodyType<UpgradeRequestBody> },
+  TContext
+> => {
+  return useMutation(getCreateUpgradeRequestMutationOptions(options));
+};
+
+/**
+ * @summary Get the current user's upgrade request status
+ */
+export const getGetUpgradeRequestUrl = () => {
+  return `/api/upgrade-request`;
+};
+
+export const getUpgradeRequest = async (
+  options?: RequestInit,
+): Promise<UpgradeRequestStatus> => {
+  return customFetch<UpgradeRequestStatus>(getGetUpgradeRequestUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetUpgradeRequestQueryKey = () => {
+  return [`/api/upgrade-request`] as const;
+};
+
+export const getGetUpgradeRequestQueryOptions = <
+  TData = Awaited<ReturnType<typeof getUpgradeRequest>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getUpgradeRequest>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetUpgradeRequestQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getUpgradeRequest>>
+  > = ({ signal }) => getUpgradeRequest({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getUpgradeRequest>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetUpgradeRequestQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getUpgradeRequest>>
+>;
+export type GetUpgradeRequestQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get the current user's upgrade request status
+ */
+
+export function useGetUpgradeRequest<
+  TData = Awaited<ReturnType<typeof getUpgradeRequest>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getUpgradeRequest>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetUpgradeRequestQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

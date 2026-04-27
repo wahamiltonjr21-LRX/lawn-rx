@@ -414,6 +414,32 @@ export const GetDiagnosisUsageResponse = zod.object({
 });
 
 /**
+ * @summary Submit a request for more free AI analyses
+ */
+export const createUpgradeRequestBodyMessageMax = 1000;
+
+export const CreateUpgradeRequestBody = zod.object({
+  message: zod.string().max(createUpgradeRequestBodyMessageMax),
+});
+
+export const CreateUpgradeRequestResponse = zod.object({
+  submitted: zod.boolean(),
+  status: zod.enum(["pending", "fulfilled"]).nullable(),
+  message: zod.string().nullish(),
+  createdAt: zod.coerce.date().nullish(),
+});
+
+/**
+ * @summary Get the current user's upgrade request status
+ */
+export const GetUpgradeRequestResponse = zod.object({
+  submitted: zod.boolean(),
+  status: zod.enum(["pending", "fulfilled"]).nullable(),
+  message: zod.string().nullish(),
+  createdAt: zod.coerce.date().nullish(),
+});
+
+/**
  * @summary Get the currently authenticated user
  */
 export const GetCurrentAuthUserHeader = zod.object({

@@ -20,7 +20,7 @@ export default function About() {
         </div>
         
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          LawnIQ AI combines advanced visual recognition with deep horticultural expertise to diagnose issues and help you grow the yard you've always wanted.
+          LawnRX combines advanced visual recognition with deep horticultural expertise to diagnose issues and help you grow the yard you've always wanted.
         </p>
       </section>
 
