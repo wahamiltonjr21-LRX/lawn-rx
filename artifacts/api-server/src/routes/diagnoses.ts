@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { db, diagnosesTable } from "@workspace/db";
 import {
@@ -102,6 +102,10 @@ const RESPONSE_SCHEMA = {
 } as const;
 
 router.post("/diagnoses", async (req, res) => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
   const parsed = AnalyzeLawnBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "Invalid request", details: parsed.error.flatten() });
@@ -185,16 +189,28 @@ Look at the attached photo carefully. Diagnose the most likely cause and produce
   }
 });
 
-router.get("/diagnoses", async (_req, res) => {
+router.get("/diagnoses", async (req, res) => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
   const rows = await db
     .select()
     .from(diagnosesTable)
+    .where(eq(diagnosesTable.userId, req.user.id))
     .orderBy(desc(diagnosesTable.createdAt));
   res.json(rows.map(rowToDiagnosis));
 });
 
-router.get("/diagnoses/summary", async (_req, res) => {
-  const rows = await db.select().from(diagnosesTable);
+router.get("/diagnoses/summary", async (req, res) => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const rows = await db
+    .select()
+    .from(diagnosesTable)
+    .where(eq(diagnosesTable.userId, req.user.id));
   const totalSaved = rows.length;
   const averageHealthScore = totalSaved
     ? Math.round(rows.reduce((acc, r) => acc + r.healthScore, 0) / totalSaved)
@@ -232,6 +248,10 @@ router.get("/diagnoses/summary", async (_req, res) => {
 });
 
 router.post("/diagnoses/save", async (req, res) => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
   const parsed = SaveDiagnosisBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "Invalid request", details: parsed.error.flatten() });
@@ -242,6 +262,7 @@ router.post("/diagnoses/save", async (req, res) => {
   const [row] = await db
     .insert(diagnosesTable)
     .values({
+      userId: req.user.id,
       title: diagnosis.title,
       severity: diagnosis.severity,
       healthScore: diagnosis.healthScore,
@@ -263,6 +284,10 @@ router.post("/diagnoses/save", async (req, res) => {
 });
 
 router.get("/diagnoses/:id", async (req, res) => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
   const parsed = GetDiagnosisParams.safeParse(req.params);
   if (!parsed.success) {
     res.status(400).json({ error: "Invalid id" });
@@ -271,7 +296,7 @@ router.get("/diagnoses/:id", async (req, res) => {
   const [row] = await db
     .select()
     .from(diagnosesTable)
-    .where(eq(diagnosesTable.id, parsed.data.id))
+    .where(and(eq(diagnosesTable.id, parsed.data.id), eq(diagnosesTable.userId, req.user.id)))
     .limit(1);
   if (!row) {
     res.status(404).json({ error: "Not found" });
@@ -281,12 +306,18 @@ router.get("/diagnoses/:id", async (req, res) => {
 });
 
 router.delete("/diagnoses/:id", async (req, res) => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
   const parsed = DeleteDiagnosisParams.safeParse(req.params);
   if (!parsed.success) {
     res.status(400).json({ error: "Invalid id" });
     return;
   }
-  await db.delete(diagnosesTable).where(eq(diagnosesTable.id, parsed.data.id));
+  await db
+    .delete(diagnosesTable)
+    .where(and(eq(diagnosesTable.id, parsed.data.id), eq(diagnosesTable.userId, req.user.id)));
   res.status(204).send();
 });
 

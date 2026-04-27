@@ -1,7 +1,9 @@
-import { pgTable, text, integer, timestamp, jsonb, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, integer, timestamp, jsonb, uuid, varchar } from "drizzle-orm/pg-core";
+import { usersTable } from "./auth";
 
 export const diagnosesTable = pgTable("diagnoses", {
   id: uuid("id").primaryKey().defaultRandom(),
+  userId: varchar("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   severity: text("severity").notNull(),
   healthScore: integer("health_score").notNull(),

@@ -35,3 +35,4 @@ Mobile-first React+Vite app for AI-powered lawn diagnosis. Users upload a photo,
 - API: `POST /diagnoses` (analyze), `POST /diagnoses/save`, `GET /diagnoses`, `GET /diagnoses/:id`, `DELETE /diagnoses/:id`, `GET /diagnoses/summary`.
 - DB: `diagnoses` table in `lib/db/src/schema/diagnoses.ts` (severity, healthScore, advice, plan steps as JSON).
 - AI: `gpt-5.4` via `@workspace/integrations-openai-ai-server`, JSON-schema response_format, photo passed as base64 data URL, body limit bumped to 20mb.
+- Auth: Replit Auth (OIDC). Sign-in gate wraps the app via `@workspace/replit-auth-web`'s `useAuth()`. All `/diagnoses` routes require auth and scope rows by `userId` foreign key on the `diagnoses` table.

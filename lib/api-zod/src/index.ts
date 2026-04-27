@@ -7,3 +7,5 @@ export type { GrassType } from "./generated/types/grassType";
 export type { IssueAppearance } from "./generated/types/issueAppearance";
 export type { Severity } from "./generated/types/severity";
 export type { HealthStatus } from "./generated/types/healthStatus";
+export type { AuthUser } from "./generated/types/authUser";
+export type { AuthUserEnvelope } from "./generated/types/authUserEnvelope";
