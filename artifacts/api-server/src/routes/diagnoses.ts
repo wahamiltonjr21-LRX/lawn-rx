@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
-import { db, diagnosesTable } from "@workspace/db";
+import { db, diagnosesTable, usersTable } from "@workspace/db";
 import {
   AnalyzeLawnBody,
   SaveDiagnosisBody,
@@ -9,6 +9,8 @@ import {
   DeleteDiagnosisParams,
 } from "@workspace/api-zod";
 import { openai } from "@workspace/integrations-openai-ai-server";
+
+const FREE_ANALYSIS_LIMIT = 5;
 
 const router: IRouter = Router();
 
@@ -113,6 +115,21 @@ router.post("/diagnoses", async (req, res) => {
   }
   const body = parsed.data;
 
+  const [usageRow] = await db
+    .select({ analysisCount: usersTable.analysisCount })
+    .from(usersTable)
+    .where(eq(usersTable.id, req.user.id))
+    .limit(1);
+  const used = usageRow?.analysisCount ?? 0;
+  if (used >= FREE_ANALYSIS_LIMIT) {
+    res.status(403).json({
+      error: `You've used all ${FREE_ANALYSIS_LIMIT} of your free AI lawn analyses.`,
+      used,
+      limit: FREE_ANALYSIS_LIMIT,
+    });
+    return;
+  }
+
   const userText = `Lawn details from the homeowner:
 - Visual appearance: ${body.issueAppearance}
 - Grass type: ${body.grassType}
@@ -182,11 +199,34 @@ Look at the attached photo carefully. Diagnose the most likely cause and produce
       createdAt: new Date().toISOString(),
     };
 
+    await db
+      .update(usersTable)
+      .set({ analysisCount: sql`${usersTable.analysisCount} + 1` })
+      .where(eq(usersTable.id, req.user.id));
+
     res.json(diagnosis);
   } catch (err) {
     req.log.error({ err }, "Failed to analyze lawn");
     res.status(502).json({ error: "Failed to analyze lawn photo. Please try again." });
   }
+});
+
+router.get("/diagnoses/usage", async (req, res) => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const [row] = await db
+    .select({ analysisCount: usersTable.analysisCount })
+    .from(usersTable)
+    .where(eq(usersTable.id, req.user.id))
+    .limit(1);
+  const used = row?.analysisCount ?? 0;
+  res.json({
+    used,
+    limit: FREE_ANALYSIS_LIMIT,
+    remaining: Math.max(0, FREE_ANALYSIS_LIMIT - used),
+  });
 });
 
 router.get("/diagnoses", async (req, res) => {

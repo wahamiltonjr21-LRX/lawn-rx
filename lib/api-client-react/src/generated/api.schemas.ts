@@ -93,6 +93,12 @@ export interface SaveDiagnosisBody {
   nickname?: string;
 }
 
+export interface DiagnosisUsage {
+  used: number;
+  limit: number;
+  remaining: number;
+}
+
 export type DiagnosesSummarySeverityCounts = {
   Low: number;
   Medium: number;

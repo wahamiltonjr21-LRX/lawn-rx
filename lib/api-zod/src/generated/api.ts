@@ -405,6 +405,15 @@ export const GetDiagnosesSummaryResponse = zod.object({
 });
 
 /**
+ * @summary Get the current user's AI analysis usage
+ */
+export const GetDiagnosisUsageResponse = zod.object({
+  used: zod.number(),
+  limit: zod.number(),
+  remaining: zod.number(),
+});
+
+/**
  * @summary Get the currently authenticated user
  */
 export const GetCurrentAuthUserHeader = zod.object({

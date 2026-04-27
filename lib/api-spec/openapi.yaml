@@ -125,6 +125,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DiagnosesSummary"
+  /diagnoses/usage:
+    get:
+      operationId: getDiagnosisUsage
+      tags: [diagnoses]
+      summary: Get the current user's AI analysis usage
+      responses:
+        "200":
+          description: Usage info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiagnosisUsage"
   /auth/user:
     get:
       tags: [Auth]
@@ -384,6 +396,16 @@ components:
         nickname:
           type: string
           description: Optional friendly nickname for the saved plan
+    DiagnosisUsage:
+      type: object
+      required: [used, limit, remaining]
+      properties:
+        used:
+          type: integer
+        limit:
+          type: integer
+        remaining:
+          type: integer
     DiagnosesSummary:
       type: object
       required:

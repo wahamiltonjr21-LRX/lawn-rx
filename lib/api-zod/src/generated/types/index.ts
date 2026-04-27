@@ -15,6 +15,7 @@ export * from "./diagnosesSummary";
 export * from "./diagnosesSummarySeverityCounts";
 export * from "./diagnosis";
 export * from "./diagnosisStep";
+export * from "./diagnosisUsage";
 export * from "./errorEnvelope";
 export * from "./grassType";
 export * from "./handleBrowserLoginCallbackParams";

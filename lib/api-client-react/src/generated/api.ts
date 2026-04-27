@@ -22,6 +22,7 @@ import type {
   BeginBrowserLoginParams,
   DiagnosesSummary,
   Diagnosis,
+  DiagnosisUsage,
   ErrorEnvelope,
   HandleBrowserLoginCallbackParams,
   HealthStatus,
@@ -604,6 +605,81 @@ export function useGetDiagnosesSummary<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetDiagnosesSummaryQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get the current user's AI analysis usage
+ */
+export const getGetDiagnosisUsageUrl = () => {
+  return `/api/diagnoses/usage`;
+};
+
+export const getDiagnosisUsage = async (
+  options?: RequestInit,
+): Promise<DiagnosisUsage> => {
+  return customFetch<DiagnosisUsage>(getGetDiagnosisUsageUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetDiagnosisUsageQueryKey = () => {
+  return [`/api/diagnoses/usage`] as const;
+};
+
+export const getGetDiagnosisUsageQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDiagnosisUsage>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getDiagnosisUsage>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetDiagnosisUsageQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getDiagnosisUsage>>
+  > = ({ signal }) => getDiagnosisUsage({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDiagnosisUsage>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetDiagnosisUsageQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDiagnosisUsage>>
+>;
+export type GetDiagnosisUsageQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get the current user's AI analysis usage
+ */
+
+export function useGetDiagnosisUsage<
+  TData = Awaited<ReturnType<typeof getDiagnosisUsage>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getDiagnosisUsage>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetDiagnosisUsageQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

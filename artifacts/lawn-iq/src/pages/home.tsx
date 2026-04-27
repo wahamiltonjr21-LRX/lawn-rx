@@ -3,7 +3,7 @@ import { Camera, Upload, Sparkles, CheckCircle2, AlertTriangle, Droplets, Sun, A
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { useAnalyzeLawn, useSaveDiagnosis, getListDiagnosesQueryKey, getGetDiagnosesSummaryQueryKey, IssueAppearance, GrassType, type Diagnosis } from "@workspace/api-client-react";
+import { useAnalyzeLawn, useSaveDiagnosis, useGetDiagnosisUsage, getListDiagnosesQueryKey, getGetDiagnosesSummaryQueryKey, getGetDiagnosisUsageQueryKey, IssueAppearance, GrassType, type Diagnosis } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 
@@ -21,6 +21,9 @@ export default function Home() {
 
   const analyzeLawn = useAnalyzeLawn();
   const saveDiagnosis = useSaveDiagnosis();
+  const { data: usage } = useGetDiagnosisUsage();
+  const remaining = usage?.remaining ?? null;
+  const limitReached = remaining !== null && remaining <= 0;
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -64,18 +67,32 @@ export default function Home() {
         },
       });
       setCurrentDiagnosis(result);
-      
+      queryClient.invalidateQueries({ queryKey: getGetDiagnosisUsageQueryKey() });
+
       // Smooth scroll to results
       setTimeout(() => {
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
       }, 100);
-      
-    } catch (error) {
-      toast({
-        title: "Analysis failed",
-        description: "We couldn't analyze the photo. Please try again.",
-        variant: "destructive",
-      });
+
+    } catch (error: unknown) {
+      const status =
+        typeof error === "object" && error !== null && "status" in error
+          ? Number((error as { status?: number }).status)
+          : null;
+      if (status === 403) {
+        queryClient.invalidateQueries({ queryKey: getGetDiagnosisUsageQueryKey() });
+        toast({
+          title: "Free analysis limit reached",
+          description: `You've used all 5 free AI lawn diagnoses. Get in touch to unlock more.`,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Analysis failed",
+          description: "We couldn't analyze the photo. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -203,25 +220,52 @@ export default function Home() {
             </div>
           </div>
 
-          <Button 
-            onClick={handleAnalyze} 
-            disabled={analyzeLawn.isPending || !photo}
-            className="w-full py-6 text-lg rounded-xl shadow-md relative overflow-hidden group"
-          >
-            {analyzeLawn.isPending ? (
-              <span className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 animate-pulse" /> Analyzing Lawn...
-              </span>
-            ) : (
-              <span className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" /> Get Recovery Plan
-              </span>
+          <div className="space-y-3">
+            {usage && (
+              <div
+                data-testid="text-usage"
+                className={`flex items-center justify-between gap-2 px-4 py-2.5 rounded-xl text-sm border ${
+                  limitReached
+                    ? "bg-destructive/5 border-destructive/30 text-destructive"
+                    : remaining !== null && remaining <= 2
+                      ? "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-300"
+                      : "bg-primary/5 border-primary/20 text-foreground/80"
+                }`}
+              >
+                <span className="flex items-center gap-2 font-medium">
+                  <Sparkles className="w-4 h-4" />
+                  {limitReached
+                    ? "Free analysis limit reached"
+                    : `${usage.remaining} of ${usage.limit} free AI analyses left`}
+                </span>
+                <span className="text-xs opacity-70">{usage.used} used</span>
+              </div>
             )}
-            
-            {analyzeLawn.isPending && (
-              <div className="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite] -translate-x-full" style={{ backgroundImage: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)' }} />
-            )}
-          </Button>
+            <Button
+              onClick={handleAnalyze}
+              disabled={analyzeLawn.isPending || !photo || limitReached}
+              className="w-full py-6 text-lg rounded-xl shadow-md relative overflow-hidden group"
+              data-testid="button-analyze"
+            >
+              {analyzeLawn.isPending ? (
+                <span className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 animate-pulse" /> Analyzing Lawn...
+                </span>
+              ) : limitReached ? (
+                <span className="flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5" /> Free Limit Reached
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" /> Get Recovery Plan
+                </span>
+              )}
+
+              {analyzeLawn.isPending && (
+                <div className="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite] -translate-x-full" style={{ backgroundImage: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)' }} />
+              )}
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
