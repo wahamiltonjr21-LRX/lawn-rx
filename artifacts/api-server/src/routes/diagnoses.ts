@@ -9,6 +9,7 @@ import {
   DeleteDiagnosisParams,
 } from "@workspace/api-zod";
 import { openai } from "@workspace/integrations-openai-ai-server";
+import { stripeStorage } from "../stripeStorage";
 
 const FREE_ANALYSIS_LIMIT = 5;
 
@@ -116,12 +117,19 @@ router.post("/diagnoses", async (req, res) => {
   const body = parsed.data;
 
   const [usageRow] = await db
-    .select({ analysisCount: usersTable.analysisCount })
+    .select({ analysisCount: usersTable.analysisCount, stripeCustomerId: usersTable.stripeCustomerId })
     .from(usersTable)
     .where(eq(usersTable.id, req.user.id))
     .limit(1);
   const used = usageRow?.analysisCount ?? 0;
-  if (used >= FREE_ANALYSIS_LIMIT) {
+
+  let isPro = false;
+  if (usageRow?.stripeCustomerId) {
+    const activeSub = await stripeStorage.getActiveSubscriptionForCustomer(usageRow.stripeCustomerId);
+    isPro = !!activeSub;
+  }
+
+  if (!isPro && used >= FREE_ANALYSIS_LIMIT) {
     res.status(403).json({
       error: `You've used all ${FREE_ANALYSIS_LIMIT} of your free AI lawn analyses.`,
       used,

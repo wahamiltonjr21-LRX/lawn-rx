@@ -3,6 +3,7 @@ import healthRouter from "./health";
 import diagnosesRouter from "./diagnoses";
 import authRouter from "./auth";
 import upgradeRequestRouter from "./upgrade-request";
+import stripeRouter from "./stripe";
 
 const router: IRouter = Router();
 
@@ -10,5 +11,6 @@ router.use(healthRouter);
 router.use(authRouter);
 router.use(diagnosesRouter);
 router.use(upgradeRequestRouter);
+router.use(stripeRouter);
 
 export default router;

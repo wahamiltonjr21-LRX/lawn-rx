@@ -1,10 +1,28 @@
 import { Link } from "wouter";
-import { Sparkles, Brain, Leaf, ArrowRight, ShieldCheck } from "lucide-react";
+import { Sparkles, Brain, Leaf, ArrowRight, ShieldCheck, CreditCard, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import heroImg from "@/assets/images/about-hero.png";
+import { useSubscription, useOpenPortal } from "@/hooks/use-subscription";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { UpgradeModal } from "@/components/upgrade-modal";
 
 export default function About() {
+  const { data: subData, isLoading: subLoading } = useSubscription();
+  const isPro = subData?.isPro === true;
+  const openPortal = useOpenPortal();
+  const { toast } = useToast();
+  const [showUpgrade, setShowUpgrade] = useState(false);
+
+  const handleManageBilling = async () => {
+    try {
+      const { url } = await openPortal.mutateAsync();
+      if (url) window.location.href = url;
+    } catch {
+      toast({ title: "Couldn't open billing portal", description: "Please try again.", variant: "destructive" });
+    }
+  };
   return (
     <div className="space-y-12 max-w-3xl mx-auto pb-20">
       
@@ -97,6 +115,52 @@ export default function About() {
         </div>
       </section>
 
+      {/* Subscription Status */}
+      <section>
+        <Card className={`border-2 ${isPro ? "border-primary/30 bg-primary/5" : "border-border"}`}>
+          <CardContent className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <CreditCard className="w-5 h-5 text-muted-foreground" />
+                <h3 className="font-semibold text-foreground">Membership</h3>
+                {isPro && (
+                  <span className="text-xs font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
+                    Pro
+                  </span>
+                )}
+              </div>
+              {subLoading ? (
+                <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                  <Loader2 className="w-4 h-4 animate-spin" /> Checking status...
+                </div>
+              ) : isPro ? (
+                <p className="text-sm text-muted-foreground">You have unlimited AI analyses and full access to care alerts.</p>
+              ) : (
+                <p className="text-sm text-muted-foreground">Free plan · 5 AI analyses included</p>
+              )}
+            </div>
+            {isPro ? (
+              <Button
+                variant="outline"
+                onClick={handleManageBilling}
+                disabled={openPortal.isPending}
+                className="shrink-0 rounded-xl"
+              >
+                {openPortal.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                Manage Billing
+              </Button>
+            ) : (
+              <Button
+                onClick={() => setShowUpgrade(true)}
+                className="shrink-0 rounded-xl"
+              >
+                <Sparkles className="w-4 h-4 mr-2" /> Upgrade to Pro
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      </section>
+
       {/* CTA */}
       <section className="text-center pt-4">
         <h2 className="text-2xl font-bold mb-4">Ready to save your grass?</h2>
@@ -106,6 +170,8 @@ export default function About() {
           </Button>
         </Link>
       </section>
+
+      {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
 
     </div>
   );

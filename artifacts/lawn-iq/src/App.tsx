@@ -11,6 +11,7 @@ import Home from "@/pages/home";
 import Plans from "@/pages/plans";
 import PlanDetail from "@/pages/plan-detail";
 import About from "@/pages/about";
+import CareAlerts from "@/pages/care-alerts";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/plans" component={Plans} />
       <Route path="/plans/:id" component={PlanDetail} />
+      <Route path="/care-alerts" component={CareAlerts} />
       <Route path="/about" component={About} />
       <Route component={NotFound} />
     </Switch>

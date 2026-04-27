@@ -1,11 +1,13 @@
 import { useState, useRef } from "react";
-import { Camera, Upload, Sparkles, CheckCircle2, AlertTriangle, Droplets, Sun, Activity, Save, Send } from "lucide-react";
+import { Camera, Upload, Sparkles, AlertTriangle, Droplets, Sun, Activity, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { useAnalyzeLawn, useSaveDiagnosis, useGetDiagnosisUsage, useCreateUpgradeRequest, useGetUpgradeRequest, getListDiagnosesQueryKey, getGetDiagnosesSummaryQueryKey, getGetDiagnosisUsageQueryKey, getGetUpgradeRequestQueryKey, IssueAppearance, GrassType, type Diagnosis } from "@workspace/api-client-react";
+import { useAnalyzeLawn, useSaveDiagnosis, useGetDiagnosisUsage, getListDiagnosesQueryKey, getGetDiagnosesSummaryQueryKey, getGetDiagnosisUsageQueryKey, IssueAppearance, GrassType, type Diagnosis } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import { useSubscription } from "@/hooks/use-subscription";
+import { UpgradeModal } from "@/components/upgrade-modal";
 
 export default function Home() {
   const [photo, setPhoto] = useState<string | null>(null);
@@ -20,34 +22,15 @@ export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  const [upgradeMessage, setUpgradeMessage] = useState("");
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const analyzeLawn = useAnalyzeLawn();
   const saveDiagnosis = useSaveDiagnosis();
-  const createUpgradeRequest = useCreateUpgradeRequest();
   const { data: usage } = useGetDiagnosisUsage();
-  const { data: upgradeRequest, refetch: refetchUpgradeRequest } = useGetUpgradeRequest();
+  const { data: subData } = useSubscription();
+  const isPro = subData?.isPro === true;
   const remaining = usage?.remaining ?? null;
-  const limitReached = remaining !== null && remaining <= 0;
-  const alreadyRequested = upgradeRequest?.submitted === true;
-
-  const handleRequestUpgrade = async () => {
-    try {
-      await createUpgradeRequest.mutateAsync({ data: { message: upgradeMessage } });
-      await refetchUpgradeRequest();
-      queryClient.invalidateQueries({ queryKey: getGetUpgradeRequestQueryKey() });
-      toast({
-        title: "Request submitted!",
-        description: "We'll review your request and unlock more analyses soon.",
-      });
-    } catch {
-      toast({
-        title: "Failed to submit",
-        description: "Please try again later.",
-        variant: "destructive",
-      });
-    }
-  };
+  const limitReached = !isPro && remaining !== null && remaining <= 0;
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -105,11 +88,7 @@ export default function Home() {
           : null;
       if (status === 403) {
         queryClient.invalidateQueries({ queryKey: getGetDiagnosisUsageQueryKey() });
-        toast({
-          title: "Free analysis limit reached",
-          description: `You've used all 5 free AI lawn diagnoses. Get in touch to unlock more.`,
-          variant: "destructive",
-        });
+        setShowUpgradeModal(true);
       } else {
         toast({
           title: "Analysis failed",
@@ -332,48 +311,17 @@ export default function Home() {
       </Card>
 
       {limitReached && (
-        <Card className="border-2 border-amber-200 dark:border-amber-900/50 bg-amber-50/50 dark:bg-amber-950/20 animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <CardContent className="p-6 space-y-4">
-            {alreadyRequested ? (
-              <div className="flex flex-col items-center text-center gap-3 py-2">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <CheckCircle2 className="w-7 h-7 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg text-foreground">Request received</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    We'll review your request and unlock more free analyses for you shortly.
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <>
-                <div>
-                  <h3 className="font-bold text-lg text-foreground">Want more free analyses?</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    You've used all 5 free AI diagnoses. Drop us a note and we'll manually unlock more for you.
-                  </p>
-                </div>
-                <textarea
-                  value={upgradeMessage}
-                  onChange={(e) => setUpgradeMessage(e.target.value)}
-                  placeholder="Tell us about your lawn or why you'd like more analyses..."
-                  className="w-full min-h-[90px] p-3 rounded-xl border border-input bg-background text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-colors"
-                />
-                <Button
-                  onClick={handleRequestUpgrade}
-                  disabled={createUpgradeRequest.isPending}
-                  className="w-full rounded-xl"
-                  variant="outline"
-                >
-                  <Send className="w-4 h-4 mr-2" />
-                  {createUpgradeRequest.isPending ? "Sending..." : "Send Request"}
-                </Button>
-              </>
-            )}
-          </CardContent>
-        </Card>
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-300 text-center py-4">
+          <Button
+            onClick={() => setShowUpgradeModal(true)}
+            className="rounded-xl px-8"
+          >
+            <Sparkles className="w-4 h-4 mr-2" /> Upgrade to Pro — $19.99/month
+          </Button>
+        </div>
       )}
+
+      {showUpgradeModal && <UpgradeModal onClose={() => setShowUpgradeModal(false)} />}
 
       {currentDiagnosis && (
         <div className="animate-in fade-in slide-in-from-bottom-8 duration-500 space-y-6">
