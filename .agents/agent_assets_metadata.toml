@@ -1,0 +1,14 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "LLiwqofkAakWYH36uR7wt"
+uri = "file://artifacts/lawn-iq/src/assets/images/about-hero.png"
+type = "image"
+title = "Dewy morning lawn hero"
+
+[[generated]]
+id = "tKn5W3KkyoMmAAO06vDcZ"
+uri = "file://artifacts/lawn-iq/src/assets/images/empty-plans.png"
+type = "image"
+title = "Empty state lawn tools"

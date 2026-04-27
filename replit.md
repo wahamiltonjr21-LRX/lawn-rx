@@ -25,3 +25,13 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - `pnpm --filter @workspace/api-server run dev` — run API server locally
 
 See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
+
+## Artifacts
+
+### LawnIQ AI (`artifacts/lawn-iq`, web, `/`)
+Mobile-first React+Vite app for AI-powered lawn diagnosis. Users upload a photo, fill in problem details (issue appearance, grass type, free-text description), and receive a real OpenAI Vision (gpt-5.4) analysis with health score, severity, advice tiles, and a step-by-step recovery plan. Plans can be saved, listed with aggregate summary, viewed in detail, and deleted.
+
+- Frontend pages: Diagnose (`/`), My Plans (`/plans`), Plan Detail (`/plans/:id`), About (`/about`).
+- API: `POST /diagnoses` (analyze), `POST /diagnoses/save`, `GET /diagnoses`, `GET /diagnoses/:id`, `DELETE /diagnoses/:id`, `GET /diagnoses/summary`.
+- DB: `diagnoses` table in `lib/db/src/schema/diagnoses.ts` (severity, healthScore, advice, plan steps as JSON).
+- AI: `gpt-5.4` via `@workspace/integrations-openai-ai-server`, JSON-schema response_format, photo passed as base64 data URL, body limit bumped to 20mb.

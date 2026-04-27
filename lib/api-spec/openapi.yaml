@@ -3,13 +3,15 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: LawnIQ API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: diagnoses
+    description: Lawn diagnosis operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,103 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /diagnoses:
+    get:
+      operationId: listDiagnoses
+      tags: [diagnoses]
+      summary: List saved diagnoses
+      description: Returns all saved lawn diagnoses, newest first
+      responses:
+        "200":
+          description: A list of diagnoses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Diagnosis"
+    post:
+      operationId: analyzeLawn
+      tags: [diagnoses]
+      summary: Analyze a lawn photo
+      description: Sends the lawn photo and details to the AI vision model and returns a diagnosis. Does not persist by default.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalyzeLawnBody"
+      responses:
+        "200":
+          description: Diagnosis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Diagnosis"
+  /diagnoses/{id}:
+    get:
+      operationId: getDiagnosis
+      tags: [diagnoses]
+      summary: Get a saved diagnosis by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A single diagnosis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Diagnosis"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteDiagnosis
+      tags: [diagnoses]
+      summary: Delete a saved diagnosis
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+  /diagnoses/save:
+    post:
+      operationId: saveDiagnosis
+      tags: [diagnoses]
+      summary: Save a diagnosis to the recovery plan log
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SaveDiagnosisBody"
+      responses:
+        "200":
+          description: Saved diagnosis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Diagnosis"
+  /diagnoses/summary:
+    get:
+      operationId: getDiagnosesSummary
+      tags: [diagnoses]
+      summary: Aggregate summary of saved diagnoses
+      description: Counts, average health score, and severity breakdown across saved diagnoses
+      responses:
+        "200":
+          description: Summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiagnosesSummary"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +132,151 @@ components:
           type: string
       required:
         - status
-
+    Severity:
+      type: string
+      enum: [Low, Medium, High]
+    GrassType:
+      type: string
+      enum:
+        - Unknown
+        - Tall Fescue
+        - Bermuda
+        - Zoysia
+        - Kentucky Bluegrass
+        - St. Augustine
+        - Ryegrass
+        - Centipede
+    IssueAppearance:
+      type: string
+      enum:
+        - Yellow grass
+        - Brown patches
+        - Dry or crispy
+        - Weeds
+        - Thin / bare spots
+        - Mossy / damp
+        - Looks healthy
+    AnalyzeLawnBody:
+      type: object
+      required:
+        - photoDataUrl
+        - issueAppearance
+        - grassType
+      properties:
+        photoDataUrl:
+          type: string
+          description: Base64 data URL of the lawn photo
+        issueAppearance:
+          $ref: "#/components/schemas/IssueAppearance"
+        grassType:
+          $ref: "#/components/schemas/GrassType"
+        description:
+          type: string
+          description: Free-form description from the user
+        location:
+          type: string
+          description: Optional region or climate context
+    DiagnosisStep:
+      type: object
+      required:
+        - title
+        - detail
+      properties:
+        title:
+          type: string
+        detail:
+          type: string
+        timing:
+          type: string
+          description: When to do this step (e.g. "This week", "Next 2 weeks")
+    Diagnosis:
+      type: object
+      required:
+        - id
+        - title
+        - severity
+        - healthScore
+        - confidence
+        - summary
+        - steps
+        - waterAdvice
+        - lightAdvice
+        - riskAdvice
+        - createdAt
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        severity:
+          $ref: "#/components/schemas/Severity"
+        healthScore:
+          type: integer
+          minimum: 0
+          maximum: 100
+        confidence:
+          type: integer
+          minimum: 0
+          maximum: 100
+        summary:
+          type: string
+        steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/DiagnosisStep"
+        waterAdvice:
+          type: string
+        lightAdvice:
+          type: string
+        riskAdvice:
+          type: string
+        grassType:
+          $ref: "#/components/schemas/GrassType"
+        issueAppearance:
+          $ref: "#/components/schemas/IssueAppearance"
+        description:
+          type: string
+        photoDataUrl:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    SaveDiagnosisBody:
+      type: object
+      required:
+        - diagnosis
+      properties:
+        diagnosis:
+          $ref: "#/components/schemas/Diagnosis"
+        nickname:
+          type: string
+          description: Optional friendly nickname for the saved plan
+    DiagnosesSummary:
+      type: object
+      required:
+        - totalSaved
+        - averageHealthScore
+        - severityCounts
+        - latestSavedAt
+      properties:
+        totalSaved:
+          type: integer
+        averageHealthScore:
+          type: integer
+        severityCounts:
+          type: object
+          required: [Low, Medium, High]
+          properties:
+            Low:
+              type: integer
+            Medium:
+              type: integer
+            High:
+              type: integer
+        latestSavedAt:
+          type: string
+          format: date-time
+          nullable: true
+        topIssue:
+          type: string
+          nullable: true
