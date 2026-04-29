@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Camera, Upload, Sparkles, AlertTriangle, Droplets, Sun, Activity, Save } from "lucide-react";
+import { Camera, Upload, Sparkles, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -8,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useSubscription } from "@/hooks/use-subscription";
 import { UpgradeModal } from "@/components/upgrade-modal";
+import { DiagnosisResult } from "@/components/diagnosis-result";
 
 export default function Home() {
   const [photo, setPhoto] = useState<string | null>(null);
@@ -323,98 +324,46 @@ export default function Home() {
 
       {showUpgradeModal && <UpgradeModal onClose={() => setShowUpgradeModal(false)} />}
 
-      {currentDiagnosis && (
-        <div className="animate-in fade-in slide-in-from-bottom-8 duration-500 space-y-6">
-          <Card className="overflow-hidden border-2 border-primary/20 shadow-lg">
-            <div className="bg-primary/5 p-6 border-b border-primary/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-semibold tracking-wide uppercase
-                    ${currentDiagnosis.severity === 'High' ? 'bg-destructive/10 text-destructive' : 
-                      currentDiagnosis.severity === 'Medium' ? 'bg-orange-500/10 text-orange-600' : 
-                      'bg-primary/10 text-primary'}`}
-                  >
-                    {currentDiagnosis.severity} Severity
-                  </span>
-                  <span className="text-sm text-muted-foreground flex items-center gap-1">
-                    <Activity className="w-3.5 h-3.5" /> {currentDiagnosis.confidence}% Confident
-                  </span>
+      {analyzeLawn.isPending && (
+        <div className="animate-in fade-in slide-in-from-bottom-6 duration-400">
+          <Card className="border-2 border-primary/20 overflow-hidden">
+            <div className="bg-gradient-to-br from-primary/5 to-emerald-50/50 dark:from-primary/10 dark:to-emerald-950/20 p-8 text-center space-y-5">
+              <div className="relative w-20 h-20 mx-auto">
+                <div className="absolute inset-0 rounded-full border-4 border-primary/20" />
+                <div className="absolute inset-0 rounded-full border-4 border-t-primary border-r-transparent border-b-transparent border-l-transparent animate-spin" />
+                <div className="absolute inset-2 rounded-full border-4 border-t-transparent border-r-primary/50 border-b-transparent border-l-transparent animate-spin" style={{ animationDuration: "1.5s", animationDirection: "reverse" }} />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Sparkles className="w-6 h-6 text-primary animate-pulse" />
                 </div>
-                <h2 className="text-2xl font-bold text-foreground">{currentDiagnosis.title}</h2>
               </div>
-              
-              <div className="flex items-center gap-4 bg-background px-4 py-3 rounded-2xl border border-border shadow-sm">
-                <div className="flex flex-col">
-                  <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Health</span>
-                  <span className="text-2xl font-bold leading-none text-foreground">{currentDiagnosis.healthScore}<span className="text-sm text-muted-foreground font-normal">/100</span></span>
-                </div>
-                <div className="w-12 h-12 rounded-full flex items-center justify-center" 
-                     style={{ background: `conic-gradient(hsl(var(--primary)) ${currentDiagnosis.healthScore}%, hsl(var(--muted)) 0)` }}>
-                  <div className="w-9 h-9 bg-background rounded-full" />
-                </div>
+              <div className="space-y-1.5">
+                <h3 className="text-xl font-bold text-foreground">Analyzing Your Lawn…</h3>
+                <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                  Our AI agronomist is examining the photo, identifying patterns, and building your personalized recovery plan.
+                </p>
+              </div>
+              <div className="flex justify-center gap-2">
+                {["Examining photo", "Identifying issue", "Building plan"].map((step, i) => (
+                  <span
+                    key={step}
+                    className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary/70 font-medium"
+                    style={{ animationDelay: `${i * 0.5}s` }}
+                  >
+                    {step}
+                  </span>
+                ))}
               </div>
             </div>
-            
-            <CardContent className="p-6 md:p-8 space-y-8">
-              <div className="prose prose-sm md:prose-base prose-green max-w-none text-muted-foreground">
-                <p className="text-lg leading-relaxed text-foreground/90 font-medium">{currentDiagnosis.summary}</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-2xl border border-blue-100 dark:border-blue-900/50">
-                  <div className="flex items-center gap-2 text-blue-700 dark:text-blue-400 font-semibold mb-2">
-                    <Droplets className="w-5 h-5" /> Water
-                  </div>
-                  <p className="text-sm text-blue-900/80 dark:text-blue-200/80">{currentDiagnosis.waterAdvice}</p>
-                </div>
-                <div className="bg-amber-50 dark:bg-amber-950/30 p-4 rounded-2xl border border-amber-100 dark:border-amber-900/50">
-                  <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-semibold mb-2">
-                    <Sun className="w-5 h-5" /> Light & Care
-                  </div>
-                  <p className="text-sm text-amber-900/80 dark:text-amber-200/80">{currentDiagnosis.lightAdvice}</p>
-                </div>
-                <div className="bg-rose-50 dark:bg-rose-950/30 p-4 rounded-2xl border border-rose-100 dark:border-rose-900/50">
-                  <div className="flex items-center gap-2 text-rose-700 dark:text-rose-400 font-semibold mb-2">
-                    <AlertTriangle className="w-5 h-5" /> Risk
-                  </div>
-                  <p className="text-sm text-rose-900/80 dark:text-rose-200/80">{currentDiagnosis.riskAdvice}</p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-xl font-bold">Recovery Plan</h3>
-                <div className="space-y-3">
-                  {currentDiagnosis.steps.map((step, index) => (
-                    <div key={index} className="flex gap-4 p-4 rounded-2xl bg-muted/30 border border-border/50">
-                      <div className="shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold">
-                        {index + 1}
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-foreground">{step.title}</h4>
-                        <p className="text-sm text-muted-foreground mt-1">{step.detail}</p>
-                        {step.timing && (
-                          <span className="inline-block mt-2 text-xs font-medium text-primary bg-primary/5 px-2.5 py-1 rounded-md">
-                            ⏱ {step.timing}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <Button 
-                onClick={handleSave} 
-                disabled={saveDiagnosis.isPending}
-                size="lg"
-                className="w-full rounded-xl"
-              >
-                <Save className="w-5 h-5 mr-2" />
-                {saveDiagnosis.isPending ? "Saving..." : "Save Plan to Dashboard"}
-              </Button>
-            </CardContent>
           </Card>
         </div>
+      )}
+
+      {currentDiagnosis && !analyzeLawn.isPending && (
+        <DiagnosisResult
+          diagnosis={currentDiagnosis}
+          onSave={handleSave}
+          isSaving={saveDiagnosis.isPending}
+        />
       )}
     </div>
   );

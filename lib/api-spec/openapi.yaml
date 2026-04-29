@@ -363,6 +363,25 @@ components:
         timing:
           type: string
           description: When to do this step (e.g. "This week", "Next 2 weeks")
+        priority:
+          type: string
+          enum: [immediate, soon, ongoing]
+          description: Urgency level for this step
+    TreatmentProduct:
+      type: object
+      required:
+        - type
+        - description
+      properties:
+        type:
+          type: string
+          description: Product category (e.g. "Systemic fungicide", "Slow-release nitrogen", "Pre-emergent herbicide")
+        description:
+          type: string
+          description: What to look for and how to apply it
+        caution:
+          type: string
+          description: Safety or timing caution if relevant
     Diagnosis:
       type: object
       required:
@@ -394,6 +413,31 @@ components:
           maximum: 100
         summary:
           type: string
+        causativeAgent:
+          type: string
+          description: Specific pathogen, pest, or abiotic factor identified (e.g. "Rhizoctonia solani")
+        estimatedRecovery:
+          type: string
+          description: Recovery timeline with treatment (e.g. "3–5 weeks with consistent care")
+        soilAdvice:
+          type: string
+          description: Soil health, pH, or aeration recommendation
+        seasonalNote:
+          type: string
+          description: Season-specific context for this diagnosis
+        differentialNote:
+          type: string
+          description: Other conditions considered and ruled out
+        preventionTips:
+          type: array
+          items:
+            type: string
+          description: Tips to prevent recurrence
+        treatmentProducts:
+          type: array
+          items:
+            $ref: "#/components/schemas/TreatmentProduct"
+          description: Product types recommended for treatment
         steps:
           type: array
           items:

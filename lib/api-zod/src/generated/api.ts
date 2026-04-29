@@ -38,6 +38,53 @@ export const ListDiagnosesResponseItem = zod.object({
     .min(listDiagnosesResponseConfidenceMin)
     .max(listDiagnosesResponseConfidenceMax),
   summary: zod.string(),
+  causativeAgent: zod
+    .string()
+    .optional()
+    .describe(
+      'Specific pathogen, pest, or abiotic factor identified (e.g. \"Rhizoctonia solani\")',
+    ),
+  estimatedRecovery: zod
+    .string()
+    .optional()
+    .describe(
+      'Recovery timeline with treatment (e.g. \"3–5 weeks with consistent care\")',
+    ),
+  soilAdvice: zod
+    .string()
+    .optional()
+    .describe("Soil health, pH, or aeration recommendation"),
+  seasonalNote: zod
+    .string()
+    .optional()
+    .describe("Season-specific context for this diagnosis"),
+  differentialNote: zod
+    .string()
+    .optional()
+    .describe("Other conditions considered and ruled out"),
+  preventionTips: zod
+    .array(zod.string())
+    .optional()
+    .describe("Tips to prevent recurrence"),
+  treatmentProducts: zod
+    .array(
+      zod.object({
+        type: zod
+          .string()
+          .describe(
+            'Product category (e.g. \"Systemic fungicide\", \"Slow-release nitrogen\", \"Pre-emergent herbicide\")',
+          ),
+        description: zod
+          .string()
+          .describe("What to look for and how to apply it"),
+        caution: zod
+          .string()
+          .optional()
+          .describe("Safety or timing caution if relevant"),
+      }),
+    )
+    .optional()
+    .describe("Product types recommended for treatment"),
   steps: zod.array(
     zod.object({
       title: zod.string(),
@@ -48,6 +95,10 @@ export const ListDiagnosesResponseItem = zod.object({
         .describe(
           'When to do this step (e.g. \"This week\", \"Next 2 weeks\")',
         ),
+      priority: zod
+        .enum(["immediate", "soon", "ongoing"])
+        .optional()
+        .describe("Urgency level for this step"),
     }),
   ),
   waterAdvice: zod.string(),
@@ -136,6 +187,53 @@ export const AnalyzeLawnResponse = zod.object({
     .min(analyzeLawnResponseConfidenceMin)
     .max(analyzeLawnResponseConfidenceMax),
   summary: zod.string(),
+  causativeAgent: zod
+    .string()
+    .optional()
+    .describe(
+      'Specific pathogen, pest, or abiotic factor identified (e.g. \"Rhizoctonia solani\")',
+    ),
+  estimatedRecovery: zod
+    .string()
+    .optional()
+    .describe(
+      'Recovery timeline with treatment (e.g. \"3–5 weeks with consistent care\")',
+    ),
+  soilAdvice: zod
+    .string()
+    .optional()
+    .describe("Soil health, pH, or aeration recommendation"),
+  seasonalNote: zod
+    .string()
+    .optional()
+    .describe("Season-specific context for this diagnosis"),
+  differentialNote: zod
+    .string()
+    .optional()
+    .describe("Other conditions considered and ruled out"),
+  preventionTips: zod
+    .array(zod.string())
+    .optional()
+    .describe("Tips to prevent recurrence"),
+  treatmentProducts: zod
+    .array(
+      zod.object({
+        type: zod
+          .string()
+          .describe(
+            'Product category (e.g. \"Systemic fungicide\", \"Slow-release nitrogen\", \"Pre-emergent herbicide\")',
+          ),
+        description: zod
+          .string()
+          .describe("What to look for and how to apply it"),
+        caution: zod
+          .string()
+          .optional()
+          .describe("Safety or timing caution if relevant"),
+      }),
+    )
+    .optional()
+    .describe("Product types recommended for treatment"),
   steps: zod.array(
     zod.object({
       title: zod.string(),
@@ -146,6 +244,10 @@ export const AnalyzeLawnResponse = zod.object({
         .describe(
           'When to do this step (e.g. \"This week\", \"Next 2 weeks\")',
         ),
+      priority: zod
+        .enum(["immediate", "soon", "ongoing"])
+        .optional()
+        .describe("Urgency level for this step"),
     }),
   ),
   waterAdvice: zod.string(),
@@ -205,6 +307,53 @@ export const GetDiagnosisResponse = zod.object({
     .min(getDiagnosisResponseConfidenceMin)
     .max(getDiagnosisResponseConfidenceMax),
   summary: zod.string(),
+  causativeAgent: zod
+    .string()
+    .optional()
+    .describe(
+      'Specific pathogen, pest, or abiotic factor identified (e.g. \"Rhizoctonia solani\")',
+    ),
+  estimatedRecovery: zod
+    .string()
+    .optional()
+    .describe(
+      'Recovery timeline with treatment (e.g. \"3–5 weeks with consistent care\")',
+    ),
+  soilAdvice: zod
+    .string()
+    .optional()
+    .describe("Soil health, pH, or aeration recommendation"),
+  seasonalNote: zod
+    .string()
+    .optional()
+    .describe("Season-specific context for this diagnosis"),
+  differentialNote: zod
+    .string()
+    .optional()
+    .describe("Other conditions considered and ruled out"),
+  preventionTips: zod
+    .array(zod.string())
+    .optional()
+    .describe("Tips to prevent recurrence"),
+  treatmentProducts: zod
+    .array(
+      zod.object({
+        type: zod
+          .string()
+          .describe(
+            'Product category (e.g. \"Systemic fungicide\", \"Slow-release nitrogen\", \"Pre-emergent herbicide\")',
+          ),
+        description: zod
+          .string()
+          .describe("What to look for and how to apply it"),
+        caution: zod
+          .string()
+          .optional()
+          .describe("Safety or timing caution if relevant"),
+      }),
+    )
+    .optional()
+    .describe("Product types recommended for treatment"),
   steps: zod.array(
     zod.object({
       title: zod.string(),
@@ -215,6 +364,10 @@ export const GetDiagnosisResponse = zod.object({
         .describe(
           'When to do this step (e.g. \"This week\", \"Next 2 weeks\")',
         ),
+      priority: zod
+        .enum(["immediate", "soon", "ongoing"])
+        .optional()
+        .describe("Urgency level for this step"),
     }),
   ),
   waterAdvice: zod.string(),
@@ -278,6 +431,53 @@ export const SaveDiagnosisBody = zod.object({
       .min(saveDiagnosisBodyDiagnosisConfidenceMin)
       .max(saveDiagnosisBodyDiagnosisConfidenceMax),
     summary: zod.string(),
+    causativeAgent: zod
+      .string()
+      .optional()
+      .describe(
+        'Specific pathogen, pest, or abiotic factor identified (e.g. \"Rhizoctonia solani\")',
+      ),
+    estimatedRecovery: zod
+      .string()
+      .optional()
+      .describe(
+        'Recovery timeline with treatment (e.g. \"3–5 weeks with consistent care\")',
+      ),
+    soilAdvice: zod
+      .string()
+      .optional()
+      .describe("Soil health, pH, or aeration recommendation"),
+    seasonalNote: zod
+      .string()
+      .optional()
+      .describe("Season-specific context for this diagnosis"),
+    differentialNote: zod
+      .string()
+      .optional()
+      .describe("Other conditions considered and ruled out"),
+    preventionTips: zod
+      .array(zod.string())
+      .optional()
+      .describe("Tips to prevent recurrence"),
+    treatmentProducts: zod
+      .array(
+        zod.object({
+          type: zod
+            .string()
+            .describe(
+              'Product category (e.g. \"Systemic fungicide\", \"Slow-release nitrogen\", \"Pre-emergent herbicide\")',
+            ),
+          description: zod
+            .string()
+            .describe("What to look for and how to apply it"),
+          caution: zod
+            .string()
+            .optional()
+            .describe("Safety or timing caution if relevant"),
+        }),
+      )
+      .optional()
+      .describe("Product types recommended for treatment"),
     steps: zod.array(
       zod.object({
         title: zod.string(),
@@ -288,6 +488,10 @@ export const SaveDiagnosisBody = zod.object({
           .describe(
             'When to do this step (e.g. \"This week\", \"Next 2 weeks\")',
           ),
+        priority: zod
+          .enum(["immediate", "soon", "ongoing"])
+          .optional()
+          .describe("Urgency level for this step"),
       }),
     ),
     waterAdvice: zod.string(),
@@ -345,6 +549,53 @@ export const SaveDiagnosisResponse = zod.object({
     .min(saveDiagnosisResponseConfidenceMin)
     .max(saveDiagnosisResponseConfidenceMax),
   summary: zod.string(),
+  causativeAgent: zod
+    .string()
+    .optional()
+    .describe(
+      'Specific pathogen, pest, or abiotic factor identified (e.g. \"Rhizoctonia solani\")',
+    ),
+  estimatedRecovery: zod
+    .string()
+    .optional()
+    .describe(
+      'Recovery timeline with treatment (e.g. \"3–5 weeks with consistent care\")',
+    ),
+  soilAdvice: zod
+    .string()
+    .optional()
+    .describe("Soil health, pH, or aeration recommendation"),
+  seasonalNote: zod
+    .string()
+    .optional()
+    .describe("Season-specific context for this diagnosis"),
+  differentialNote: zod
+    .string()
+    .optional()
+    .describe("Other conditions considered and ruled out"),
+  preventionTips: zod
+    .array(zod.string())
+    .optional()
+    .describe("Tips to prevent recurrence"),
+  treatmentProducts: zod
+    .array(
+      zod.object({
+        type: zod
+          .string()
+          .describe(
+            'Product category (e.g. \"Systemic fungicide\", \"Slow-release nitrogen\", \"Pre-emergent herbicide\")',
+          ),
+        description: zod
+          .string()
+          .describe("What to look for and how to apply it"),
+        caution: zod
+          .string()
+          .optional()
+          .describe("Safety or timing caution if relevant"),
+      }),
+    )
+    .optional()
+    .describe("Product types recommended for treatment"),
   steps: zod.array(
     zod.object({
       title: zod.string(),
@@ -355,6 +606,10 @@ export const SaveDiagnosisResponse = zod.object({
         .describe(
           'When to do this step (e.g. \"This week\", \"Next 2 weeks\")',
         ),
+      priority: zod
+        .enum(["immediate", "soon", "ongoing"])
+        .optional()
+        .describe("Urgency level for this step"),
     }),
   ),
   waterAdvice: zod.string(),

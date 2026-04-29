@@ -5,10 +5,13 @@
  * LawnIQ API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { DiagnosisStepPriority } from "./diagnosisStepPriority";
 
 export interface DiagnosisStep {
   title: string;
   detail: string;
   /** When to do this step (e.g. "This week", "Next 2 weeks") */
   timing?: string;
+  /** Urgency level for this step */
+  priority?: DiagnosisStepPriority;
 }

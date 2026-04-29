@@ -19,6 +19,13 @@ type DiagnosisStep = {
   title: string;
   detail: string;
   timing?: string;
+  priority?: "immediate" | "soon" | "ongoing";
+};
+
+type TreatmentProduct = {
+  type: string;
+  description: string;
+  caution?: string;
 };
 
 type Diagnosis = {
@@ -28,6 +35,13 @@ type Diagnosis = {
   healthScore: number;
   confidence: number;
   summary: string;
+  causativeAgent?: string;
+  estimatedRecovery?: string;
+  differentialNote?: string;
+  seasonalNote?: string;
+  soilAdvice?: string;
+  preventionTips?: string[];
+  treatmentProducts?: TreatmentProduct[];
   steps: DiagnosisStep[];
   waterAdvice: string;
   lightAdvice: string;
@@ -59,48 +73,84 @@ function rowToDiagnosis(row: typeof diagnosesTable.$inferSelect): Diagnosis {
   };
 }
 
-const SYSTEM_PROMPT = `You are LawnIQ, a friendly but rigorous turfgrass and home-lawn expert. You help homeowners diagnose what is wrong with their lawn from a photo plus a few details, and you give them a clear, actionable recovery plan.
+const SYSTEM_PROMPT = `You are LawnRX, a board-certified turfgrass pathologist and agronomist with 20+ years diagnosing residential and commercial lawns across North America. You analyze lawn photos with the precision of a lab report and the clarity of a good neighbor.
 
-Always respond with valid JSON matching the requested schema. Be specific, use plain English, avoid jargon. Don't claim certainty when the photo is ambiguous — lower the confidence and explain what would help. Never invent product names. Recommend cultural practices first (mowing height, watering, aeration, overseeding) before chemicals. If the lawn looks healthy in the photo, say so.`;
+## Your responsibilities
+1. **Visual diagnosis** — Examine every pixel: leaf blade color, texture, pattern distribution (circular vs diffuse vs edge-following), thatch buildup, soil exposure, moisture signs, pest frass, fungal mycelium, weed species, and root zone health visible at the surface.
+2. **Differential diagnosis** — Consider the top 2–3 candidate causes and explain which you're ruling in and why.
+3. **Root cause** — Name the specific causative agent (pathogen species, pest genus, abiotic factor) rather than just a symptom name.
+4. **Treatment ladder** — Always prescribe cultural/IPM practices first; only recommend chemical intervention if cultural fixes alone are insufficient. When recommending products, describe the *type* (e.g., "contact fungicide", "slow-release nitrogen fertilizer") without brand names — the homeowner can choose.
+5. **Prognosis** — Give a realistic recovery timeline and confidence-adjusted prognosis.
+
+## Output rules
+- If the photo is blurry or too far away to be certain, lower confidence to ≤50 and note what additional info would help.
+- If the lawn looks healthy, say so enthusiastically and give maintenance tips.
+- Never hallucinate symptoms not visible or described.
+- Use plain English; define any technical terms you must use.
+- Be direct and confident within the bounds of what the evidence supports.
+- Always respond with valid, strict JSON matching the schema.`;
 
 const RESPONSE_SCHEMA = {
   type: "object",
   additionalProperties: false,
   properties: {
-    title: { type: "string", description: "Short diagnosis name, e.g. 'Likely Brown Patch Fungus'" },
+    title: { type: "string", description: "Short diagnosis name, e.g. 'Brown Patch Fungus (Rhizoctonia solani)'" },
     severity: { type: "string", enum: ["Low", "Medium", "High"] },
-    healthScore: { type: "integer", minimum: 0, maximum: 100 },
-    confidence: { type: "integer", minimum: 0, maximum: 100 },
-    summary: { type: "string", description: "2-4 sentences explaining what is happening and why" },
-    waterAdvice: { type: "string", description: "One short sentence about watering for this lawn right now" },
-    lightAdvice: { type: "string", description: "One short sentence about sun/shade for this lawn right now" },
-    riskAdvice: { type: "string", description: "One short sentence about what could go wrong if ignored" },
-    steps: {
+    healthScore: { type: "integer", minimum: 0, maximum: 100, description: "Overall lawn health 0-100 based on what is visible" },
+    confidence: { type: "integer", minimum: 0, maximum: 100, description: "Diagnostic confidence 0-100; lower if photo is ambiguous" },
+    summary: { type: "string", description: "3-5 sentences: what you see, differential reasoning, root cause conclusion, and prognosis" },
+    causativeAgent: { type: "string", description: "Specific causal agent: pathogen species/genus, pest family, or abiotic factor (e.g. 'Rhizoctonia solani', 'Poa annua weed pressure', 'Drought-induced dormancy')" },
+    estimatedRecovery: { type: "string", description: "Realistic timeline with treatment, e.g. '3–5 weeks with consistent fungicide + cultural practices'" },
+    differentialNote: { type: "string", description: "1-2 sentences on other conditions you considered and ruled out" },
+    seasonalNote: { type: "string", description: "One sentence on how the current season affects this diagnosis or treatment" },
+    soilAdvice: { type: "string", description: "Soil health recommendation: pH, compaction, aeration, or organic matter" },
+    waterAdvice: { type: "string", description: "Specific watering guidance: frequency, timing, volume" },
+    lightAdvice: { type: "string", description: "Sun/shade or mowing height recommendation for this specific issue" },
+    riskAdvice: { type: "string", description: "What will happen if this is left untreated — be specific about spread risk" },
+    preventionTips: {
       type: "array",
-      minItems: 3,
-      maxItems: 6,
+      minItems: 2,
+      maxItems: 4,
+      items: { type: "string", description: "One concrete prevention tip" },
+      description: "How to prevent this issue from returning",
+    },
+    treatmentProducts: {
+      type: "array",
+      minItems: 0,
+      maxItems: 4,
       items: {
         type: "object",
         additionalProperties: false,
         properties: {
-          title: { type: "string", description: "Short step name, 2-6 words" },
-          detail: { type: "string", description: "1-2 sentences with concrete instructions" },
-          timing: { type: "string", description: "When to do this, e.g. 'This week', 'Next 2 weeks', 'Once weekly'" },
+          type: { type: "string", description: "Product category label, e.g. 'Systemic fungicide', 'Slow-release nitrogen fertilizer'" },
+          description: { type: "string", description: "What to look for on the label and how to apply it" },
+          caution: { type: "string", description: "Safety note, timing restriction, or when NOT to apply" },
         },
-        required: ["title", "detail", "timing"],
+        required: ["type", "description", "caution"],
+      },
+    },
+    steps: {
+      type: "array",
+      minItems: 4,
+      maxItems: 7,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          title: { type: "string", description: "Action-verb step name, 3-8 words" },
+          detail: { type: "string", description: "2-3 sentences with concrete, measurable instructions" },
+          timing: { type: "string", description: "When and how often, e.g. 'Immediately', 'Every 7 days for 3 applications'" },
+          priority: { type: "string", enum: ["immediate", "soon", "ongoing"], description: "Urgency of this step" },
+        },
+        required: ["title", "detail", "timing", "priority"],
       },
     },
   },
   required: [
-    "title",
-    "severity",
-    "healthScore",
-    "confidence",
-    "summary",
-    "waterAdvice",
-    "lightAdvice",
-    "riskAdvice",
-    "steps",
+    "title", "severity", "healthScore", "confidence", "summary",
+    "causativeAgent", "estimatedRecovery", "differentialNote", "seasonalNote",
+    "soilAdvice", "waterAdvice", "lightAdvice", "riskAdvice",
+    "preventionTips", "treatmentProducts", "steps",
   ],
 } as const;
 
@@ -183,9 +233,16 @@ Look at the attached photo carefully. Diagnose the most likely cause and produce
       healthScore: number;
       confidence: number;
       summary: string;
+      causativeAgent?: string;
+      estimatedRecovery?: string;
+      differentialNote?: string;
+      seasonalNote?: string;
+      soilAdvice?: string;
       waterAdvice: string;
       lightAdvice: string;
       riskAdvice: string;
+      preventionTips?: string[];
+      treatmentProducts?: TreatmentProduct[];
       steps: DiagnosisStep[];
     };
 
@@ -196,10 +253,17 @@ Look at the attached photo carefully. Diagnose the most likely cause and produce
       healthScore: aiResult.healthScore,
       confidence: aiResult.confidence,
       summary: aiResult.summary,
+      causativeAgent: aiResult.causativeAgent,
+      estimatedRecovery: aiResult.estimatedRecovery,
+      differentialNote: aiResult.differentialNote,
+      seasonalNote: aiResult.seasonalNote,
+      soilAdvice: aiResult.soilAdvice,
       steps: aiResult.steps,
       waterAdvice: aiResult.waterAdvice,
       lightAdvice: aiResult.lightAdvice,
       riskAdvice: aiResult.riskAdvice,
+      preventionTips: aiResult.preventionTips,
+      treatmentProducts: aiResult.treatmentProducts,
       grassType: body.grassType,
       issueAppearance: body.issueAppearance,
       description: body.description,

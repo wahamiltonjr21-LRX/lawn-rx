@@ -54,11 +54,34 @@ export interface AnalyzeLawnBody {
   location?: string;
 }
 
+/**
+ * Urgency level for this step
+ */
+export type DiagnosisStepPriority =
+  (typeof DiagnosisStepPriority)[keyof typeof DiagnosisStepPriority];
+
+export const DiagnosisStepPriority = {
+  immediate: "immediate",
+  soon: "soon",
+  ongoing: "ongoing",
+} as const;
+
 export interface DiagnosisStep {
   title: string;
   detail: string;
   /** When to do this step (e.g. "This week", "Next 2 weeks") */
   timing?: string;
+  /** Urgency level for this step */
+  priority?: DiagnosisStepPriority;
+}
+
+export interface TreatmentProduct {
+  /** Product category (e.g. "Systemic fungicide", "Slow-release nitrogen", "Pre-emergent herbicide") */
+  type: string;
+  /** What to look for and how to apply it */
+  description: string;
+  /** Safety or timing caution if relevant */
+  caution?: string;
 }
 
 export interface Diagnosis {
@@ -76,6 +99,20 @@ export interface Diagnosis {
    */
   confidence: number;
   summary: string;
+  /** Specific pathogen, pest, or abiotic factor identified (e.g. "Rhizoctonia solani") */
+  causativeAgent?: string;
+  /** Recovery timeline with treatment (e.g. "3–5 weeks with consistent care") */
+  estimatedRecovery?: string;
+  /** Soil health, pH, or aeration recommendation */
+  soilAdvice?: string;
+  /** Season-specific context for this diagnosis */
+  seasonalNote?: string;
+  /** Other conditions considered and ruled out */
+  differentialNote?: string;
+  /** Tips to prevent recurrence */
+  preventionTips?: string[];
+  /** Product types recommended for treatment */
+  treatmentProducts?: TreatmentProduct[];
   steps: DiagnosisStep[];
   waterAdvice: string;
   lightAdvice: string;

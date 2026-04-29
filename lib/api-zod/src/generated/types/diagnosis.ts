@@ -9,6 +9,7 @@ import type { DiagnosisStep } from "./diagnosisStep";
 import type { GrassType } from "./grassType";
 import type { IssueAppearance } from "./issueAppearance";
 import type { Severity } from "./severity";
+import type { TreatmentProduct } from "./treatmentProduct";
 
 export interface Diagnosis {
   id: string;
@@ -25,6 +26,20 @@ export interface Diagnosis {
    */
   confidence: number;
   summary: string;
+  /** Specific pathogen, pest, or abiotic factor identified (e.g. "Rhizoctonia solani") */
+  causativeAgent?: string;
+  /** Recovery timeline with treatment (e.g. "3–5 weeks with consistent care") */
+  estimatedRecovery?: string;
+  /** Soil health, pH, or aeration recommendation */
+  soilAdvice?: string;
+  /** Season-specific context for this diagnosis */
+  seasonalNote?: string;
+  /** Other conditions considered and ruled out */
+  differentialNote?: string;
+  /** Tips to prevent recurrence */
+  preventionTips?: string[];
+  /** Product types recommended for treatment */
+  treatmentProducts?: TreatmentProduct[];
   steps: DiagnosisStep[];
   waterAdvice: string;
   lightAdvice: string;
