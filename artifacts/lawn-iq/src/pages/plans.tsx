@@ -60,7 +60,7 @@ export default function Plans() {
             <Sparkles className="w-4 h-4 shrink-0" />
             {alreadyRequested
               ? "Upgrade request received — we'll unlock more analyses for you soon."
-              : "You've used all 5 free AI analyses."}
+              : "You've used all 2 free AI analyses."}
           </span>
           {!alreadyRequested && (
             <Link href="/">

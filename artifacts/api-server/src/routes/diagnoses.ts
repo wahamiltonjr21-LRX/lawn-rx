@@ -11,7 +11,7 @@ import {
 import { openai } from "@workspace/integrations-openai-ai-server";
 import { stripeStorage } from "../stripeStorage";
 
-const FREE_ANALYSIS_LIMIT = 5;
+const FREE_ANALYSIS_LIMIT = 2;
 
 const router: IRouter = Router();
 

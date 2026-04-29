@@ -52,7 +52,7 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
             </div>
             <h2 className="text-2xl font-bold">Upgrade to LawnRX Pro</h2>
             <p className="text-muted-foreground text-sm">
-              You've used all 5 free analyses. Go Pro for unlimited access and full lawn care tools.
+              You've used all 2 free analyses. Go Pro for unlimited access and full lawn care tools.
             </p>
           </div>
 
