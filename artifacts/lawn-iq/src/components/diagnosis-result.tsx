@@ -3,11 +3,12 @@ import {
   Droplets, Sun, AlertTriangle, Activity, Save, Leaf,
   FlaskConical, ShieldCheck, Clock, Microscope, CloudSun,
   ArrowRight, ChevronDown, ChevronUp, TriangleAlert, Info,
-  Sprout, CheckCircle2,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Diagnosis } from "@workspace/api-client-react";
+import { TipOfTheDay } from "./tip-of-the-day";
 
 interface Props {
   diagnosis: Diagnosis;
@@ -286,6 +287,9 @@ export function DiagnosisResult({ diagnosis, onSave, isSaving = false, showSaveB
           </div>
         </Card>
       )}
+
+      {/* ── Tip of the Day ── */}
+      <TipOfTheDay />
 
       {/* ── Save button ── */}
       {showSaveButton && onSave && (
