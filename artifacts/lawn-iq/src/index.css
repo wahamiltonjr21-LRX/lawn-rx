@@ -357,3 +357,25 @@
     inset: -1px;
   }
 }
+
+@keyframes lawnrx-leaf {
+  0% {
+    opacity: 0;
+    transform: scale(0.4) rotate(-30deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes lawnrx-letter {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

@@ -35,8 +35,26 @@ function SignInScreen({ onLogin }: { onLogin: () => void }) {
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-emerald-50 via-background to-amber-50 dark:from-emerald-950/40 dark:via-background dark:to-amber-950/30 px-6">
       <div className="max-w-md w-full text-center space-y-8">
         <div className="flex items-center justify-center gap-2">
-          <Leaf className="h-9 w-9 text-emerald-600" />
-          <span className="text-3xl font-bold tracking-tight">LawnRX</span>
+          <Leaf
+            className="h-9 w-9 text-emerald-600"
+            style={{
+              animation: "lawnrx-leaf 0.6s cubic-bezier(0.34,1.56,0.64,1) both",
+            }}
+          />
+          <span className="text-3xl font-bold tracking-tight flex">
+            {"LawnRX".split("").map((char, i) => (
+              <span
+                key={i}
+                style={{
+                  display: "inline-block",
+                  animation: `lawnrx-letter 0.5s cubic-bezier(0.34,1.56,0.64,1) both`,
+                  animationDelay: `${0.1 + i * 0.06}s`,
+                }}
+              >
+                {char}
+              </span>
+            ))}
+          </span>
         </div>
         <div className="space-y-3">
           <h1 className="text-3xl font-bold leading-tight">Diagnose your lawn with AI</h1>
