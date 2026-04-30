@@ -166,18 +166,25 @@ router.post("/diagnoses", async (req, res) => {
   }
   const body = parsed.data;
 
-  const [usageRow] = await db
-    .select({ analysisCount: usersTable.analysisCount, stripeCustomerId: usersTable.stripeCustomerId })
-    .from(usersTable)
-    .where(eq(usersTable.id, req.user.id))
-    .limit(1);
+  const [[usageRow], proCheckResult] = await Promise.all([
+    db
+      .select({ analysisCount: usersTable.analysisCount, stripeCustomerId: usersTable.stripeCustomerId })
+      .from(usersTable)
+      .where(eq(usersTable.id, req.user.id))
+      .limit(1),
+    (async () => {
+      const [row] = await db
+        .select({ stripeCustomerId: usersTable.stripeCustomerId })
+        .from(usersTable)
+        .where(eq(usersTable.id, req.user.id))
+        .limit(1);
+      if (!row?.stripeCustomerId) return false;
+      const activeSub = await stripeStorage.getActiveSubscriptionForCustomer(row.stripeCustomerId);
+      return !!activeSub;
+    })(),
+  ]);
   const used = usageRow?.analysisCount ?? 0;
-
-  let isPro = false;
-  if (usageRow?.stripeCustomerId) {
-    const activeSub = await stripeStorage.getActiveSubscriptionForCustomer(usageRow.stripeCustomerId);
-    isPro = !!activeSub;
-  }
+  const isPro = proCheckResult;
 
   if (!isPro && used >= FREE_ANALYSIS_LIMIT) {
     res.status(403).json({
@@ -198,15 +205,15 @@ Look at the attached photo carefully. Diagnose the most likely cause and produce
 
   try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-5.4",
-      max_completion_tokens: 4096,
+      model: "gpt-4o",
+      max_completion_tokens: 1800,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         {
           role: "user",
           content: [
             { type: "text", text: userText },
-            { type: "image_url", image_url: { url: body.photoDataUrl } },
+            { type: "image_url", image_url: { url: body.photoDataUrl, detail: "low" } },
           ],
         },
       ],

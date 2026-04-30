@@ -33,11 +33,27 @@ export default function Home() {
   const remaining = usage?.remaining ?? null;
   const limitReached = !isPro && remaining !== null && remaining <= 0;
 
+  const compressImage = (dataUrl: string): Promise<string> =>
+    new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1024;
+        const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+        const w = Math.round(img.width * scale);
+        const h = Math.round(img.height * scale);
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext("2d")!.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL("image/jpeg", 0.82));
+      };
+      img.src = dataUrl;
+    });
+
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Check size (limit to 20MB)
     if (file.size > 20 * 1024 * 1024) {
       toast({
         title: "File too large",
@@ -48,8 +64,10 @@ export default function Home() {
     }
 
     const reader = new FileReader();
-    reader.onload = (e) => {
-      setPhoto(e.target?.result as string);
+    reader.onload = async (e) => {
+      const raw = e.target?.result as string;
+      const compressed = await compressImage(raw);
+      setPhoto(compressed);
       setCurrentDiagnosis(null);
     };
     reader.readAsDataURL(file);
