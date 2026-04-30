@@ -173,6 +173,15 @@ export default function About() {
 
       {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
 
+      {/* Footer */}
+      <footer className="text-center text-xs text-muted-foreground/60 pb-4 space-x-3">
+        <Link href="/terms" className="underline underline-offset-2 hover:text-muted-foreground transition-colors">
+          Terms &amp; Conditions
+        </Link>
+        <span>·</span>
+        <span>© 2026 LawnRX</span>
+      </footer>
+
     </div>
   );
 }

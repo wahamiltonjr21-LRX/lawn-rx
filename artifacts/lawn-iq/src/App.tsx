@@ -1,4 +1,4 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, Link, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useAuth } from "@workspace/replit-auth-web";
 import { Leaf, Sparkles, Camera, ListChecks } from "lucide-react";
@@ -12,6 +12,7 @@ import Plans from "@/pages/plans";
 import PlanDetail from "@/pages/plan-detail";
 import About from "@/pages/about";
 import CareAlerts from "@/pages/care-alerts";
+import Terms from "@/pages/terms";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ function Router() {
       <Route path="/plans/:id" component={PlanDetail} />
       <Route path="/care-alerts" component={CareAlerts} />
       <Route path="/about" component={About} />
+      <Route path="/terms" component={Terms} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -68,6 +70,13 @@ function SignInScreen({ onLogin }: { onLogin: () => void }) {
         <p className="text-xs text-muted-foreground">
           Your saved plans stay private to your account.
         </p>
+        <p className="text-xs text-muted-foreground/70">
+          By signing in you agree to our{" "}
+          <Link href="/terms" className="underline underline-offset-2 hover:text-muted-foreground transition-colors">
+            Terms &amp; Conditions
+          </Link>
+          .
+        </p>
       </div>
     </div>
   );
@@ -75,6 +84,8 @@ function SignInScreen({ onLogin }: { onLogin: () => void }) {
 
 function AuthGate({ children }: { children: React.ReactNode }) {
   const { isLoading, isAuthenticated, login } = useAuth();
+  const [location] = useLocation();
+  if (location === "/terms") return <>{children}</>;
   if (isLoading) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-background">
