@@ -136,7 +136,7 @@ export default function About() {
               ) : isPro ? (
                 <p className="text-sm text-muted-foreground">You have unlimited AI analyses and full access to care alerts.</p>
               ) : (
-                <p className="text-sm text-muted-foreground">Free plan · 5 AI analyses included</p>
+                <p className="text-sm text-muted-foreground">Free plan · 2 AI analyses included</p>
               )}
             </div>
             {isPro ? (
