@@ -102,7 +102,7 @@ export default function CareAlerts() {
               </p>
             </div>
             <Button onClick={() => setShowUpgrade(true)} className="rounded-xl px-6">
-              <Sparkles className="w-4 h-4 mr-2" /> Upgrade for $19.99/month
+              <Sparkles className="w-4 h-4 mr-2" /> Upgrade for $9.99/month
             </Button>
           </div>
 

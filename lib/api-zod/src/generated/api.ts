@@ -695,6 +695,81 @@ export const GetUpgradeRequestResponse = zod.object({
 });
 
 /**
+ * @summary List community posts newest first
+ */
+export const ListCommunityPostsResponseItem = zod.object({
+  id: zod.string(),
+  userId: zod.string(),
+  userName: zod.string(),
+  userAvatar: zod.string().nullish(),
+  caption: zod.string(),
+  photoDataUrl: zod.string().nullish(),
+  commentCount: zod.number(),
+  likeCount: zod.number(),
+  createdAt: zod.coerce.date(),
+});
+export const ListCommunityPostsResponse = zod.array(
+  ListCommunityPostsResponseItem,
+);
+
+/**
+ * @summary Create a community post
+ */
+export const createCommunityPostBodyCaptionMax = 1000;
+
+export const CreateCommunityPostBody = zod.object({
+  caption: zod.string().max(createCommunityPostBodyCaptionMax),
+  photoDataUrl: zod.string().nullish(),
+});
+
+/**
+ * @summary Delete own community post
+ */
+export const DeleteCommunityPostParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+/**
+ * @summary List comments on a post
+ */
+export const ListCommunityCommentsParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ListCommunityCommentsResponseItem = zod.object({
+  id: zod.string(),
+  postId: zod.string(),
+  userId: zod.string(),
+  userName: zod.string(),
+  userAvatar: zod.string().nullish(),
+  content: zod.string(),
+  createdAt: zod.coerce.date(),
+});
+export const ListCommunityCommentsResponse = zod.array(
+  ListCommunityCommentsResponseItem,
+);
+
+/**
+ * @summary Add a comment to a post
+ */
+export const CreateCommunityCommentParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const createCommunityCommentBodyContentMax = 500;
+
+export const CreateCommunityCommentBody = zod.object({
+  content: zod.string().max(createCommunityCommentBodyContentMax),
+});
+
+/**
+ * @summary Delete own comment
+ */
+export const DeleteCommunityCommentParams = zod.object({
+  commentId: zod.coerce.string(),
+});
+
+/**
  * @summary Get the currently authenticated user
  */
 export const GetCurrentAuthUserHeader = zod.object({

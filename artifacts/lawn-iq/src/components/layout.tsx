@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Home, List, Info, Leaf, Bell } from "lucide-react";
+import { Home, List, Info, Leaf, Bell, Users } from "lucide-react";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -7,6 +7,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const navItems = [
     { href: "/", label: "Diagnose", icon: Home },
     { href: "/plans", label: "My Plans", icon: List },
+    { href: "/community", label: "Community", icon: Users },
     { href: "/care-alerts", label: "Care Alerts", icon: Bell },
     { href: "/about", label: "About", icon: Info },
   ];

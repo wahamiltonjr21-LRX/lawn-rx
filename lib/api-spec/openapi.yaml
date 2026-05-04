@@ -12,6 +12,8 @@ tags:
     description: Health operations
   - name: diagnoses
     description: Lawn diagnosis operations
+  - name: community
+    description: Community posts and comments
   - name: Auth
     description: Browser and mobile authentication endpoints.
 paths:
@@ -166,6 +168,108 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UpgradeRequestStatus"
+  /community:
+    get:
+      operationId: listCommunityPosts
+      tags: [community]
+      summary: List community posts newest first
+      responses:
+        "200":
+          description: Array of posts with comment counts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CommunityPost"
+    post:
+      operationId: createCommunityPost
+      tags: [community]
+      summary: Create a community post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCommunityPostBody"
+      responses:
+        "201":
+          description: Created post
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommunityPost"
+  /community/{id}:
+    delete:
+      operationId: deleteCommunityPost
+      tags: [community]
+      summary: Delete own community post
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+  /community/{id}/comments:
+    get:
+      operationId: listCommunityComments
+      tags: [community]
+      summary: List comments on a post
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Array of comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CommunityComment"
+    post:
+      operationId: createCommunityComment
+      tags: [community]
+      summary: Add a comment to a post
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCommunityCommentBody"
+      responses:
+        "201":
+          description: Created comment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommunityComment"
+  /community/comments/{commentId}:
+    delete:
+      operationId: deleteCommunityComment
+      tags: [community]
+      summary: Delete own comment
+      parameters:
+        - in: path
+          name: commentId
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
   /auth/user:
     get:
       tags: [Auth]
@@ -508,6 +612,83 @@ components:
         topIssue:
           type: string
           nullable: true
+    CommunityPost:
+      type: object
+      required:
+        - id
+        - userId
+        - userName
+        - caption
+        - commentCount
+        - likeCount
+        - createdAt
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        userName:
+          type: string
+        userAvatar:
+          type: string
+          nullable: true
+        caption:
+          type: string
+        photoDataUrl:
+          type: string
+          nullable: true
+        commentCount:
+          type: integer
+        likeCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+    CreateCommunityPostBody:
+      type: object
+      required:
+        - caption
+      properties:
+        caption:
+          type: string
+          maxLength: 1000
+        photoDataUrl:
+          type: string
+          nullable: true
+    CommunityComment:
+      type: object
+      required:
+        - id
+        - postId
+        - userId
+        - userName
+        - content
+        - createdAt
+      properties:
+        id:
+          type: string
+        postId:
+          type: string
+        userId:
+          type: string
+        userName:
+          type: string
+        userAvatar:
+          type: string
+          nullable: true
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    CreateCommunityCommentBody:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+          maxLength: 500
     AuthUser:
       type: object
       required: [id, email, firstName, lastName, profileImageUrl]

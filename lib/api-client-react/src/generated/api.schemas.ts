@@ -150,6 +150,39 @@ export interface DiagnosesSummary {
   topIssue?: string | null;
 }
 
+export interface CommunityPost {
+  id: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string | null;
+  caption: string;
+  photoDataUrl?: string | null;
+  commentCount: number;
+  likeCount: number;
+  createdAt: string;
+}
+
+export interface CreateCommunityPostBody {
+  /** @maxLength 1000 */
+  caption: string;
+  photoDataUrl?: string | null;
+}
+
+export interface CommunityComment {
+  id: string;
+  postId: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string | null;
+  content: string;
+  createdAt: string;
+}
+
+export interface CreateCommunityCommentBody {
+  /** @maxLength 500 */
+  content: string;
+}
+
 export interface AuthUser {
   id: string;
   /** @nullable */

@@ -63,7 +63,7 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
               ) : (
                 <>
                   <span className="text-4xl font-bold text-foreground">
-                    ${monthlyPrice ? (monthlyPrice.unitAmount / 100).toFixed(2) : "19.99"}
+                    ${monthlyPrice ? (monthlyPrice.unitAmount / 100).toFixed(2) : "9.99"}
                   </span>
                   <span className="text-muted-foreground">/month</span>
                 </>
@@ -96,7 +96,7 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
             {startCheckout.isPending ? (
               <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Redirecting...</>
             ) : (
-              <><Sparkles className="w-4 h-4 mr-2" /> Start Pro — $19.99/month</>
+              <><Sparkles className="w-4 h-4 mr-2" /> Start Pro — ${monthlyPrice ? (monthlyPrice.unitAmount / 100).toFixed(2) : "9.99"}/month</>
             )}
           </Button>
 

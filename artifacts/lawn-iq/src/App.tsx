@@ -13,6 +13,7 @@ import PlanDetail from "@/pages/plan-detail";
 import About from "@/pages/about";
 import CareAlerts from "@/pages/care-alerts";
 import Terms from "@/pages/terms";
+import Community from "@/pages/community";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ function Router() {
       <Route path="/care-alerts" component={CareAlerts} />
       <Route path="/about" component={About} />
       <Route path="/terms" component={Terms} />
+      <Route path="/community" component={Community} />
       <Route component={NotFound} />
     </Switch>
   );
