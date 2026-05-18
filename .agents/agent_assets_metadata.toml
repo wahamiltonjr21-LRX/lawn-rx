@@ -1,5 +1,4 @@
 uploads = []
-outputs = []
 
 [[generated]]
 id = "LLiwqofkAakWYH36uR7wt"
@@ -12,3 +11,9 @@ id = "tKn5W3KkyoMmAAO06vDcZ"
 uri = "file://artifacts/lawn-iq/src/assets/images/empty-plans.png"
 type = "image"
 title = "Empty state lawn tools"
+
+[[outputs]]
+id = "7hBGk-o28SATMcFkEWJoE"
+uri = "file://lawnrx.tar.gz"
+type = "unspecified"
+title = "LawnRX Project (lawnrx.tar.gz)"
