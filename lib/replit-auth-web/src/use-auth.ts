@@ -13,6 +13,8 @@ interface AuthState {
 
 let _apiBase = "";
 
+const STORAGE_KEY = "lawnrx_cap_sid";
+
 /**
  * Set the base URL for all auth-related fetch calls.
  * Required in Capacitor builds where the WebView serves local files
@@ -23,8 +25,35 @@ export function setAuthApiBase(url: string): void {
   _apiBase = url.replace(/\/+$/, "");
 }
 
+function getStoredToken(): string | null {
+  try {
+    return localStorage.getItem(STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function storeToken(sid: string): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, sid);
+  } catch {}
+}
+
+function clearToken(): void {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {}
+}
+
 function authFetch(path: string, init?: RequestInit): Promise<Response> {
-  return fetch(`${_apiBase}${path}`, init);
+  const token = getStoredToken();
+  const headers: Record<string, string> = {
+    ...(init?.headers as Record<string, string> | undefined),
+  };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  return fetch(`${_apiBase}${path}`, { ...init, headers });
 }
 
 async function fetchUser(): Promise<AuthUser | null> {
@@ -103,12 +132,18 @@ export function useAuth(): AuthState {
             done = true;
             if (pollTimer) clearInterval(pollTimer);
 
+            // Store token in localStorage — bypasses SameSite cookie issues
+            // from file:// WebView origin. Bearer token is sent on every
+            // subsequent API call via authFetch and setAuthTokenGetter.
+            storeToken(sid);
+
+            // Also set cookie as fallback for web-based requests
             await authFetch("/api/mobile-auth/activate-cookie", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               credentials: "include",
               body: JSON.stringify({ sid }),
-            });
+            }).catch(() => {});
 
             await Browser.close().catch(() => {});
 
@@ -178,6 +213,7 @@ export function useAuth(): AuthState {
   }, []);
 
   const logout = useCallback(() => {
+    clearToken();
     window.location.href = `${_apiBase}/api/logout`;
   }, []);
 

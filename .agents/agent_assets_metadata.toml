@@ -47,3 +47,9 @@ id = "AWSWEwD_LB2ihedXGuiGG"
 uri = "file://android-project-v3.zip"
 type = "unspecified"
 title = "Android Project v3 (fixed library paths)"
+
+[[outputs]]
+id = "va5n2f742rLYa8rWXsQ5E"
+uri = "file://android-project-v4.zip"
+type = "unspecified"
+title = "Android Project v4 (sign-in boot loop fixed)"
