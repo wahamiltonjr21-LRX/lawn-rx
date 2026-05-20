@@ -35,3 +35,9 @@ id = "0NH1_vzd0ONSY9vPpvXu4"
 uri = "file://android-project.zip"
 type = "unspecified"
 title = "Android Project (ready for Android Studio)"
+
+[[outputs]]
+id = "TnJaPnujYznj-5WSFTQYT"
+uri = "file://android-project-v2.zip"
+type = "unspecified"
+title = "Android Project v2 (self-contained, no node_modules needed)"
