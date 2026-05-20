@@ -17,3 +17,9 @@ id = "7hBGk-o28SATMcFkEWJoE"
 uri = "file://lawnrx.tar.gz"
 type = "unspecified"
 title = "LawnRX Project (lawnrx.tar.gz)"
+
+[[outputs]]
+id = "dlXQB8bZD0DQIDfLwzMJ8"
+uri = "file://lawnrx-project.zip"
+type = "unspecified"
+title = "LawnRX Project (no node_modules)"
