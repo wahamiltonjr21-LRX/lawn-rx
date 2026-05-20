@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">LawnRX</string>
+    <string name="title_activity_main">LawnRX</string>
+    <string name="package_name">com.lawnrx.app</string>
+    <string name="custom_url_scheme">com.lawnrx.app</string>
+</resources>

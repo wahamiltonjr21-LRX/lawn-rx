@@ -29,3 +29,9 @@ id = "yCTeCKFclHL7eQhvQK-9P"
 uri = "file://lawn-iq-built.zip"
 type = "unspecified"
 title = "lawn-iq (pre-built, 5.4 MB)"
+
+[[outputs]]
+id = "0NH1_vzd0ONSY9vPpvXu4"
+uri = "file://android-project.zip"
+type = "unspecified"
+title = "Android Project (ready for Android Studio)"
