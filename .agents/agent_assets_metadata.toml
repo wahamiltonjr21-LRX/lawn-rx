@@ -23,3 +23,9 @@ id = "dlXQB8bZD0DQIDfLwzMJ8"
 uri = "file://lawnrx-project.zip"
 type = "unspecified"
 title = "LawnRX Project (no node_modules)"
+
+[[outputs]]
+id = "yCTeCKFclHL7eQhvQK-9P"
+uri = "file://lawn-iq-built.zip"
+type = "unspecified"
+title = "lawn-iq (pre-built, 5.4 MB)"
