@@ -2,10 +2,6 @@
   "appId": "com.lawnrx.app",
   "appName": "LawnRX",
   "webDir": "dist/public",
-  "server": {
-    "url": "https://lawn-rx.replit.app",
-    "cleartext": false
-  },
   "android": {
     "buildOptions": {
       "releaseType": "APK"

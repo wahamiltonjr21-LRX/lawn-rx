@@ -11,9 +11,25 @@ interface AuthState {
   logout: () => void;
 }
 
+let _apiBase = "";
+
+/**
+ * Set the base URL for all auth-related fetch calls.
+ * Required in Capacitor builds where the WebView serves local files
+ * and API calls must target the live server explicitly.
+ * Call this once at app startup before rendering.
+ */
+export function setAuthApiBase(url: string): void {
+  _apiBase = url.replace(/\/+$/, "");
+}
+
+function authFetch(path: string, init?: RequestInit): Promise<Response> {
+  return fetch(`${_apiBase}${path}`, init);
+}
+
 async function fetchUser(): Promise<AuthUser | null> {
   try {
-    const res = await fetch("/api/auth/user", { credentials: "include" });
+    const res = await authFetch("/api/auth/user", { credentials: "include" });
     if (!res.ok) return null;
     const data = (await res.json()) as { user: AuthUser | null };
     return data.user ?? null;
@@ -23,10 +39,11 @@ async function fetchUser(): Promise<AuthUser | null> {
 }
 
 function isCapacitor(): boolean {
-  return (
-    typeof (window as unknown as Record<string, unknown>).Capacitor !==
-    "undefined"
-  );
+  const cap = (window as unknown as Record<string, unknown>).Capacitor;
+  if (cap && typeof (cap as Record<string, unknown>).isNativePlatform === "function") {
+    return (cap as { isNativePlatform: () => boolean }).isNativePlatform();
+  }
+  return typeof cap !== "undefined";
 }
 
 export function useAuth(): AuthState {
@@ -62,15 +79,14 @@ export function useAuth(): AuthState {
   }, []);
 
   const login = useCallback(() => {
-    const base = import.meta.env.BASE_URL.replace(/\/+$/, "") || "/";
+    const base = import.meta.env.BASE_URL?.replace(/\/+$/, "") || "/";
 
     if (isCapacitor()) {
       (async () => {
         try {
           const { Browser } = await import("@capacitor/browser");
 
-          // 1. Ask server to start PKCE flow — get auth URL + a device code for polling
-          const beginRes = await fetch("/api/mobile-auth/begin", {
+          const beginRes = await authFetch("/api/mobile-auth/begin", {
             credentials: "include",
           });
           const { authorizationUrl, deviceCode } =
@@ -79,7 +95,6 @@ export function useAuth(): AuthState {
               deviceCode: string;
             };
 
-          // 2. Poll server every 2 s until auth completes
           let pollTimer: ReturnType<typeof setInterval> | null = null;
           let done = false;
 
@@ -88,18 +103,15 @@ export function useAuth(): AuthState {
             done = true;
             if (pollTimer) clearInterval(pollTimer);
 
-            // Activate the session cookie inside the WebView
-            await fetch("/api/mobile-auth/activate-cookie", {
+            await authFetch("/api/mobile-auth/activate-cookie", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               credentials: "include",
               body: JSON.stringify({ sid }),
             });
 
-            // Close Chrome Custom Tabs
             await Browser.close().catch(() => {});
 
-            // Update auth state
             const u = await fetchUser();
             if (u) {
               setUser(u);
@@ -110,7 +122,7 @@ export function useAuth(): AuthState {
           pollTimer = setInterval(async () => {
             if (done) return;
             try {
-              const pollRes = await fetch(
+              const pollRes = await authFetch(
                 `/api/mobile-auth/poll?deviceCode=${encodeURIComponent(deviceCode)}`,
                 { credentials: "include" },
               );
@@ -126,26 +138,21 @@ export function useAuth(): AuthState {
             }
           }, 2000);
 
-          // Stop polling if user manually closes the browser without signing in
           await Browser.addListener("browserFinished", () => {
-            // Give one extra poll attempt before giving up (race condition guard)
             setTimeout(() => {
               if (!done && pollTimer) clearInterval(pollTimer);
             }, 4000);
           });
 
-          // 3. Open Replit OAuth in Chrome Custom Tabs
           await Browser.open({ url: authorizationUrl });
         } catch {
-          // Capacitor not available or fetch failed — fall back to redirect
-          window.location.href = `/api/login?returnTo=${encodeURIComponent(base)}`;
+          window.location.href = `${_apiBase}/api/login?returnTo=${encodeURIComponent(base)}`;
         }
       })();
       return;
     }
 
-    // Desktop browsers: popup window
-    const loginUrl = `/api/login?returnTo=${encodeURIComponent(base)}&popup=1`;
+    const loginUrl = `${_apiBase}/api/login?returnTo=${encodeURIComponent(base)}&popup=1`;
     const popup = window.open(
       loginUrl,
       "lawnrx_auth",
@@ -153,7 +160,7 @@ export function useAuth(): AuthState {
     );
 
     if (!popup) {
-      window.location.href = `/api/login?returnTo=${encodeURIComponent(base)}`;
+      window.location.href = `${_apiBase}/api/login?returnTo=${encodeURIComponent(base)}`;
       return;
     }
 
@@ -171,7 +178,7 @@ export function useAuth(): AuthState {
   }, []);
 
   const logout = useCallback(() => {
-    window.location.href = "/api/logout";
+    window.location.href = `${_apiBase}/api/logout`;
   }, []);
 
   return {
