@@ -68,68 +68,83 @@ export function useAuth(): AuthState {
       (async () => {
         try {
           const { Browser } = await import("@capacitor/browser");
-          const { App } = await import("@capacitor/app");
 
-          const res = await fetch("/api/mobile-auth/begin", {
+          // 1. Ask server to start PKCE flow — get auth URL + a device code for polling
+          const beginRes = await fetch("/api/mobile-auth/begin", {
             credentials: "include",
           });
-          const { authorizationUrl } = (await res.json()) as {
-            authorizationUrl: string;
-          };
+          const { authorizationUrl, deviceCode } =
+            (await beginRes.json()) as {
+              authorizationUrl: string;
+              deviceCode: string;
+            };
 
-          let urlListener: { remove: () => void } | null = null;
-          let browserListener: { remove: () => void } | null = null;
+          // 2. Poll server every 2 s until auth completes
+          let pollTimer: ReturnType<typeof setInterval> | null = null;
+          let done = false;
 
-          const cleanup = () => {
-            urlListener?.remove();
-            browserListener?.remove();
-          };
+          const finish = async (sid: string) => {
+            if (done) return;
+            done = true;
+            if (pollTimer) clearInterval(pollTimer);
 
-          urlListener = await App.addListener("appUrlOpen", async (event) => {
-            let url: URL;
-            try {
-              url = new URL(event.url);
-            } catch {
-              return;
-            }
+            // Activate the session cookie inside the WebView
+            await fetch("/api/mobile-auth/activate-cookie", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({ sid }),
+            });
 
-            if (url.protocol !== "com.lawnrx.app:") return;
-            cleanup();
+            // Close Chrome Custom Tabs
             await Browser.close().catch(() => {});
 
-            if (url.host === "auth-complete") {
-              const sid = url.searchParams.get("sid");
-              if (sid) {
-                await fetch("/api/mobile-auth/activate-cookie", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  credentials: "include",
-                  body: JSON.stringify({ sid }),
-                });
-                const u = await fetchUser();
-                if (u) {
-                  setUser(u);
-                  setIsLoading(false);
-                }
-              }
+            // Update auth state
+            const u = await fetchUser();
+            if (u) {
+              setUser(u);
+              setIsLoading(false);
             }
+          };
+
+          pollTimer = setInterval(async () => {
+            if (done) return;
+            try {
+              const pollRes = await fetch(
+                `/api/mobile-auth/poll?deviceCode=${encodeURIComponent(deviceCode)}`,
+                { credentials: "include" },
+              );
+              const data = (await pollRes.json()) as {
+                ready: boolean;
+                sid?: string;
+              };
+              if (data.ready && data.sid) {
+                await finish(data.sid);
+              }
+            } catch {
+              // network hiccup — keep polling
+            }
+          }, 2000);
+
+          // Stop polling if user manually closes the browser without signing in
+          await Browser.addListener("browserFinished", () => {
+            // Give one extra poll attempt before giving up (race condition guard)
+            setTimeout(() => {
+              if (!done && pollTimer) clearInterval(pollTimer);
+            }, 4000);
           });
 
-          browserListener = await Browser.addListener(
-            "browserFinished",
-            () => {
-              cleanup();
-            },
-          );
-
+          // 3. Open Replit OAuth in Chrome Custom Tabs
           await Browser.open({ url: authorizationUrl });
         } catch {
+          // Capacitor not available or fetch failed — fall back to redirect
           window.location.href = `/api/login?returnTo=${encodeURIComponent(base)}`;
         }
       })();
       return;
     }
 
+    // Desktop browsers: popup window
     const loginUrl = `/api/login?returnTo=${encodeURIComponent(base)}&popup=1`;
     const popup = window.open(
       loginUrl,

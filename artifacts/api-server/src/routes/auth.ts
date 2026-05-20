@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import * as oidc from "openid-client";
 import { z } from "zod";
 import { Router, type IRouter, type Request, type Response } from "express";
@@ -23,17 +24,27 @@ import {
 
 const OIDC_COOKIE_TTL = 10 * 60 * 1000;
 const MOBILE_PKCE_TTL = 10 * 60 * 1000;
+const COMPLETED_SESSION_TTL = 5 * 60 * 1000;
 
 interface PendingMobileSession {
   codeVerifier: string;
   nonce: string;
+  deviceCode: string;
+  expiresAt: number;
+}
+interface CompletedMobileSession {
+  sid: string;
   expiresAt: number;
 }
 const pendingMobileSessions = new Map<string, PendingMobileSession>();
+const completedMobileSessions = new Map<string, CompletedMobileSession>();
 setInterval(() => {
   const now = Date.now();
   for (const [key, val] of pendingMobileSessions) {
     if (val.expiresAt < now) pendingMobileSessions.delete(key);
+  }
+  for (const [key, val] of completedMobileSessions) {
+    if (val.expiresAt < now) completedMobileSessions.delete(key);
   }
 }, 60_000);
 
@@ -297,7 +308,10 @@ router.post("/mobile-auth/logout", async (req: Request, res: Response) => {
   res.json(LogoutMobileSessionResponse.parse({ success: true }));
 });
 
-// ── Native mobile OAuth (Chrome Custom Tabs + deep-link) ─────────────────────
+// ── Native mobile OAuth (Chrome Custom Tabs + server-side polling) ────────────
+// No deep links or AndroidManifest intent filters required.
+// Flow: begin → open Chrome Custom Tabs → OAuth → mobile-callback (stores sid)
+//       → app polls /mobile-auth/poll until sid is ready → activate-cookie
 
 router.get("/mobile-auth/begin", async (req: Request, res: Response) => {
   const config = await getOidcConfig();
@@ -308,6 +322,7 @@ router.get("/mobile-auth/begin", async (req: Request, res: Response) => {
   const nonce = oidc.randomNonce();
   const codeVerifier = oidc.randomPKCECodeVerifier();
   const codeChallenge = await oidc.calculatePKCECodeChallenge(codeVerifier);
+  const deviceCode = crypto.randomBytes(24).toString("hex");
 
   const authorizationUrl = oidc.buildAuthorizationUrl(config, {
     redirect_uri: callbackUrl,
@@ -322,10 +337,11 @@ router.get("/mobile-auth/begin", async (req: Request, res: Response) => {
   pendingMobileSessions.set(state, {
     codeVerifier,
     nonce,
+    deviceCode,
     expiresAt: Date.now() + MOBILE_PKCE_TTL,
   });
 
-  res.json({ authorizationUrl: authorizationUrl.href });
+  res.json({ authorizationUrl: authorizationUrl.href, deviceCode });
 });
 
 router.get("/mobile-callback", async (req: Request, res: Response) => {
@@ -334,15 +350,21 @@ router.get("/mobile-callback", async (req: Request, res: Response) => {
   const callbackUrl = `${origin}/api/mobile-callback`;
 
   const stateParam = req.query.state as string | undefined;
+  const errorHtml = (msg: string) =>
+    `<!DOCTYPE html><html><body style="font-family:sans-serif;text-align:center;padding:40px">` +
+    `<h2>Sign-in failed</h2><p>${msg}</p><p>Please close this tab and try again.</p></body></html>`;
+
   if (!stateParam) {
-    res.redirect("com.lawnrx.app://auth-error?reason=missing_state");
+    res.setHeader("Content-Type", "text/html");
+    res.send(errorHtml("Missing state parameter."));
     return;
   }
 
   const pending = pendingMobileSessions.get(stateParam);
   if (!pending || pending.expiresAt < Date.now()) {
     pendingMobileSessions.delete(stateParam);
-    res.redirect("com.lawnrx.app://auth-error?reason=invalid_state");
+    res.setHeader("Content-Type", "text/html");
+    res.send(errorHtml("Session expired or invalid. Please try again."));
     return;
   }
   pendingMobileSessions.delete(stateParam);
@@ -361,13 +383,15 @@ router.get("/mobile-callback", async (req: Request, res: Response) => {
     });
   } catch (err) {
     req.log.error({ err }, "Mobile OAuth callback error");
-    res.redirect("com.lawnrx.app://auth-error?reason=token_exchange_failed");
+    res.setHeader("Content-Type", "text/html");
+    res.send(errorHtml("Token exchange failed. Please try again."));
     return;
   }
 
   const claims = tokens.claims();
   if (!claims) {
-    res.redirect("com.lawnrx.app://auth-error?reason=no_claims");
+    res.setHeader("Content-Type", "text/html");
+    res.send(errorHtml("No identity claims returned."));
     return;
   }
 
@@ -388,9 +412,39 @@ router.get("/mobile-callback", async (req: Request, res: Response) => {
   };
 
   const sid = await createSession(sessionData);
-  res.redirect(
-    `com.lawnrx.app://auth-complete?sid=${encodeURIComponent(sid)}`,
+
+  completedMobileSessions.set(pending.deviceCode, {
+    sid,
+    expiresAt: Date.now() + COMPLETED_SESSION_TTL,
+  });
+
+  res.setHeader("Content-Type", "text/html");
+  res.send(
+    `<!DOCTYPE html><html><head><title>Signed in – LawnRX</title></head>` +
+      `<body style="font-family:sans-serif;text-align:center;padding:60px;background:#f0fdf4">` +
+      `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>` +
+      `<h2 style="color:#15803d;margin-top:16px">Signed in successfully</h2>` +
+      `<p style="color:#4b5563">You can close this tab — LawnRX is ready.</p>` +
+      `</body></html>`,
   );
+});
+
+router.get("/mobile-auth/poll", (req: Request, res: Response) => {
+  const deviceCode = req.query.deviceCode as string | undefined;
+  if (!deviceCode) {
+    res.status(400).json({ error: "Missing deviceCode" });
+    return;
+  }
+
+  const completed = completedMobileSessions.get(deviceCode);
+  if (!completed || completed.expiresAt < Date.now()) {
+    completedMobileSessions.delete(deviceCode);
+    res.json({ ready: false });
+    return;
+  }
+
+  completedMobileSessions.delete(deviceCode);
+  res.json({ ready: true, sid: completed.sid });
 });
 
 const ActivateCookieBody = z.object({ sid: z.string().min(1) });
