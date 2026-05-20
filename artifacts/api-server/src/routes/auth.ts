@@ -1,4 +1,5 @@
 import * as oidc from "openid-client";
+import { z } from "zod";
 import { Router, type IRouter, type Request, type Response } from "express";
 import {
   GetCurrentAuthUserResponse,
@@ -10,6 +11,7 @@ import { db, usersTable } from "@workspace/db";
 import {
   clearSession,
   getOidcConfig,
+  getSession,
   getSessionId,
   createSession,
   deleteSession,
@@ -20,6 +22,20 @@ import {
 } from "../lib/auth";
 
 const OIDC_COOKIE_TTL = 10 * 60 * 1000;
+const MOBILE_PKCE_TTL = 10 * 60 * 1000;
+
+interface PendingMobileSession {
+  codeVerifier: string;
+  nonce: string;
+  expiresAt: number;
+}
+const pendingMobileSessions = new Map<string, PendingMobileSession>();
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, val] of pendingMobileSessions) {
+    if (val.expiresAt < now) pendingMobileSessions.delete(key);
+  }
+}, 60_000);
 
 const router: IRouter = Router();
 
@@ -280,5 +296,123 @@ router.post("/mobile-auth/logout", async (req: Request, res: Response) => {
   }
   res.json(LogoutMobileSessionResponse.parse({ success: true }));
 });
+
+// ── Native mobile OAuth (Chrome Custom Tabs + deep-link) ─────────────────────
+
+router.get("/mobile-auth/begin", async (req: Request, res: Response) => {
+  const config = await getOidcConfig();
+  const origin = getOrigin(req);
+  const callbackUrl = `${origin}/api/mobile-callback`;
+
+  const state = oidc.randomState();
+  const nonce = oidc.randomNonce();
+  const codeVerifier = oidc.randomPKCECodeVerifier();
+  const codeChallenge = await oidc.calculatePKCECodeChallenge(codeVerifier);
+
+  const authorizationUrl = oidc.buildAuthorizationUrl(config, {
+    redirect_uri: callbackUrl,
+    scope: "openid email profile offline_access",
+    code_challenge: codeChallenge,
+    code_challenge_method: "S256",
+    prompt: "login consent",
+    state,
+    nonce,
+  });
+
+  pendingMobileSessions.set(state, {
+    codeVerifier,
+    nonce,
+    expiresAt: Date.now() + MOBILE_PKCE_TTL,
+  });
+
+  res.json({ authorizationUrl: authorizationUrl.href });
+});
+
+router.get("/mobile-callback", async (req: Request, res: Response) => {
+  const config = await getOidcConfig();
+  const origin = getOrigin(req);
+  const callbackUrl = `${origin}/api/mobile-callback`;
+
+  const stateParam = req.query.state as string | undefined;
+  if (!stateParam) {
+    res.redirect("com.lawnrx.app://auth-error?reason=missing_state");
+    return;
+  }
+
+  const pending = pendingMobileSessions.get(stateParam);
+  if (!pending || pending.expiresAt < Date.now()) {
+    pendingMobileSessions.delete(stateParam);
+    res.redirect("com.lawnrx.app://auth-error?reason=invalid_state");
+    return;
+  }
+  pendingMobileSessions.delete(stateParam);
+
+  const currentUrl = new URL(
+    `${callbackUrl}?${new URL(req.url, `http://${req.headers.host}`).searchParams}`,
+  );
+
+  let tokens: oidc.TokenEndpointResponse & oidc.TokenEndpointResponseHelpers;
+  try {
+    tokens = await oidc.authorizationCodeGrant(config, currentUrl, {
+      pkceCodeVerifier: pending.codeVerifier,
+      expectedNonce: pending.nonce,
+      expectedState: stateParam,
+      idTokenExpected: true,
+    });
+  } catch (err) {
+    req.log.error({ err }, "Mobile OAuth callback error");
+    res.redirect("com.lawnrx.app://auth-error?reason=token_exchange_failed");
+    return;
+  }
+
+  const claims = tokens.claims();
+  if (!claims) {
+    res.redirect("com.lawnrx.app://auth-error?reason=no_claims");
+    return;
+  }
+
+  const dbUser = await upsertUser(claims as unknown as Record<string, unknown>);
+
+  const now = Math.floor(Date.now() / 1000);
+  const sessionData: SessionData = {
+    user: {
+      id: dbUser.id,
+      email: dbUser.email,
+      firstName: dbUser.firstName,
+      lastName: dbUser.lastName,
+      profileImageUrl: dbUser.profileImageUrl,
+    },
+    access_token: tokens.access_token,
+    refresh_token: tokens.refresh_token,
+    expires_at: tokens.expiresIn() ? now + tokens.expiresIn()! : claims.exp,
+  };
+
+  const sid = await createSession(sessionData);
+  res.redirect(
+    `com.lawnrx.app://auth-complete?sid=${encodeURIComponent(sid)}`,
+  );
+});
+
+const ActivateCookieBody = z.object({ sid: z.string().min(1) });
+
+router.post(
+  "/mobile-auth/activate-cookie",
+  async (req: Request, res: Response) => {
+    const parsed = ActivateCookieBody.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "Missing sid" });
+      return;
+    }
+
+    const session = await getSession(parsed.data.sid);
+    if (!session) {
+      res.status(401).json({ error: "Invalid or expired session" });
+      return;
+    }
+
+    setSessionCookie(res, parsed.data.sid);
+    res.json({ success: true });
+  },
+);
 
 export default router;

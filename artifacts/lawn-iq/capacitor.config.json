@@ -4,8 +4,7 @@
   "webDir": "dist/public",
   "server": {
     "url": "https://lawn-rx.replit.app",
-    "cleartext": false,
-    "allowNavigation": ["*.replit.com", "replit.com"]
+    "cleartext": false
   },
   "android": {
     "buildOptions": {

@@ -36,7 +36,7 @@ export function useAuth(): AuthState {
   useEffect(() => {
     let cancelled = false;
 
-    const checkAuthOnFocus = () => {
+    const recheck = () => {
       if (!document.hidden) {
         fetchUser().then((u) => {
           if (!cancelled && u) {
@@ -54,10 +54,10 @@ export function useAuth(): AuthState {
       }
     });
 
-    document.addEventListener("visibilitychange", checkAuthOnFocus);
+    document.addEventListener("visibilitychange", recheck);
     return () => {
       cancelled = true;
-      document.removeEventListener("visibilitychange", checkAuthOnFocus);
+      document.removeEventListener("visibilitychange", recheck);
     };
   }, []);
 
@@ -65,7 +65,68 @@ export function useAuth(): AuthState {
     const base = import.meta.env.BASE_URL.replace(/\/+$/, "") || "/";
 
     if (isCapacitor()) {
-      window.location.href = `/api/login?returnTo=${encodeURIComponent(base)}`;
+      (async () => {
+        try {
+          const { Browser } = await import("@capacitor/browser");
+          const { App } = await import("@capacitor/app");
+
+          const res = await fetch("/api/mobile-auth/begin", {
+            credentials: "include",
+          });
+          const { authorizationUrl } = (await res.json()) as {
+            authorizationUrl: string;
+          };
+
+          let urlListener: { remove: () => void } | null = null;
+          let browserListener: { remove: () => void } | null = null;
+
+          const cleanup = () => {
+            urlListener?.remove();
+            browserListener?.remove();
+          };
+
+          urlListener = await App.addListener("appUrlOpen", async (event) => {
+            let url: URL;
+            try {
+              url = new URL(event.url);
+            } catch {
+              return;
+            }
+
+            if (url.protocol !== "com.lawnrx.app:") return;
+            cleanup();
+            await Browser.close().catch(() => {});
+
+            if (url.host === "auth-complete") {
+              const sid = url.searchParams.get("sid");
+              if (sid) {
+                await fetch("/api/mobile-auth/activate-cookie", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  credentials: "include",
+                  body: JSON.stringify({ sid }),
+                });
+                const u = await fetchUser();
+                if (u) {
+                  setUser(u);
+                  setIsLoading(false);
+                }
+              }
+            }
+          });
+
+          browserListener = await Browser.addListener(
+            "browserFinished",
+            () => {
+              cleanup();
+            },
+          );
+
+          await Browser.open({ url: authorizationUrl });
+        } catch {
+          window.location.href = `/api/login?returnTo=${encodeURIComponent(base)}`;
+        }
+      })();
       return;
     }
 
