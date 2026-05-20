@@ -11,31 +11,29 @@ interface AuthState {
   logout: () => void;
 }
 
+async function fetchUser(): Promise<AuthUser | null> {
+  try {
+    const res = await fetch("/api/auth/user", { credentials: "include" });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { user: AuthUser | null };
+    return data.user ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export function useAuth(): AuthState {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
-
-    fetch("/api/auth/user", { credentials: "include" })
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json() as Promise<{ user: AuthUser | null }>;
-      })
-      .then((data) => {
-        if (!cancelled) {
-          setUser(data.user ?? null);
-          setIsLoading(false);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setUser(null);
-          setIsLoading(false);
-        }
-      });
-
+    fetchUser().then((u) => {
+      if (!cancelled) {
+        setUser(u);
+        setIsLoading(false);
+      }
+    });
     return () => {
       cancelled = true;
     };
@@ -43,7 +41,30 @@ export function useAuth(): AuthState {
 
   const login = useCallback(() => {
     const base = import.meta.env.BASE_URL.replace(/\/+$/, "") || "/";
-    window.location.href = `/api/login?returnTo=${encodeURIComponent(base)}`;
+    const loginUrl = `/api/login?returnTo=${encodeURIComponent(base)}&popup=1`;
+
+    const popup = window.open(
+      loginUrl,
+      "lawnrx_auth",
+      "width=520,height=720,popup=yes,left=200,top=80",
+    );
+
+    if (!popup) {
+      window.location.href = `/api/login?returnTo=${encodeURIComponent(base)}`;
+      return;
+    }
+
+    const timer = setInterval(() => {
+      if (popup.closed) {
+        clearInterval(timer);
+        fetchUser().then((u) => {
+          if (u) {
+            setUser(u);
+            setIsLoading(false);
+          }
+        });
+      }
+    }, 400);
   }, []);
 
   const logout = useCallback(() => {

@@ -95,6 +95,7 @@ router.get("/login", async (req: Request, res: Response) => {
   const callbackUrl = `${getOrigin(req)}/api/callback`;
 
   const returnTo = getSafeReturnTo(req.query.returnTo);
+  const popup = req.query.popup === "1" ? "1" : "";
 
   const state = oidc.randomState();
   const nonce = oidc.randomNonce();
@@ -115,6 +116,7 @@ router.get("/login", async (req: Request, res: Response) => {
   setOidcCookie(res, "nonce", nonce);
   setOidcCookie(res, "state", state);
   setOidcCookie(res, "return_to", returnTo);
+  if (popup) setOidcCookie(res, "popup", "1");
 
   res.redirect(redirectTo.href);
 });
@@ -153,10 +155,13 @@ router.get("/callback", async (req: Request, res: Response) => {
 
   const returnTo = getSafeReturnTo(req.cookies?.return_to);
 
+  const isPopup = req.cookies?.popup === "1";
+
   res.clearCookie("code_verifier", { path: "/" });
   res.clearCookie("nonce", { path: "/" });
   res.clearCookie("state", { path: "/" });
   res.clearCookie("return_to", { path: "/" });
+  res.clearCookie("popup", { path: "/" });
 
   const claims = tokens.claims();
   if (!claims) {
@@ -184,6 +189,13 @@ router.get("/callback", async (req: Request, res: Response) => {
 
   const sid = await createSession(sessionData);
   setSessionCookie(res, sid);
+
+  if (isPopup) {
+    res.setHeader("Content-Type", "text/html");
+    res.send(`<!DOCTYPE html><html><body><script>window.close();</script></body></html>`);
+    return;
+  }
+
   res.redirect(returnTo);
 });
 
