@@ -22,27 +22,54 @@ async function fetchUser(): Promise<AuthUser | null> {
   }
 }
 
+function isCapacitor(): boolean {
+  return (
+    typeof (window as unknown as Record<string, unknown>).Capacitor !==
+    "undefined"
+  );
+}
+
 export function useAuth(): AuthState {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
+
+    const checkAuthOnFocus = () => {
+      if (!document.hidden) {
+        fetchUser().then((u) => {
+          if (!cancelled && u) {
+            setUser(u);
+            setIsLoading(false);
+          }
+        });
+      }
+    };
+
     fetchUser().then((u) => {
       if (!cancelled) {
         setUser(u);
         setIsLoading(false);
       }
     });
+
+    document.addEventListener("visibilitychange", checkAuthOnFocus);
     return () => {
       cancelled = true;
+      document.removeEventListener("visibilitychange", checkAuthOnFocus);
     };
   }, []);
 
   const login = useCallback(() => {
     const base = import.meta.env.BASE_URL.replace(/\/+$/, "") || "/";
-    const loginUrl = `/api/login?returnTo=${encodeURIComponent(base)}&popup=1`;
 
+    if (isCapacitor()) {
+      window.location.href = `/api/login?returnTo=${encodeURIComponent(base)}`;
+      return;
+    }
+
+    const loginUrl = `/api/login?returnTo=${encodeURIComponent(base)}&popup=1`;
     const popup = window.open(
       loginUrl,
       "lawnrx_auth",

@@ -3,7 +3,7 @@
   "appName": "LawnRX",
   "webDir": "dist/public",
   "server": {
-    "url": "https://lawnrx.replit.app",
+    "url": "https://lawn-rx.replit.app",
     "cleartext": false
   },
   "android": {
