@@ -41,3 +41,9 @@ id = "TnJaPnujYznj-5WSFTQYT"
 uri = "file://android-project-v2.zip"
 type = "unspecified"
 title = "Android Project v2 (self-contained, no node_modules needed)"
+
+[[outputs]]
+id = "AWSWEwD_LB2ihedXGuiGG"
+uri = "file://android-project-v3.zip"
+type = "unspecified"
+title = "Android Project v3 (fixed library paths)"
