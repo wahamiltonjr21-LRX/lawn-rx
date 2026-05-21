@@ -53,3 +53,9 @@ id = "va5n2f742rLYa8rWXsQ5E"
 uri = "file://android-project-v4.zip"
 type = "unspecified"
 title = "Android Project v4 (lib paths fixed)"
+
+[[outputs]]
+id = "tO_5hDtI7hSk_O5aY-RFH"
+uri = "file://android-project-v5.zip"
+type = "unspecified"
+title = "Android Project v5 (animations + Shop page)"

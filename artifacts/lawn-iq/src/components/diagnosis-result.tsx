@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import {
   Droplets, Sun, AlertTriangle, Activity, Save, Leaf,
   FlaskConical, ShieldCheck, Clock, Microscope, CloudSun,
@@ -49,11 +50,34 @@ function HealthRing({ score }: { score: number }) {
   const stroke = 10;
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
-  const progress = (score / 100) * circumference;
   const color = score >= 70 ? "#10b981" : score >= 40 ? "#f59e0b" : "#ef4444";
 
+  const [displayed, setDisplayed] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const raf = useRef<number | null>(null);
+
+  useEffect(() => {
+    const duration = 1200;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min((now - start) / duration, 1);
+      const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+      setDisplayed(Math.round(ease * score));
+      setProgress(ease * (score / 100) * circumference);
+      if (t < 1) raf.current = requestAnimationFrame(tick);
+    };
+    raf.current = requestAnimationFrame(tick);
+    return () => { if (raf.current) cancelAnimationFrame(raf.current); };
+  }, [score, circumference]);
+
   return (
-    <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
+    <motion.div
+      className="relative flex items-center justify-center"
+      style={{ width: size, height: size }}
+      initial={{ scale: 0.7, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.1 }}
+    >
       <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
         <circle
           cx={size / 2} cy={size / 2} r={radius}
@@ -65,14 +89,13 @@ function HealthRing({ score }: { score: number }) {
           fill="none" stroke={color} strokeWidth={stroke}
           strokeDasharray={`${progress} ${circumference}`}
           strokeLinecap="round"
-          style={{ transition: "stroke-dasharray 1.2s cubic-bezier(0.4,0,0.2,1)" }}
         />
       </svg>
       <div className="absolute text-center">
-        <div className="text-3xl font-bold leading-none" style={{ color }}>{score}</div>
+        <div className="text-3xl font-bold leading-none tabular-nums" style={{ color }}>{displayed}</div>
         <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider mt-0.5">/ 100</div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
