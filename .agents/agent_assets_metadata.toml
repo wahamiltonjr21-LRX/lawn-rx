@@ -59,3 +59,9 @@ id = "tO_5hDtI7hSk_O5aY-RFH"
 uri = "file://android-project-v5.zip"
 type = "unspecified"
 title = "Android Project v5 (animations + Shop page)"
+
+[[outputs]]
+id = "J_6ACMwvERybkAVir_O6l"
+uri = "file://android-project-v6.zip"
+type = "unspecified"
+title = "Android Project v6 (new LRx icon applied)"
