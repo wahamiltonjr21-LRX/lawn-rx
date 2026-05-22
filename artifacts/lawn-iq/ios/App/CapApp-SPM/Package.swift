@@ -12,8 +12,8 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", exact: "8.3.4"),
-        .package(name: "CapacitorApp", path: "../../../../../node_modules/.pnpm/@capacitor+app@8.1.0_@capacitor+core@8.3.4/node_modules/@capacitor/app"),
-        .package(name: "CapacitorBrowser", path: "../../../../../node_modules/.pnpm/@capacitor+browser@8.0.3_@capacitor+core@8.3.4/node_modules/@capacitor/browser")
+        .package(name: "CapacitorApp", path: "../../capacitor-plugins/app"),
+        .package(name: "CapacitorBrowser", path: "../../capacitor-plugins/browser")
     ],
     targets: [
         .target(

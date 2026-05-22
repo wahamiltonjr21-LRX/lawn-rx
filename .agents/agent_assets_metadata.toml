@@ -71,3 +71,9 @@ id = "3--0Si75jVMc9hbMCz3nF"
 uri = "file://ios-project-v1.zip"
 type = "unspecified"
 title = "iOS Project v1 — Download This"
+
+[[outputs]]
+id = "efakzgIdDlixZ9Pi1Hyk-"
+uri = "file://ios-project-v2.zip"
+type = "unspecified"
+title = "iOS Project v2 — Fixed Package.swift (5.7 MB)"
