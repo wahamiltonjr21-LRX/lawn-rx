@@ -171,37 +171,52 @@ function getZoneFromLat(lat: number): Zone {
   return "unknown";
 }
 
+async function ipFallback(): Promise<{ zone: Zone; city?: string; region?: string }> {
+  // Try two IP geolocation services — ipapi.co first, freeipapi.com as backup
+  const apis = [
+    async () => {
+      const res = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(6000) });
+      if (!res.ok) throw new Error("ipapi.co failed");
+      const d = await res.json() as { latitude?: number; city?: string; region?: string };
+      return { lat: d.latitude, city: d.city, region: d.region };
+    },
+    async () => {
+      const res = await fetch("https://freeipapi.com/api/json", { signal: AbortSignal.timeout(6000) });
+      if (!res.ok) throw new Error("freeipapi.com failed");
+      const d = await res.json() as { latitude?: number; cityName?: string; regionName?: string };
+      return { lat: d.latitude, city: d.cityName, region: d.regionName };
+    },
+  ];
+  for (const api of apis) {
+    try {
+      const { lat, city, region } = await api();
+      if (lat !== undefined && lat !== null) {
+        return { zone: getZoneFromLat(lat), city, region };
+      }
+    } catch { /* try next */ }
+  }
+  return { zone: "unknown" };
+}
+
 async function detectZone(): Promise<{ zone: Zone; city?: string; region?: string }> {
+  // On iOS WKWebView, navigator.geolocation requires NSLocationWhenInUseUsageDescription
+  // in Info.plist. Use low-accuracy mode (no GPS chip needed) for faster results.
+  if (!navigator.geolocation) return ipFallback();
+
   return new Promise((resolve) => {
-    if (!navigator.geolocation) {
-      resolve({ zone: "unknown" });
-      return;
-    }
+    let settled = false;
+    const finish = (result: { zone: Zone; city?: string; region?: string }) => {
+      if (!settled) { settled = true; resolve(result); }
+    };
+
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const zone = getZoneFromLat(pos.coords.latitude);
-        resolve({ zone });
+      (pos) => finish({ zone: getZoneFromLat(pos.coords.latitude) }),
+      () => { ipFallback().then(finish); },
+      {
+        enableHighAccuracy: false,  // uses network/cell tower — fast, no GPS wait
+        timeout: 8000,
+        maximumAge: 600_000,        // accept a cached fix up to 10 min old
       },
-      async () => {
-        // Fallback: IP-based geolocation
-        try {
-          const res = await fetch("https://ipapi.co/json/");
-          if (res.ok) {
-            const data = (await res.json()) as {
-              latitude?: number;
-              city?: string;
-              region?: string;
-            };
-            const zone = data.latitude ? getZoneFromLat(data.latitude) : "unknown";
-            resolve({ zone, city: data.city, region: data.region });
-          } else {
-            resolve({ zone: "unknown" });
-          }
-        } catch {
-          resolve({ zone: "unknown" });
-        }
-      },
-      { timeout: 5000 },
     );
   });
 }
