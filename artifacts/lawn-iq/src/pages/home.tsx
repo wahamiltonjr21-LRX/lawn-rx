@@ -29,9 +29,10 @@ export default function Home() {
   const saveDiagnosis = useSaveDiagnosis();
   const { data: usage } = useGetDiagnosisUsage();
   const { data: subData } = useSubscription();
-  const isPro = subData?.isPro === true;
-  const remaining = usage?.remaining ?? null;
-  const limitReached = !isPro && remaining !== null && remaining <= 0;
+  const isTestBuild = import.meta.env.VITE_TEST_BUILD === "true";
+  const isPro = isTestBuild || subData?.isPro === true;
+  const remaining = isTestBuild ? null : (usage?.remaining ?? null);
+  const limitReached = !isTestBuild && !isPro && remaining !== null && remaining <= 0;
 
   const compressImage = (dataUrl: string): Promise<string> =>
     new Promise((resolve) => {

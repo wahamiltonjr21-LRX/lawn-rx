@@ -9,6 +9,7 @@
     "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "build:cap": "vite build --config vite.config.cap.ts",
+    "build:cap:test": "vite build --config vite.config.cap.test.ts",
     "cap:sync": "pnpm run build:cap && cap sync",
     "cap:open:android": "cap open android",
     "cap:open:ios": "cap open ios"

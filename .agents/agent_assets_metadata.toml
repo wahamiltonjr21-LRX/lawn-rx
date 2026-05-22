@@ -101,3 +101,9 @@ id = "_DsgsnCsMh4fpTl34FGKv"
 uri = "file://ios-project-v4.zip"
 type = "unspecified"
 title = "iOS v4 — Location permission + fix (5.7 MB)"
+
+[[outputs]]
+id = "0Wb7Mg0AzjExaxMLuEa6Z"
+uri = "file://android-test-build-v1.zip"
+type = "unspecified"
+title = "Android TEST Build v1 — No AI limit (5.1 MB)"
