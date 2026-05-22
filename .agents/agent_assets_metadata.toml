@@ -65,3 +65,9 @@ id = "J_6ACMwvERybkAVir_O6l"
 uri = "file://android-project-v6.zip"
 type = "unspecified"
 title = "Android Project v6 (LRx launcher icon)"
+
+[[outputs]]
+id = "3--0Si75jVMc9hbMCz3nF"
+uri = "file://ios-project-v1.zip"
+type = "unspecified"
+title = "iOS Project v1 (LawnRX)"
