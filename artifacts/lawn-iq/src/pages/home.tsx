@@ -163,8 +163,13 @@ export default function Home() {
             
             {photo ? (
               <div className="relative group rounded-2xl overflow-hidden border-2 border-primary/50 bg-primary/5">
-                <div className="relative aspect-video w-full">
-                  <img src={photo} alt="Lawn issue" className="w-full h-full object-cover" />
+                <div className="relative w-full" style={{ maxHeight: "340px" }}>
+                  <img
+                    src={photo}
+                    alt="Lawn issue"
+                    className="w-full object-cover rounded-t-2xl"
+                    style={{ maxHeight: "340px", objectFit: "cover" }}
+                  />
                 </div>
                 <div className="flex gap-2 p-3 border-t border-primary/10 bg-primary/5">
                   <Button
@@ -189,21 +194,21 @@ export default function Home() {
               </div>
             ) : (
               <div className="rounded-2xl border-2 border-dashed border-border bg-muted/30 overflow-hidden">
-                <div className="aspect-video w-full flex flex-col items-center justify-center p-6 text-center gap-5">
-                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                <div className="w-full flex flex-col items-center justify-center p-6 py-8 text-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
                     <Camera className="w-7 h-7" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg mb-1">Add a lawn photo</h3>
-                    <p className="text-sm text-muted-foreground max-w-[260px]">
+                    <p className="text-sm text-muted-foreground max-w-[240px] mx-auto">
                       Take a new photo or upload one from your device.
                     </p>
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
                     <Button
                       type="button"
                       variant="default"
-                      className="rounded-xl"
+                      className="rounded-xl flex-1"
                       onClick={() => cameraInputRef.current?.click()}
                     >
                       <Camera className="w-4 h-4 mr-2" /> Take Photo
@@ -211,7 +216,7 @@ export default function Home() {
                     <Button
                       type="button"
                       variant="outline"
-                      className="rounded-xl"
+                      className="rounded-xl flex-1"
                       onClick={() => fileInputRef.current?.click()}
                     >
                       <Upload className="w-4 h-4 mr-2" /> Upload Image

@@ -77,3 +77,15 @@ id = "efakzgIdDlixZ9Pi1Hyk-"
 uri = "file://ios-project-v2.zip"
 type = "unspecified"
 title = "iOS Project v2 — Fixed Package.swift (5.7 MB)"
+
+[[outputs]]
+id = "ZX6Nx4IQ06VjD1nXX6i4b"
+uri = "file://android-project-v7.zip"
+type = "unspecified"
+title = "Android v7 — Sign in/out + Photo frame fix (5.1 MB)"
+
+[[outputs]]
+id = "2QAA7sY7z9ig6Y540v58Y"
+uri = "file://ios-project-v3.zip"
+type = "unspecified"
+title = "iOS v3 — Sign in/out + Photo frame fix (5.7 MB)"
