@@ -1,6 +1,16 @@
 import { Link, useLocation } from "wouter";
-import { Home, List, Info, Leaf, Bell, Users, ShoppingBag } from "lucide-react";
+import { Home, List, Info, Leaf, Bell, Users, ShoppingBag, LogIn, LogOut, User } from "lucide-react";
 import { motion } from "framer-motion";
+import { useAuth } from "@workspace/replit-auth-web";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const allNavItems = [
   { href: "/",            label: "Diagnose",  icon: Home        },
@@ -20,17 +30,160 @@ function isActive(href: string, location: string) {
     : location === href || location.startsWith(href + "/");
 }
 
+function getInitials(name?: string | null): string {
+  if (!name) return "?";
+  return name
+    .split(" ")
+    .map((p) => p[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+function AccountButton() {
+  const { user, isAuthenticated, login, logout } = useAuth();
+
+  if (!isAuthenticated) {
+    return (
+      <button
+        onClick={login}
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+        title="Sign in"
+      >
+        <LogIn className="w-4 h-4" />
+        Sign In
+      </button>
+    );
+  }
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="focus:outline-none rounded-full" title="Account">
+          <Avatar className="w-8 h-8 ring-2 ring-emerald-500/30 hover:ring-emerald-500/70 transition-all">
+            {user?.profileImageUrl && (
+              <AvatarImage src={user.profileImageUrl} alt={user.firstName ?? "User"} />
+            )}
+            <AvatarFallback className="bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
+              {getInitials(
+                user?.firstName && user?.lastName
+                  ? `${user.firstName} ${user.lastName}`
+                  : (user?.firstName ?? user?.email)
+              )}
+            </AvatarFallback>
+          </Avatar>
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-52">
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col gap-0.5">
+            {(user?.firstName || user?.lastName) && (
+              <span className="font-semibold text-sm">
+                {[user.firstName, user.lastName].filter(Boolean).join(" ")}
+              </span>
+            )}
+            {user?.email && (
+              <span className="text-xs text-muted-foreground truncate">{user.email}</span>
+            )}
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={logout}
+          className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400 cursor-pointer"
+        >
+          <LogOut className="w-4 h-4 mr-2" />
+          Sign Out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function SidebarAccountSection() {
+  const { user, isAuthenticated, login, logout } = useAuth();
+
+  if (!isAuthenticated) {
+    return (
+      <div className="px-4 py-4 border-t border-border">
+        <button
+          onClick={login}
+          className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors font-medium"
+        >
+          <LogIn className="w-5 h-5 shrink-0" />
+          Sign In
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="px-4 py-4 border-t border-border">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="flex items-center gap-3 w-full px-4 py-3 rounded-xl hover:bg-sidebar-accent transition-colors focus:outline-none group">
+            <Avatar className="w-8 h-8 ring-2 ring-emerald-500/30 group-hover:ring-emerald-500/60 transition-all shrink-0">
+              {user?.profileImageUrl && (
+                <AvatarImage src={user.profileImageUrl} alt={user.firstName ?? "User"} />
+              )}
+              <AvatarFallback className="bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
+                {getInitials(
+                  user?.firstName && user?.lastName
+                    ? `${user.firstName} ${user.lastName}`
+                    : (user?.firstName ?? user?.email)
+                )}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 text-left min-w-0">
+              <p className="text-sm font-semibold text-sidebar-foreground truncate">
+                {[user?.firstName, user?.lastName].filter(Boolean).join(" ") || "My Account"}
+              </p>
+              {user?.email && (
+                <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+              )}
+            </div>
+            <User className="w-4 h-4 text-muted-foreground shrink-0" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" side="top" className="w-52">
+          <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col gap-0.5">
+              {(user?.firstName || user?.lastName) && (
+                <span className="font-semibold text-sm">
+                  {[user.firstName, user.lastName].filter(Boolean).join(" ")}
+                </span>
+              )}
+              {user?.email && (
+                <span className="text-xs text-muted-foreground truncate">{user.email}</span>
+              )}
+            </div>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={logout}
+            className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400 cursor-pointer"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
 
   return (
     <div className="min-h-[100dvh] bg-background flex flex-col md:flex-row">
       {/* ── Mobile Header ── */}
-      <header className="md:hidden sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border px-4 py-3 flex items-center justify-center">
+      <header className="md:hidden sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border px-4 py-3 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 text-primary">
           <Leaf className="w-6 h-6" />
           <span className="font-bold text-lg tracking-tight">LawnRX</span>
         </Link>
+        <AccountButton />
       </header>
 
       {/* ── Desktop Sidebar ── */}
@@ -68,6 +221,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             );
           })}
         </nav>
+        <SidebarAccountSection />
       </aside>
 
       {/* ── Main Content ── */}
