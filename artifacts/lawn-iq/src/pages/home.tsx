@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Camera, Upload, Sparkles, AlertTriangle } from "lucide-react";
+import { Camera, Upload, Sparkles, AlertTriangle, Sun, ZoomIn, Hand, Focus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -226,6 +226,26 @@ export default function Home() {
                 </div>
               </div>
             )}
+
+            {/* Photo tips */}
+            <div className="rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 p-3">
+              <p className="text-xs font-semibold text-emerald-800 dark:text-emerald-300 mb-2 flex items-center gap-1.5">
+                <Camera className="w-3.5 h-3.5" /> Tips for the best diagnosis
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { icon: ZoomIn,  tip: "Get within 12–18 inches of the affected area" },
+                  { icon: Focus,   tip: "Tap your screen to focus before shooting" },
+                  { icon: Sun,     tip: "Shoot in natural light — avoid harsh shadows" },
+                  { icon: Hand,    tip: "Hold steady or rest your phone on the ground" },
+                ].map(({ icon: Icon, tip }) => (
+                  <div key={tip} className="flex items-start gap-1.5">
+                    <Icon className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                    <span className="text-xs text-emerald-700 dark:text-emerald-300 leading-tight">{tip}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
 
             <input
               ref={cameraInputRef}

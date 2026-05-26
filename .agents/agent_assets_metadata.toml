@@ -107,3 +107,15 @@ id = "0Wb7Mg0AzjExaxMLuEa6Z"
 uri = "file://android-test-build-v1.zip"
 type = "unspecified"
 title = "Android TEST Build v1 — No AI limit (5.1 MB)"
+
+[[outputs]]
+id = "sB0AJA5buAUM9h-wO1AJ1"
+uri = "file://android-project-v9.zip"
+type = "unspecified"
+title = "Android v9 — Photo tips added (5.1 MB)"
+
+[[outputs]]
+id = "F_05ynzSI5QUI64OrENPE"
+uri = "file://ios-project-v5.zip"
+type = "unspecified"
+title = "iOS v5 — Photo tips added (5.7 MB)"
