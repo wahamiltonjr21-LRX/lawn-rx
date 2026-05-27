@@ -15,6 +15,7 @@ import PlanDetail from "@/pages/plan-detail";
 import About from "@/pages/about";
 import CareAlerts from "@/pages/care-alerts";
 import Terms from "@/pages/terms";
+import Privacy from "@/pages/privacy";
 import Community from "@/pages/community";
 import Shop from "@/pages/shop";
 
@@ -45,6 +46,7 @@ function AnimatedRouter() {
           <Route path="/care-alerts" component={CareAlerts} />
           <Route path="/about" component={About} />
           <Route path="/terms" component={Terms} />
+          <Route path="/privacy" component={Privacy} />
           <Route path="/community" component={Community} />
           <Route path="/shop" component={Shop} />
           <Route component={NotFound} />
