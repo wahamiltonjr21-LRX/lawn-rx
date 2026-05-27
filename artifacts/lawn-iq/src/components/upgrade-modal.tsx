@@ -1,8 +1,10 @@
-import { Sparkles, Check, Loader2, X } from "lucide-react";
+import { useState } from "react";
+import { Sparkles, Check, Loader2, X, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useStripeProducts, useStartCheckout } from "@/hooks/use-subscription";
 import { useToast } from "@/hooks/use-toast";
+import { EmbeddedCheckoutModal } from "@/components/embedded-checkout-modal";
 
 interface UpgradeModalProps {
   onClose?: () => void;
@@ -12,6 +14,7 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
   const { data: productsData, isLoading } = useStripeProducts();
   const startCheckout = useStartCheckout();
   const { toast } = useToast();
+  const [showEmbedded, setShowEmbedded] = useState(false);
 
   const proProduct = productsData?.products?.find((p: any) =>
     p.name?.toLowerCase().includes("pro"),
@@ -20,7 +23,11 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
     (p: any) => p.recurring?.interval === "month",
   );
 
-  const handleUpgrade = async () => {
+  const priceDisplay = monthlyPrice
+    ? `$${(monthlyPrice.unitAmount / 100).toFixed(2)}`
+    : "$9.99";
+
+  const handleRedirectCheckout = async () => {
     if (!monthlyPrice?.id) {
       toast({ title: "Price not found", description: "Please try again later.", variant: "destructive" });
       return;
@@ -33,10 +40,19 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
     }
   };
 
+  if (showEmbedded) {
+    return (
+      <EmbeddedCheckoutModal
+        onClose={() => setShowEmbedded(false)}
+        onSuccess={onClose}
+      />
+    );
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <Card className="w-full max-w-md shadow-2xl border-2 border-primary/20 animate-in fade-in slide-in-from-bottom-8 duration-300">
-        <CardContent className="p-6 space-y-6">
+        <CardContent className="p-6 space-y-5">
           {onClose && (
             <button
               onClick={onClose}
@@ -62,9 +78,7 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
                 <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary" />
               ) : (
                 <>
-                  <span className="text-4xl font-bold text-foreground">
-                    ${monthlyPrice ? (monthlyPrice.unitAmount / 100).toFixed(2) : "9.99"}
-                  </span>
+                  <span className="text-4xl font-bold text-foreground">{priceDisplay}</span>
                   <span className="text-muted-foreground">/month</span>
                 </>
               )}
@@ -88,15 +102,32 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
             </ul>
           </div>
 
+          {/* Express Checkout — Apple Pay / Google Pay / Link */}
           <Button
-            onClick={handleUpgrade}
+            onClick={() => setShowEmbedded(true)}
+            disabled={isLoading || !monthlyPrice}
+            className="w-full py-6 text-base rounded-xl bg-black hover:bg-black/80 dark:bg-white dark:hover:bg-white/90 dark:text-black text-white gap-2"
+          >
+            <Sparkles className="w-4 h-4" />
+            Pay with Apple Pay / Google Pay
+          </Button>
+
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-xs text-muted-foreground">or pay with card</span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+
+          <Button
+            variant="outline"
+            onClick={handleRedirectCheckout}
             disabled={startCheckout.isPending || isLoading}
-            className="w-full py-6 text-base rounded-xl"
+            className="w-full py-5 rounded-xl gap-2"
           >
             {startCheckout.isPending ? (
-              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Redirecting...</>
+              <><Loader2 className="w-4 h-4 animate-spin" /> Redirecting…</>
             ) : (
-              <><Sparkles className="w-4 h-4 mr-2" /> Start Pro — ${monthlyPrice ? (monthlyPrice.unitAmount / 100).toFixed(2) : "9.99"}/month</>
+              <><CreditCard className="w-4 h-4" /> Pay with Card — {priceDisplay}/mo</>
             )}
           </Button>
 
