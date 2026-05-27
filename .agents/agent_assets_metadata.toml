@@ -119,3 +119,9 @@ id = "F_05ynzSI5QUI64OrENPE"
 uri = "file://ios-project-v5.zip"
 type = "unspecified"
 title = "iOS v5 — Photo tips added (5.7 MB)"
+
+[[outputs]]
+id = "kBVG8Dh_U1mjKYQAEU4g5"
+uri = "file://android-project-v10.zip"
+type = "unspecified"
+title = "Android v10 — Price fix + 1 analysis limit + paywalled plans (5.1 MB)"
