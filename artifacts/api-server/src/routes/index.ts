@@ -5,6 +5,7 @@ import authRouter from "./auth";
 import upgradeRequestRouter from "./upgrade-request";
 import stripeRouter from "./stripe";
 import communityRouter from "./community";
+import tipRouter from "./tip";
 
 const router: IRouter = Router();
 
@@ -14,5 +15,6 @@ router.use(diagnosesRouter);
 router.use(upgradeRequestRouter);
 router.use(stripeRouter);
 router.use(communityRouter);
+router.use(tipRouter);
 
 export default router;

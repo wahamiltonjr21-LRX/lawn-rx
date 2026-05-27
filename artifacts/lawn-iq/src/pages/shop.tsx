@@ -403,6 +403,64 @@ export default function Shop() {
             })}
           </motion.div>
 
+          {/* Local store finder */}
+          {zone && zone !== "unknown" && (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="rounded-2xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-950/30 p-4 space-y-3"
+            >
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <p className="font-semibold text-sm text-emerald-800 dark:text-emerald-300">
+                  Find Local Lawn &amp; Garden Stores
+                  {location && <span className="font-normal text-muted-foreground ml-1">near {location}</span>}
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  {
+                    label: "Near Me (Google Maps)",
+                    url: location
+                      ? `https://www.google.com/maps/search/lawn+garden+store+near+${encodeURIComponent(location)}`
+                      : "https://www.google.com/maps/search/lawn+garden+store+near+me",
+                  },
+                  {
+                    label: "Ace Hardware",
+                    url: location
+                      ? `https://www.acehardware.com/store-finder?query=${encodeURIComponent(location)}`
+                      : "https://www.acehardware.com/store-finder",
+                  },
+                  {
+                    label: "True Value",
+                    url: location
+                      ? `https://www.truevalue.com/store-finder?query=${encodeURIComponent(location)}`
+                      : "https://www.truevalue.com/store-finder",
+                  },
+                  {
+                    label: "Lowe's",
+                    url: location
+                      ? `https://www.lowes.com/store/`
+                      : "https://www.lowes.com/store/",
+                  },
+                ].map(({ label, url }) => (
+                  <a
+                    key={label}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button variant="outline" size="sm" className="w-full text-xs gap-1.5 justify-start truncate">
+                      <ExternalLink className="w-3 h-3 shrink-0" />
+                      <span className="truncate">{label}</span>
+                    </Button>
+                  </a>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
           <p className="text-[11px] text-muted-foreground/60 text-center pb-2">
             Product links open retailer searches. LawnRX is not affiliated with any retailer.
           </p>

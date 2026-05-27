@@ -2,50 +2,34 @@ import { useEffect, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { EmbeddedCheckout, Elements } from "@stripe/react-stripe-js";
 import { X, Loader2 } from "lucide-react";
-import { useStripeProducts } from "@/hooks/use-subscription";
+
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 interface EmbeddedCheckoutModalProps {
+  priceId: string;
   onClose: () => void;
   onSuccess?: () => void;
 }
 
-export function EmbeddedCheckoutModal({ onClose }: EmbeddedCheckoutModalProps) {
+export function EmbeddedCheckoutModal({ priceId, onClose }: EmbeddedCheckoutModalProps) {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [publishableKey, setPublishableKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const { data: productsData } = useStripeProducts();
-
-  const proProduct = productsData?.products?.find((p: any) =>
-    p.name?.toLowerCase().includes("pro"),
-  );
-  const monthlyPrice = proProduct?.prices?.find(
-    (p: any) => p.recurring?.interval === "month",
-  );
 
   useEffect(() => {
     async function init() {
       try {
-        const configRes = await fetch("/api/stripe/config");
+        const configRes = await fetch(`${BASE}/api/stripe/config`, { credentials: "include" });
         const { publishableKey: pk } = await configRes.json();
         setPublishableKey(pk);
-      } catch {
-        setError("Failed to load Stripe config.");
-      }
-    }
-    init();
-  }, []);
 
-  useEffect(() => {
-    if (!publishableKey || !monthlyPrice?.id) return;
-    async function fetchClientSecret() {
-      try {
-        const res = await fetch("/api/stripe/embedded-checkout", {
+        const checkoutRes = await fetch(`${BASE}/api/stripe/embedded-checkout`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ priceId: monthlyPrice.id }),
           credentials: "include",
+          body: JSON.stringify({ priceId }),
         });
-        const data = await res.json();
+        const data = await checkoutRes.json();
         if (data.clientSecret) {
           setClientSecret(data.clientSecret);
         } else {
@@ -55,8 +39,8 @@ export function EmbeddedCheckoutModal({ onClose }: EmbeddedCheckoutModalProps) {
         setError("Network error. Please try again.");
       }
     }
-    fetchClientSecret();
-  }, [publishableKey, monthlyPrice?.id]);
+    init();
+  }, [priceId]);
 
   const stripePromise = publishableKey ? loadStripe(publishableKey) : null;
 

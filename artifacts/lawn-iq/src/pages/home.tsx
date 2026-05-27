@@ -407,6 +407,8 @@ export default function Home() {
           diagnosis={currentDiagnosis}
           onSave={handleSave}
           isSaving={saveDiagnosis.isPending}
+          isPro={isPro}
+          onUpgrade={() => setShowUpgradeModal(true)}
         />
       )}
     </div>

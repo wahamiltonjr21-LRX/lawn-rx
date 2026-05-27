@@ -6,6 +6,9 @@ import { useStripeProducts, useStartCheckout } from "@/hooks/use-subscription";
 import { useToast } from "@/hooks/use-toast";
 import { EmbeddedCheckoutModal } from "@/components/embedded-checkout-modal";
 
+const FALLBACK_PRICE_ID = "price_1TTAprERekY96iVDNPuog4ep";
+const FALLBACK_PRICE = 9.99;
+
 interface UpgradeModalProps {
   onClose?: () => void;
 }
@@ -23,17 +26,14 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
     (p: any) => p.recurring?.interval === "month",
   );
 
-  const priceDisplay = monthlyPrice
-    ? `$${(monthlyPrice.unitAmount / 100).toFixed(2)}`
-    : "$9.99";
+  const priceId = monthlyPrice?.id ?? FALLBACK_PRICE_ID;
+  const priceAmount = monthlyPrice
+    ? (monthlyPrice.unitAmount / 100).toFixed(2)
+    : FALLBACK_PRICE.toFixed(2);
 
   const handleRedirectCheckout = async () => {
-    if (!monthlyPrice?.id) {
-      toast({ title: "Price not found", description: "Please try again later.", variant: "destructive" });
-      return;
-    }
     try {
-      const { url } = await startCheckout.mutateAsync(monthlyPrice.id);
+      const { url } = await startCheckout.mutateAsync(priceId);
       if (url) window.location.href = url;
     } catch {
       toast({ title: "Checkout failed", description: "Please try again.", variant: "destructive" });
@@ -43,6 +43,7 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
   if (showEmbedded) {
     return (
       <EmbeddedCheckoutModal
+        priceId={priceId}
         onClose={() => setShowEmbedded(false)}
         onSuccess={onClose}
       />
@@ -68,7 +69,7 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
             </div>
             <h2 className="text-2xl font-bold">Upgrade to LawnRX Pro</h2>
             <p className="text-muted-foreground text-sm">
-              You've used all 2 free analyses. Go Pro for unlimited access and full lawn care tools.
+              You've used your 1 free analysis. Go Pro for unlimited access and your full recovery plan.
             </p>
           </div>
 
@@ -78,7 +79,7 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
                 <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary" />
               ) : (
                 <>
-                  <span className="text-4xl font-bold text-foreground">{priceDisplay}</span>
+                  <span className="text-4xl font-bold text-foreground">${priceAmount}</span>
                   <span className="text-muted-foreground">/month</span>
                 </>
               )}
@@ -87,7 +88,8 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
             <ul className="space-y-2.5 text-sm">
               {[
                 "Unlimited AI lawn diagnoses",
-                "Personalized recovery plans",
+                "Full step-by-step recovery plans",
+                "Personalized treatment advice",
                 "Fertilizing & care alerts",
                 "Seasonal treatment schedules",
                 "Priority support",
@@ -102,10 +104,9 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
             </ul>
           </div>
 
-          {/* Express Checkout — Apple Pay / Google Pay / Link */}
           <Button
             onClick={() => setShowEmbedded(true)}
-            disabled={isLoading || !monthlyPrice}
+            disabled={isLoading}
             className="w-full py-6 text-base rounded-xl bg-black hover:bg-black/80 dark:bg-white dark:hover:bg-white/90 dark:text-black text-white gap-2"
           >
             <Sparkles className="w-4 h-4" />
@@ -127,7 +128,7 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
             {startCheckout.isPending ? (
               <><Loader2 className="w-4 h-4 animate-spin" /> Redirecting…</>
             ) : (
-              <><CreditCard className="w-4 h-4" /> Pay with Card — {priceDisplay}/mo</>
+              <><CreditCard className="w-4 h-4" /> Pay with Card — ${priceAmount}/mo</>
             )}
           </Button>
 

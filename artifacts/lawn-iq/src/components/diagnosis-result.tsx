@@ -4,7 +4,7 @@ import {
   Droplets, Sun, AlertTriangle, Activity, Save, Leaf,
   FlaskConical, ShieldCheck, Clock, Microscope, CloudSun,
   ArrowRight, ChevronDown, ChevronUp, TriangleAlert, Info,
-  CheckCircle2,
+  CheckCircle2, Lock, Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,6 +16,8 @@ interface Props {
   onSave?: () => void;
   isSaving?: boolean;
   showSaveButton?: boolean;
+  isPro?: boolean;
+  onUpgrade?: () => void;
 }
 
 const SEVERITY_CONFIG = {
@@ -99,7 +101,7 @@ function HealthRing({ score }: { score: number }) {
   );
 }
 
-export function DiagnosisResult({ diagnosis, onSave, isSaving = false, showSaveButton = true }: Props) {
+export function DiagnosisResult({ diagnosis, onSave, isSaving = false, showSaveButton = true, isPro = false, onUpgrade }: Props) {
   const sev = SEVERITY_CONFIG[diagnosis.severity];
   const [showDifferential, setShowDifferential] = useState(false);
 
@@ -226,42 +228,112 @@ export function DiagnosisResult({ diagnosis, onSave, isSaving = false, showSaveB
           <h3 className="font-bold text-lg">Recovery Plan</h3>
           <span className="ml-auto text-xs text-muted-foreground">{diagnosis.steps.length} steps</span>
         </div>
-        <div className="divide-y divide-border/40">
-          {diagnosis.steps.map((step, index) => {
-            const pCfg = step.priority ? PRIORITY_CONFIG[step.priority] : PRIORITY_CONFIG.soon;
-            return (
-              <div key={index} className="flex gap-4 p-5 hover:bg-muted/20 transition-colors">
-                <div className="shrink-0 flex flex-col items-center gap-2 pt-0.5">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm flex items-center justify-center border border-primary/20">
-                    {index + 1}
-                  </div>
-                  {index < diagnosis.steps.length - 1 && (
-                    <div className="w-px flex-1 bg-border/50 min-h-[12px]" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0 pb-1">
-                  <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                    <h4 className="font-semibold text-foreground">{step.title}</h4>
-                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${pCfg.class}`}>
-                      {pCfg.label}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{step.detail}</p>
-                  {step.timing && (
-                    <div className="flex items-center gap-1.5 mt-2">
-                      <Clock className="w-3 h-3 text-primary/60" />
-                      <span className="text-xs font-medium text-primary/80">{step.timing}</span>
+
+        {isPro ? (
+          <div className="divide-y divide-border/40">
+            {diagnosis.steps.map((step, index) => {
+              const pCfg = step.priority ? PRIORITY_CONFIG[step.priority] : PRIORITY_CONFIG.soon;
+              return (
+                <div key={index} className="flex gap-4 p-5 hover:bg-muted/20 transition-colors">
+                  <div className="shrink-0 flex flex-col items-center gap-2 pt-0.5">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm flex items-center justify-center border border-primary/20">
+                      {index + 1}
                     </div>
-                  )}
+                    {index < diagnosis.steps.length - 1 && (
+                      <div className="w-px flex-1 bg-border/50 min-h-[12px]" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0 pb-1">
+                    <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                      <h4 className="font-semibold text-foreground">{step.title}</h4>
+                      <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${pCfg.class}`}>
+                        {pCfg.label}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{step.detail}</p>
+                    {step.timing && (
+                      <div className="flex items-center gap-1.5 mt-2">
+                        <Clock className="w-3 h-3 text-primary/60" />
+                        <span className="text-xs font-medium text-primary/80">{step.timing}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div>
+            {/* Show first step only */}
+            {diagnosis.steps[0] && (() => {
+              const step = diagnosis.steps[0];
+              const pCfg = step.priority ? PRIORITY_CONFIG[step.priority] : PRIORITY_CONFIG.soon;
+              return (
+                <div className="flex gap-4 p-5">
+                  <div className="shrink-0 flex flex-col items-center gap-2 pt-0.5">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm flex items-center justify-center border border-primary/20">
+                      1
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0 pb-1">
+                    <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                      <h4 className="font-semibold text-foreground">{step.title}</h4>
+                      <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${pCfg.class}`}>
+                        {pCfg.label}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{step.detail}</p>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Paywall blur for remaining steps */}
+            {diagnosis.steps.length > 1 && (
+              <div className="relative">
+                <div className="pointer-events-none select-none px-5 pb-4 space-y-4 opacity-30 blur-[3px]">
+                  {diagnosis.steps.slice(1, 3).map((step, i) => (
+                    <div key={i} className="flex gap-4">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm flex items-center justify-center border border-primary/20 shrink-0">
+                        {i + 2}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-sm">{step.title}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{step.detail}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Upgrade overlay */}
+                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-t from-background via-background/80 to-transparent">
+                  <div className="text-center px-6 py-4 space-y-3">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                      <Lock className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-base">Unlock {diagnosis.steps.length - 1} more steps</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Upgrade to Pro for the full recovery plan.
+                      </p>
+                    </div>
+                    <Button
+                      onClick={onUpgrade}
+                      className="rounded-xl gap-2 px-6"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      Upgrade to Pro — $9.99/mo
+                    </Button>
+                  </div>
                 </div>
               </div>
-            );
-          })}
-        </div>
+            )}
+          </div>
+        )}
       </Card>
 
       {/* ── Treatment products ── */}
-      {diagnosis.treatmentProducts && diagnosis.treatmentProducts.length > 0 && (
+      {isPro && diagnosis.treatmentProducts && diagnosis.treatmentProducts.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <FlaskConical className="w-5 h-5 text-primary" />
@@ -292,7 +364,7 @@ export function DiagnosisResult({ diagnosis, onSave, isSaving = false, showSaveB
       )}
 
       {/* ── Prevention tips ── */}
-      {diagnosis.preventionTips && diagnosis.preventionTips.length > 0 && (
+      {isPro && diagnosis.preventionTips && diagnosis.preventionTips.length > 0 && (
         <Card className="border border-primary/15 bg-primary/3 dark:bg-primary/8 overflow-hidden">
           <div className="flex items-center gap-2 px-6 py-4 border-b border-primary/10">
             <ShieldCheck className="w-5 h-5 text-primary" />
@@ -315,7 +387,7 @@ export function DiagnosisResult({ diagnosis, onSave, isSaving = false, showSaveB
       <TipOfTheDay />
 
       {/* ── Save button ── */}
-      {showSaveButton && onSave && (
+      {showSaveButton && onSave && isPro && (
         <Button
           onClick={onSave}
           disabled={isSaving}
@@ -324,6 +396,18 @@ export function DiagnosisResult({ diagnosis, onSave, isSaving = false, showSaveB
         >
           <Save className="w-5 h-5 mr-2" />
           {isSaving ? "Saving plan…" : "Save Recovery Plan"}
+        </Button>
+      )}
+
+      {showSaveButton && !isPro && (
+        <Button
+          onClick={onUpgrade}
+          size="lg"
+          variant="outline"
+          className="w-full rounded-xl py-6 text-base gap-2"
+        >
+          <Sparkles className="w-5 h-5 text-primary" />
+          Upgrade to Pro to Save This Plan
         </Button>
       )}
     </div>
