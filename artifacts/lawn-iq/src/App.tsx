@@ -1,8 +1,9 @@
 import { Switch, Route, Router as WouterRouter, Link, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useAuth } from "@workspace/replit-auth-web";
-import { Camera, Sparkles, ListChecks } from "lucide-react";
+import { Camera, Sparkles, ListChecks, CheckCircle2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
@@ -151,10 +152,144 @@ function SignInScreen({ onLogin }: { onLogin: () => void }) {
   );
 }
 
+const BLADES = Array.from({ length: 18 }, (_, i) => i);
+
+function LoginSuccessScreen({ onDone }: { onDone: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onDone, 2600);
+    return () => clearTimeout(t);
+  }, [onDone]);
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-400 overflow-hidden"
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0, scale: 1.06, transition: { duration: 0.45, ease: "easeIn" } }}
+    >
+      {/* Floating grass blades background */}
+      {BLADES.map((i) => (
+        <motion.div
+          key={i}
+          className="absolute bottom-0 rounded-full bg-white/10"
+          style={{
+            left: `${(i / BLADES.length) * 100 + Math.sin(i) * 3}%`,
+            width: `${6 + (i % 5) * 4}px`,
+            transformOrigin: "bottom center",
+          }}
+          initial={{ height: 0, opacity: 0 }}
+          animate={{
+            height: `${40 + (i % 7) * 22}px`,
+            opacity: 0.7,
+            rotate: [0, (i % 2 === 0 ? 6 : -6), 0],
+          }}
+          transition={{
+            height: { delay: 0.1 + i * 0.04, duration: 0.6, ease: "easeOut" },
+            opacity: { delay: 0.1 + i * 0.04, duration: 0.4 },
+            rotate: { delay: 0.6, duration: 2.5, repeat: Infinity, ease: "easeInOut" },
+          }}
+        />
+      ))}
+
+      {/* Radiating rings */}
+      {[0, 1, 2].map((i) => (
+        <motion.div
+          key={i}
+          className="absolute rounded-full border-2 border-white/20"
+          initial={{ width: 80, height: 80, opacity: 0.6 }}
+          animate={{ width: 420, height: 420, opacity: 0 }}
+          transition={{ delay: 0.3 + i * 0.35, duration: 1.4, ease: "easeOut", repeat: Infinity, repeatDelay: 0.6 }}
+        />
+      ))}
+
+      {/* Main content */}
+      <div className="relative flex flex-col items-center gap-6 px-8 text-center">
+        {/* Logo mark */}
+        <motion.div
+          className="relative"
+          initial={{ scale: 0, rotate: -15 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 280, damping: 18, delay: 0.1 }}
+        >
+          <div className="w-28 h-28 rounded-full bg-white/15 backdrop-blur flex items-center justify-center shadow-2xl border-2 border-white/30">
+            <span className="text-5xl select-none">🌿</span>
+          </div>
+          {/* Check badge */}
+          <motion.div
+            className="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow-lg"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 400, damping: 16, delay: 0.55 }}
+          >
+            <CheckCircle2 className="w-8 h-8 text-emerald-600" strokeWidth={2.5} />
+          </motion.div>
+        </motion.div>
+
+        {/* LawnRX wordmark */}
+        <motion.div
+          className="flex gap-[2px]"
+          initial="hidden"
+          animate="visible"
+        >
+          {"LawnRX".split("").map((char, i) => (
+            <motion.span
+              key={i}
+              className="text-4xl font-black text-white tracking-tight drop-shadow"
+              style={{ display: "inline-block" }}
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0, transition: { delay: 0.5 + i * 0.07, type: "spring", stiffness: 320, damping: 20 } },
+              }}
+            >
+              {char}
+            </motion.span>
+          ))}
+        </motion.div>
+
+        {/* Welcome text */}
+        <motion.div
+          className="space-y-1"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.05, duration: 0.4 }}
+        >
+          <p className="text-white text-xl font-semibold">You're all set!</p>
+          <p className="text-white/80 text-sm">Let's get your lawn looking great.</p>
+        </motion.div>
+
+        {/* Progress bar */}
+        <motion.div
+          className="w-48 h-1 rounded-full bg-white/20 overflow-hidden"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2 }}
+        >
+          <motion.div
+            className="h-full bg-white rounded-full"
+            initial={{ width: "0%" }}
+            animate={{ width: "100%" }}
+            transition={{ delay: 1.2, duration: 1.4, ease: "linear" }}
+          />
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+}
+
 function AuthGate({ children }: { children: React.ReactNode }) {
   const { isLoading, isAuthenticated, login } = useAuth();
   const [location] = useLocation();
+  const prevAuthed = useRef(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  useEffect(() => {
+    if (!prevAuthed.current && isAuthenticated) {
+      setShowSuccess(true);
+    }
+    prevAuthed.current = isAuthenticated;
+  }, [isAuthenticated]);
+
   if (location === "/terms") return <>{children}</>;
+
   if (isLoading) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-background">
@@ -162,10 +297,21 @@ function AuthGate({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
+
   if (!isAuthenticated) {
     return <SignInScreen onLogin={login} />;
   }
-  return <>{children}</>;
+
+  return (
+    <>
+      <AnimatePresence>
+        {showSuccess && (
+          <LoginSuccessScreen onDone={() => setShowSuccess(false)} />
+        )}
+      </AnimatePresence>
+      {children}
+    </>
+  );
 }
 
 function App() {
