@@ -1,9 +1,9 @@
 import { Switch, Route, Router as WouterRouter, Link, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useAuth } from "@workspace/replit-auth-web";
-import { Camera, Sparkles, ListChecks, CheckCircle2 } from "lucide-react";
+import { Camera, Sparkles, ListChecks, CheckCircle2, LogOut } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
@@ -152,6 +152,9 @@ function SignInScreen({ onLogin }: { onLogin: () => void }) {
   );
 }
 
+export const LogoutContext = createContext<() => void>(() => {});
+export function useAnimatedLogout() { return useContext(LogoutContext); }
+
 const BLADES = Array.from({ length: 18 }, (_, i) => i);
 
 function LoginSuccessScreen({ onDone }: { onDone: () => void }) {
@@ -275,11 +278,104 @@ function LoginSuccessScreen({ onDone }: { onDone: () => void }) {
   );
 }
 
+function SignOutScreen({ onDone }: { onDone: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onDone, 2400);
+    return () => clearTimeout(t);
+  }, [onDone]);
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-slate-700 via-slate-600 to-slate-500 overflow-hidden"
+      initial={{ opacity: 0, scale: 0.97 }}
+      animate={{ opacity: 1, scale: 1, transition: { duration: 0.3 } }}
+      exit={{ opacity: 0, y: 20, transition: { duration: 0.4, ease: "easeIn" } }}
+    >
+      {/* Falling leaf particles */}
+      {BLADES.map((i) => (
+        <motion.div
+          key={i}
+          className="absolute text-white/20 select-none pointer-events-none"
+          style={{ left: `${(i / BLADES.length) * 110 - 5}%`, top: "-10%" }}
+          animate={{ y: "120vh", rotate: 360 * (i % 2 === 0 ? 1 : -1), opacity: [0, 0.4, 0] }}
+          transition={{ delay: i * 0.08, duration: 2.5 + (i % 4) * 0.4, ease: "easeIn" }}
+        >
+          {["🍃", "🌿", "🍂"][i % 3]}
+        </motion.div>
+      ))}
+
+      {/* Fading rings */}
+      {[0, 1, 2].map((i) => (
+        <motion.div
+          key={i}
+          className="absolute rounded-full border border-white/10"
+          initial={{ width: 60, height: 60, opacity: 0.5 }}
+          animate={{ width: 380, height: 380, opacity: 0 }}
+          transition={{ delay: i * 0.4, duration: 1.6, ease: "easeOut", repeat: Infinity, repeatDelay: 0.8 }}
+        />
+      ))}
+
+      <div className="relative flex flex-col items-center gap-6 px-8 text-center">
+        {/* Icon bubble */}
+        <motion.div
+          className="relative"
+          initial={{ scale: 0, rotate: 10 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 260, damping: 18, delay: 0.15 }}
+        >
+          <div className="w-28 h-28 rounded-full bg-white/10 backdrop-blur flex items-center justify-center shadow-2xl border-2 border-white/20">
+            <LogOut className="w-12 h-12 text-white" strokeWidth={1.5} />
+          </div>
+        </motion.div>
+
+        {/* LawnRX wordmark */}
+        <motion.div className="flex gap-[2px]" initial="hidden" animate="visible">
+          {"LawnRX".split("").map((char, i) => (
+            <motion.span
+              key={i}
+              className="text-4xl font-black text-white tracking-tight drop-shadow"
+              style={{ display: "inline-block" }}
+              variants={{
+                hidden: { opacity: 0, y: -16 },
+                visible: { opacity: 1, y: 0, transition: { delay: 0.4 + i * 0.07, type: "spring", stiffness: 300, damping: 22 } },
+              }}
+            >
+              {char}
+            </motion.span>
+          ))}
+        </motion.div>
+
+        {/* Message */}
+        <motion.div
+          className="space-y-1"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.95, duration: 0.4 }}
+        >
+          <p className="text-white text-xl font-semibold">Signed out successfully</p>
+          <p className="text-white/70 text-sm">See you next time! 👋</p>
+        </motion.div>
+
+        {/* Draining progress bar */}
+        <motion.div className="w-48 h-1 rounded-full bg-white/20 overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.1 }}>
+          <motion.div
+            className="h-full bg-white/60 rounded-full"
+            initial={{ width: "100%" }}
+            animate={{ width: "0%" }}
+            transition={{ delay: 1.1, duration: 1.3, ease: "linear" }}
+          />
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+}
+
 function AuthGate({ children }: { children: React.ReactNode }) {
-  const { isLoading, isAuthenticated, login } = useAuth();
+  const { isLoading, isAuthenticated, login, logout } = useAuth();
   const [location] = useLocation();
   const prevAuthed = useRef(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showSignOut, setShowSignOut] = useState(false);
 
   useEffect(() => {
     if (!prevAuthed.current && isAuthenticated) {
@@ -287,6 +383,15 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     }
     prevAuthed.current = isAuthenticated;
   }, [isAuthenticated]);
+
+  const handleLogout = useCallback(() => {
+    setShowSignOut(true);
+  }, []);
+
+  const handleSignOutDone = useCallback(() => {
+    setShowSignOut(false);
+    logout();
+  }, [logout]);
 
   if (location === "/terms") return <>{children}</>;
 
@@ -298,19 +403,24 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!isAuthenticated) {
-    return <SignInScreen onLogin={login} />;
+  if (!isAuthenticated && !showSignOut) {
+    return (
+      <AnimatePresence>
+        <SignInScreen onLogin={login} />
+      </AnimatePresence>
+    );
   }
 
   return (
-    <>
+    <LogoutContext.Provider value={handleLogout}>
       <AnimatePresence>
-        {showSuccess && (
-          <LoginSuccessScreen onDone={() => setShowSuccess(false)} />
-        )}
+        {showSuccess && <LoginSuccessScreen onDone={() => setShowSuccess(false)} />}
       </AnimatePresence>
-      {children}
-    </>
+      <AnimatePresence>
+        {showSignOut && <SignOutScreen onDone={handleSignOutDone} />}
+      </AnimatePresence>
+      {!showSignOut && children}
+    </LogoutContext.Provider>
   );
 }
 

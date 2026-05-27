@@ -2,6 +2,7 @@ import { Link, useLocation } from "wouter";
 import { Home, List, Info, Leaf, Bell, Users, ShoppingBag, LogIn, LogOut, User } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@workspace/replit-auth-web";
+import { useAnimatedLogout } from "@/App";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,7 +42,8 @@ function getInitials(name?: string | null): string {
 }
 
 function AccountButton() {
-  const { user, isAuthenticated, login, logout } = useAuth();
+  const { user, isAuthenticated, login } = useAuth();
+  const handleLogout = useAnimatedLogout();
 
   if (!isAuthenticated) {
     return (
@@ -89,7 +91,7 @@ function AccountButton() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onClick={logout}
+          onClick={handleLogout}
           className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400 cursor-pointer"
         >
           <LogOut className="w-4 h-4 mr-2" />
@@ -101,7 +103,8 @@ function AccountButton() {
 }
 
 function SidebarAccountSection() {
-  const { user, isAuthenticated, login, logout } = useAuth();
+  const { user, isAuthenticated, login } = useAuth();
+  const handleLogout = useAnimatedLogout();
 
   if (!isAuthenticated) {
     return (
@@ -160,7 +163,7 @@ function SidebarAccountSection() {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            onClick={logout}
+            onClick={handleLogout}
             className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400 cursor-pointer"
           >
             <LogOut className="w-4 h-4 mr-2" />
