@@ -125,3 +125,9 @@ id = "kBVG8Dh_U1mjKYQAEU4g5"
 uri = "file://android-project-v10.zip"
 type = "unspecified"
 title = "android-project-v10.zip"
+
+[[outputs]]
+id = "vkQJREVmBqa9K2tLNTxRH"
+uri = "file://play-testers.csv"
+type = "table"
+title = "play-testers.csv — Google Play tester emails"
