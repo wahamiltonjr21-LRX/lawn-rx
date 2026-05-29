@@ -49,7 +49,7 @@ function AccountButton() {
     return (
       <button
         onClick={login}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors"
         title="Sign in"
       >
         <LogIn className="w-4 h-4" />
@@ -62,7 +62,7 @@ function AccountButton() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="focus:outline-none rounded-full" title="Account">
-          <Avatar className="w-8 h-8 ring-2 ring-emerald-500/30 hover:ring-emerald-500/70 transition-all">
+          <Avatar className="w-8 h-8 ring-2 ring-white/30 hover:ring-white/70 transition-all">
             {user?.profileImageUrl && (
               <AvatarImage src={user.profileImageUrl} alt={user.firstName ?? "User"} />
             )}
@@ -181,10 +181,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-[100dvh] bg-background flex flex-col md:flex-row">
       {/* ── Mobile Header ── */}
-      <header className="md:hidden sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border px-4 py-3 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 text-primary">
-          <Leaf className="w-6 h-6" />
-          <span className="font-bold text-lg tracking-tight">LawnRX</span>
+      <header className="md:hidden sticky top-0 z-50 bg-emerald-800 px-4 py-3 flex items-center justify-between shadow-md">
+        <Link href="/" className="flex items-center gap-2 text-white">
+          <Leaf className="w-6 h-6 text-emerald-300" />
+          <span className="font-bold text-lg tracking-tight text-white">LawnRX</span>
         </Link>
         <AccountButton />
       </header>
@@ -235,7 +235,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </main>
 
       {/* ── Mobile Bottom Nav ── */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t border-border flex justify-around items-center py-1 pb-safe z-50">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-emerald-800 flex justify-around items-center pt-2 pb-safe z-50 shadow-[0_-2px_12px_rgba(0,0,0,0.25)]">
         {mobileNavItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href, location);
@@ -243,29 +243,29 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <Link
               key={item.href}
               href={item.href}
-              className="relative flex flex-col items-center gap-0.5 py-1.5 px-2 min-w-[3.8rem]"
+              className="relative flex flex-col items-center gap-1 py-1.5 px-3 min-w-[3.8rem]"
             >
-              {/* sliding pill behind active tab */}
+              {/* active pill */}
               {active && (
                 <motion.span
                   layoutId="mobile-nav-pill"
-                  className="absolute inset-x-1 top-0.5 bottom-0.5 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 -z-10"
+                  className="absolute inset-x-1 top-0 bottom-0 rounded-xl bg-white/15 -z-10"
                   transition={{ type: "spring", stiffness: 400, damping: 36 }}
                 />
               )}
               <motion.div
-                animate={active ? { scale: 1.15, y: -1 } : { scale: 1, y: 0 }}
+                animate={active ? { scale: 1.1, y: -1 } : { scale: 1, y: 0 }}
                 transition={{ type: "spring", stiffness: 400, damping: 28 }}
               >
                 <Icon
-                  className={`w-5 h-5 transition-colors ${
-                    active ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"
+                  className={`w-6 h-6 transition-colors ${
+                    active ? "text-white" : "text-emerald-300/70"
                   }`}
                 />
               </motion.div>
               <span
-                className={`text-[9px] font-semibold tracking-wide transition-colors leading-tight ${
-                  active ? "text-emerald-700 dark:text-emerald-300" : "text-muted-foreground"
+                className={`text-[10px] font-semibold tracking-wide leading-tight transition-colors ${
+                  active ? "text-white" : "text-emerald-300/70"
                 }`}
               >
                 {item.label}
