@@ -12,6 +12,18 @@ uri = "file://artifacts/lawn-iq/src/assets/images/empty-plans.png"
 type = "image"
 title = "Empty state lawn tools"
 
+[[generated]]
+id = "x3apRGpV-uc1Geox8odPR"
+uri = "file://attached_assets/lawnrx-icon-512.png"
+type = "image"
+title = "LawnRX app icon 512x512"
+
+[[generated]]
+id = "-Dl-T_w09V6TTGm2VtU_P"
+uri = "file://attached_assets/lawnrx-feature-graphic.png"
+type = "image"
+title = "LawnRX feature graphic banner"
+
 [[outputs]]
 id = "7hBGk-o28SATMcFkEWJoE"
 uri = "file://lawnrx.tar.gz"
@@ -131,3 +143,21 @@ id = "vkQJREVmBqa9K2tLNTxRH"
 uri = "file://play-testers.csv"
 type = "table"
 title = "play-testers.csv — Google Play tester emails"
+
+[[outputs]]
+id = "9IZN_7NNmyj0eoBkgP2TO"
+uri = "file://attached_assets/lawnrx-icon-512.png"
+type = "image"
+title = "App Icon — 512x512 (Google Play)"
+
+[[outputs]]
+id = "E2XuA7dOuCwfvOjbC9dWC"
+uri = "file://attached_assets/lawnrx-feature-graphic.png"
+type = "image"
+title = "Feature Graphic — 1024x500 (Google Play banner)"
+
+[[outputs]]
+id = "x4ovkup2XZWL2jJm8gZGL"
+uri = "file://attached_assets/screenshot-diagnose.jpg"
+type = "image"
+title = "Screenshot 1 — Sign In / Home screen"
