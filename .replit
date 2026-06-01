@@ -46,4 +46,4 @@ channel = "stable-25_05"
 [userenv]
 
 [userenv.shared]
-ANALYSIS_LIMIT = "1"
+ANALYSIS_LIMIT = "3"
