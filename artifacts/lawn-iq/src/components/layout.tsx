@@ -25,9 +25,9 @@ const allNavItems = [
   { href: "/about",       label: "About",     icon: Info        },
 ];
 
-// Mobile bottom nav: 5 tabs — hide About, Care Alerts, and Yard Map (sidebar only)
+// Mobile bottom nav: 6 tabs — hide About and Care Alerts only
 const mobileNavItems = allNavItems.filter(
-  (i) => i.href !== "/about" && i.href !== "/care-alerts" && i.href !== "/yard-map"
+  (i) => i.href !== "/about" && i.href !== "/care-alerts"
 );
 
 function isActive(href: string, location: string) {
