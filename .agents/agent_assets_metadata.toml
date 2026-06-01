@@ -173,3 +173,9 @@ id = "rhkJ0lj_dZ6Tj-ecT1Vry"
 uri = "file://android-project-v12.zip"
 type = "unspecified"
 title = "android-project-v12.zip — versionCode 12 (self-contained)"
+
+[[outputs]]
+id = "3u6p6i7VOsa8dCB4tn2Xq"
+uri = "file://android-project-v13.zip"
+type = "unspecified"
+title = "android-project-v13.zip — versionCode 13 (with Mapbox)"
