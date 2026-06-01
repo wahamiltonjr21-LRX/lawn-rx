@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Home, List, Info, Leaf, Bell, Users, ShoppingBag, LogIn, LogOut, User } from "lucide-react";
+import { Home, List, Info, Leaf, Bell, Users, ShoppingBag, LogIn, LogOut, User, CalendarDays } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@workspace/replit-auth-web";
 import { useAnimatedLogout } from "@/App";
@@ -16,14 +16,17 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const allNavItems = [
   { href: "/",            label: "Diagnose",  icon: Home        },
   { href: "/plans",       label: "My Plans",  icon: List        },
+  { href: "/calendar",    label: "Calendar",  icon: CalendarDays},
   { href: "/shop",        label: "Shop",      icon: ShoppingBag },
   { href: "/community",   label: "Community", icon: Users       },
   { href: "/care-alerts", label: "Alerts",    icon: Bell        },
   { href: "/about",       label: "About",     icon: Info        },
 ];
 
-// Mobile bottom nav shows the 5 most-used tabs; About lives in sidebar only
-const mobileNavItems = allNavItems.filter((i) => i.href !== "/about");
+// Mobile bottom nav: 5 tabs — hide About and Care Alerts (sidebar only)
+const mobileNavItems = allNavItems.filter(
+  (i) => i.href !== "/about" && i.href !== "/care-alerts"
+);
 
 function isActive(href: string, location: string) {
   return href === "/"
