@@ -14,7 +14,8 @@ const CreateCommentBody = z.object({
   content: z.string().min(1).max(500),
 });
 
-function getUserDisplayName(user: { firstName?: string | null; lastName?: string | null; email?: string | null }): string {
+function getUserDisplayName(user: { lawnRxName?: string | null; firstName?: string | null; lastName?: string | null; email?: string | null }): string {
+  if (user.lawnRxName?.trim()) return user.lawnRxName.trim();
   const first = user.firstName?.trim() ?? "";
   const last = user.lastName?.trim() ?? "";
   if (first || last) return `${first} ${last}`.trim();
@@ -65,7 +66,7 @@ router.post("/community", async (req, res) => {
 
   try {
     const [userRow] = await db
-      .select({ firstName: usersTable.firstName, lastName: usersTable.lastName, email: usersTable.email, profileImageUrl: usersTable.profileImageUrl })
+      .select({ lawnRxName: usersTable.lawnRxName, firstName: usersTable.firstName, lastName: usersTable.lastName, email: usersTable.email, profileImageUrl: usersTable.profileImageUrl })
       .from(usersTable)
       .where(eq(usersTable.id, req.user.id))
       .limit(1);
@@ -142,7 +143,7 @@ router.post("/community/:id/comments", async (req, res) => {
 
   try {
     const [userRow] = await db
-      .select({ firstName: usersTable.firstName, lastName: usersTable.lastName, email: usersTable.email, profileImageUrl: usersTable.profileImageUrl })
+      .select({ lawnRxName: usersTable.lawnRxName, firstName: usersTable.firstName, lastName: usersTable.lastName, email: usersTable.email, profileImageUrl: usersTable.profileImageUrl })
       .from(usersTable)
       .where(eq(usersTable.id, req.user.id))
       .limit(1);

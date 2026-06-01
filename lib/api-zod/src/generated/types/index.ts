@@ -32,6 +32,8 @@ export * from "./mobileTokenExchangeSuccess";
 export * from "./saveDiagnosisBody";
 export * from "./severity";
 export * from "./treatmentProduct";
+export * from "./updateUserProfileBody";
 export * from "./upgradeRequestBody";
 export * from "./upgradeRequestStatus";
 export * from "./upgradeRequestStatusStatus";
+export * from "./userProfile";

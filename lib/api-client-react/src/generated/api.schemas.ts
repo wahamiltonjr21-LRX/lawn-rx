@@ -183,6 +183,19 @@ export interface CreateCommunityCommentBody {
   content: string;
 }
 
+export interface UserProfile {
+  /** @nullable */
+  lawnRxName: string | null;
+}
+
+export interface UpdateUserProfileBody {
+  /**
+   * @minLength 3
+   * @maxLength 30
+   */
+  lawnRxName: string;
+}
+
 export interface AuthUser {
   id: string;
   /** @nullable */

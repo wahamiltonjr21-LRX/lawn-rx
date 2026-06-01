@@ -270,6 +270,41 @@ paths:
       responses:
         "204":
           description: Deleted
+  /user/profile:
+    get:
+      tags: [user]
+      operationId: getUserProfile
+      summary: Get the current user's LawnRX display name
+      responses:
+        "200":
+          description: Profile fetched
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        "401":
+          description: Unauthorized
+    put:
+      tags: [user]
+      operationId: updateUserProfile
+      summary: Set the current user's LawnRX display name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserProfileBody'
+      responses:
+        "200":
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        "400":
+          description: Invalid name
+        "401":
+          description: Unauthorized
   /auth/user:
     get:
       tags: [Auth]
@@ -689,6 +724,20 @@ components:
         content:
           type: string
           maxLength: 500
+    UserProfile:
+      type: object
+      required: [lawnRxName]
+      properties:
+        lawnRxName:
+          type: [string, 'null']
+    UpdateUserProfileBody:
+      type: object
+      required: [lawnRxName]
+      properties:
+        lawnRxName:
+          type: string
+          minLength: 3
+          maxLength: 30
     AuthUser:
       type: object
       required: [id, email, firstName, lastName, profileImageUrl]

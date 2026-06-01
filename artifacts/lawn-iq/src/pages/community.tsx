@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { MessageCircle, ImagePlus, Send, Trash2, X, Leaf, ChevronDown, ChevronUp, Plus } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { MessageCircle, ImagePlus, Send, Trash2, X, Leaf, ChevronDown, ChevronUp, Plus, Pencil, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -13,11 +13,23 @@ import {
   useDeleteCommunityComment,
   getListCommunityPostsQueryKey,
   getListCommunityCommentsQueryKey,
+  useGetUserProfile,
+  useUpdateUserProfile,
+  getGetUserProfileQueryKey,
   type CommunityPost,
   type CommunityComment,
 } from "@workspace/api-client-react";
 import { useAuth } from "@workspace/replit-auth-web";
 import { formatDistanceToNow } from "date-fns";
+
+const LAWN_RX_NAME_RE = /^[a-zA-Z0-9 _\-.]{3,30}$/;
+
+function validateName(name: string): string | null {
+  if (name.length < 3) return "Name must be at least 3 characters.";
+  if (name.length > 30) return "Name must be 30 characters or fewer.";
+  if (!LAWN_RX_NAME_RE.test(name)) return "Letters, numbers, spaces, hyphens, underscores, and dots only.";
+  return null;
+}
 
 function Avatar({ name, src, size = "sm" }: { name: string; src?: string | null; size?: "sm" | "md" }) {
   const sz = size === "md" ? "w-10 h-10 text-sm" : "w-8 h-8 text-xs";
@@ -32,6 +44,81 @@ function Avatar({ name, src, size = "sm" }: { name: string; src?: string | null;
 
 function timeAgo(dateStr: string) {
   try { return formatDistanceToNow(new Date(dateStr), { addSuffix: true }); } catch { return ""; }
+}
+
+function NamePickerModal({ onClose, required }: { onClose: () => void; required?: boolean }) {
+  const [name, setName] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const updateProfile = useUpdateUserProfile();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => { inputRef.current?.focus(); }, []);
+
+  const submit = async () => {
+    const trimmed = name.trim();
+    const validationError = validateName(trimmed);
+    if (validationError) { setError(validationError); return; }
+    try {
+      await updateProfile.mutateAsync({ data: { lawnRxName: trimmed } });
+      queryClient.invalidateQueries({ queryKey: getGetUserProfileQueryKey() });
+      toast({ title: `Name set to "${trimmed}" 🌿` });
+      onClose();
+    } catch {
+      toast({ title: "Failed to save name", variant: "destructive" });
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="w-full max-w-sm bg-background rounded-2xl border border-border shadow-2xl animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
+        <div className="bg-emerald-700 px-5 py-4 text-white">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+              <Leaf className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="font-bold text-base leading-tight">Choose your LawnRX name</p>
+              <p className="text-emerald-100 text-xs mt-0.5">This is how you'll appear in the community.</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-5 space-y-4">
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-foreground">Display name</label>
+            <input
+              ref={inputRef}
+              value={name}
+              onChange={(e) => { setName(e.target.value); setError(null); }}
+              onKeyDown={(e) => e.key === "Enter" && submit()}
+              placeholder="e.g. GrassWhisperer42"
+              maxLength={30}
+              className="w-full text-sm bg-muted/50 border border-border/50 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 placeholder:text-muted-foreground/60"
+            />
+            {error && <p className="text-xs text-destructive">{error}</p>}
+            <p className="text-[11px] text-muted-foreground">3–30 characters. Letters, numbers, spaces, hyphens, underscores, dots.</p>
+          </div>
+
+          <div className="flex gap-2.5">
+            {!required && (
+              <Button variant="outline" onClick={onClose} className="flex-1 rounded-xl">
+                Cancel
+              </Button>
+            )}
+            <Button
+              onClick={submit}
+              disabled={!name.trim() || updateProfile.isPending}
+              className="flex-1 rounded-xl bg-emerald-700 hover:bg-emerald-800"
+            >
+              {updateProfile.isPending ? "Saving…" : <><Check className="w-4 h-4 mr-1.5" /> Save name</>}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function CommentThread({ postId, currentUserId }: { postId: string; currentUserId: string }) {
@@ -180,13 +267,26 @@ function PostCard({ post, currentUserId }: { post: CommunityPost; currentUserId:
   );
 }
 
-function NewPostSheet({ onClose }: { onClose: () => void }) {
+function NewPostSheet({ onClose, lawnRxName }: { onClose: () => void; lawnRxName: string | null }) {
   const [caption, setCaption] = useState("");
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
+  const [showNamePicker, setShowNamePicker] = useState(!lawnRxName);
   const fileRef = useRef<HTMLInputElement>(null);
   const createPost = useCreateCommunityPost();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  if (showNamePicker) {
+    return (
+      <NamePickerModal
+        required
+        onClose={() => {
+          queryClient.invalidateQueries({ queryKey: getGetUserProfileQueryKey() });
+          setShowNamePicker(false);
+        }}
+      />
+    );
+  }
 
   const compressImage = (dataUrl: string): Promise<string> =>
     new Promise((resolve) => {
@@ -280,9 +380,12 @@ function NewPostSheet({ onClose }: { onClose: () => void }) {
 
 export default function Community() {
   const { data: posts = [], isLoading } = useListCommunityPosts();
+  const { data: profile, isLoading: profileLoading } = useGetUserProfile();
   const { user } = useAuth();
   const [showNew, setShowNew] = useState(false);
+  const [showNamePicker, setShowNamePicker] = useState(false);
 
+  const lawnRxName = profile?.lawnRxName ?? null;
   const currentUserId = (user as any)?.id ?? "";
 
   return (
@@ -296,6 +399,29 @@ export default function Community() {
           <Plus className="w-4 h-4" /> Post
         </Button>
       </div>
+
+      {!profileLoading && (
+        <div className="flex items-center gap-2.5 bg-muted/40 border border-border/50 rounded-xl px-4 py-3">
+          <div className="flex-1 min-w-0">
+            {lawnRxName ? (
+              <p className="text-sm">
+                Posting as <span className="font-semibold text-emerald-700 dark:text-emerald-400">{lawnRxName}</span>
+              </p>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">No display name set.</span> Add one so the community knows you!
+              </p>
+            )}
+          </div>
+          <button
+            onClick={() => setShowNamePicker(true)}
+            className="flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 hover:text-emerald-600 transition-colors shrink-0"
+          >
+            <Pencil className="w-3.5 h-3.5" />
+            {lawnRxName ? "Edit" : "Set name"}
+          </button>
+        </div>
+      )}
 
       {isLoading ? (
         <div className="space-y-4">
@@ -322,7 +448,8 @@ export default function Community() {
         </div>
       )}
 
-      {showNew && <NewPostSheet onClose={() => setShowNew(false)} />}
+      {showNew && <NewPostSheet lawnRxName={lawnRxName} onClose={() => setShowNew(false)} />}
+      {showNamePicker && <NamePickerModal onClose={() => setShowNamePicker(false)} />}
     </div>
   );
 }

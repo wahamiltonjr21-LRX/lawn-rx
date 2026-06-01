@@ -770,6 +770,30 @@ export const DeleteCommunityCommentParams = zod.object({
 });
 
 /**
+ * @summary Get the current user's LawnRX display name
+ */
+export const GetUserProfileResponse = zod.object({
+  lawnRxName: zod.string().nullable(),
+});
+
+/**
+ * @summary Set the current user's LawnRX display name
+ */
+export const updateUserProfileBodyLawnRxNameMin = 3;
+export const updateUserProfileBodyLawnRxNameMax = 30;
+
+export const UpdateUserProfileBody = zod.object({
+  lawnRxName: zod
+    .string()
+    .min(updateUserProfileBodyLawnRxNameMin)
+    .max(updateUserProfileBodyLawnRxNameMax),
+});
+
+export const UpdateUserProfileResponse = zod.object({
+  lawnRxName: zod.string().nullable(),
+});
+
+/**
  * @summary Get the currently authenticated user
  */
 export const GetCurrentAuthUserHeader = zod.object({
