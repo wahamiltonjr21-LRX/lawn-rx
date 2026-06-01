@@ -50,6 +50,7 @@
     "@tailwindcss/typography": "^0.5.15",
     "@tailwindcss/vite": "catalog:",
     "@tanstack/react-query": "catalog:",
+    "@types/mapbox__mapbox-gl-draw": "^1.4.9",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
@@ -87,7 +88,11 @@
     "@capacitor/browser": "^8.0.3",
     "@capacitor/core": "^8.3.4",
     "@capacitor/ios": "^8.3.4",
+    "@mapbox/mapbox-gl-draw": "^1.5.1",
     "@stripe/react-stripe-js": "^6.4.0",
-    "@stripe/stripe-js": "^9.6.0"
+    "@stripe/stripe-js": "^9.6.0",
+    "@turf/area": "^7.3.5",
+    "@turf/helpers": "^7.3.5",
+    "mapbox-gl": "^3.24.0"
   }
 }
