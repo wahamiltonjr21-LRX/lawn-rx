@@ -179,3 +179,9 @@ id = "3u6p6i7VOsa8dCB4tn2Xq"
 uri = "file://android-project-v13.zip"
 type = "unspecified"
 title = "android-project-v13.zip — versionCode 13 (with Mapbox)"
+
+[[outputs]]
+id = "fvg1-do3riBiBLJ-K5ry5"
+uri = "file://android-project-v14.zip"
+type = "unspecified"
+title = "android-project-v14.zip — versionCode 14 (fixed local Capacitor paths)"
