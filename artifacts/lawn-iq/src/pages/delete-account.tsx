@@ -31,12 +31,12 @@ export default function DeleteAccount() {
       <div className="space-y-2">
         <h1 className="text-2xl font-bold">Delete Your LawnRX Account</h1>
         <p className="text-muted-foreground text-sm leading-relaxed">
-          You can permanently delete your LawnRX account and all associated data at any time. This includes your saved plans, treatment history, community posts, and profile information.
+          You can permanently delete your LawnRX account and all associated data at any time. Once requested, your account is deactivated immediately and all personal data is fully removed within <strong className="text-foreground">90 days</strong>.
         </p>
       </div>
 
       <div className="w-full rounded-xl border border-border bg-muted/40 p-5 text-left space-y-3">
-        <p className="text-sm font-semibold">What gets deleted:</p>
+        <p className="text-sm font-semibold">What gets deleted within 90 days:</p>
         <ul className="text-sm text-muted-foreground space-y-1.5 list-disc list-inside">
           <li>Your account and profile information</li>
           <li>All saved lawn diagnosis plans</li>
@@ -45,7 +45,7 @@ export default function DeleteAccount() {
           <li>Yard size and settings</li>
         </ul>
         <p className="text-xs text-muted-foreground pt-1">
-          Payment records are retained by Stripe per their data retention policy.
+          Payment records are retained by Stripe per their data retention policy. Stripe data is not controlled by LawnRX.
         </p>
       </div>
 

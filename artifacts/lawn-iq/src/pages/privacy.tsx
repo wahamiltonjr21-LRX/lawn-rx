@@ -65,9 +65,17 @@ export default function Privacy() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-xl font-semibold">5. Data Retention</h2>
+          <h2 className="text-xl font-semibold">5. Data Retention &amp; Deletion</h2>
           <p className="text-muted-foreground leading-relaxed">
-            We retain your saved diagnosis plans for as long as your account is active. You can delete individual plans at any time from within the app. To request full account deletion and data removal, contact us at the email below.
+            We retain your saved diagnosis plans and profile data for as long as your account is active. You can delete individual plans at any time from within the app.
+          </p>
+          <p className="text-muted-foreground leading-relaxed">
+            <strong className="text-foreground">Account deletion:</strong> You may request permanent deletion of your account and all associated data at any time by visiting{" "}
+            <a href="/delete-account" className="text-emerald-600 underline">lawnrx.replit.app/delete-account</a>{" "}
+            or through the profile menu in the app. Upon request, your account is immediately deactivated and all personal data — including your profile, diagnosis plans, treatment history, and community content — is permanently deleted within <strong className="text-foreground">90 days</strong>.
+          </p>
+          <p className="text-muted-foreground leading-relaxed">
+            Payment records held by Stripe are subject to Stripe's own data retention policy and are not within our control.
           </p>
         </section>
 
