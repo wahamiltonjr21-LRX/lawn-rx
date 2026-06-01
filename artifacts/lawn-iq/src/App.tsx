@@ -21,6 +21,7 @@ import Community from "@/pages/community";
 import Shop from "@/pages/shop";
 import Calendar from "@/pages/calendar";
 import YardMap from "@/pages/yard-map";
+import DeleteAccount from "@/pages/delete-account";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ function AnimatedRouter() {
           <Route path="/shop" component={Shop} />
           <Route path="/calendar" component={Calendar} />
           <Route path="/yard-map" component={YardMap} />
+          <Route path="/delete-account" component={DeleteAccount} />
           <Route component={NotFound} />
         </Switch>
       </motion.div>
