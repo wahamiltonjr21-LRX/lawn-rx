@@ -1,7 +1,8 @@
 import { Link, useLocation } from "wouter";
-import { Home, List, Info, Leaf, Bell, Users, ShoppingBag, LogIn, LogOut, User, CalendarDays } from "lucide-react";
+import { Home, List, Info, Leaf, Bell, Users, ShoppingBag, LogIn, LogOut, User, CalendarDays, Trash2 } from "lucide-react";
 import YardMapIcon from "@/components/icons/yard-map-icon";
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { useAuth } from "@workspace/replit-auth-web";
 import { useAnimatedLogout } from "@/App";
 import {
@@ -12,6 +13,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const allNavItems = [
@@ -46,9 +57,39 @@ function getInitials(name?: string | null): string {
     .slice(0, 2);
 }
 
+async function deleteAccount() {
+  await fetch("/api/user/me", { method: "DELETE", credentials: "include" });
+  window.location.href = "/";
+}
+
+function DeleteAccountDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This permanently deletes your account, all saved plans, treatment history, and community posts. This cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={deleteAccount}
+            className="bg-red-600 hover:bg-red-700 text-white"
+          >
+            Delete my account
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
 function AccountButton() {
   const { user, isAuthenticated, login } = useAuth();
   const handleLogout = useAnimatedLogout();
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   if (!isAuthenticated) {
     return (
@@ -64,52 +105,63 @@ function AccountButton() {
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button className="focus:outline-none rounded-full" title="Account">
-          <Avatar className="w-8 h-8 ring-2 ring-white/30 hover:ring-white/70 transition-all">
-            {user?.profileImageUrl && (
-              <AvatarImage src={user.profileImageUrl} alt={user.firstName ?? "User"} />
-            )}
-            <AvatarFallback className="bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
-              {getInitials(
-                user?.firstName && user?.lastName
-                  ? `${user.firstName} ${user.lastName}`
-                  : (user?.firstName ?? user?.email)
+    <>
+      <DeleteAccountDialog open={deleteOpen} onOpenChange={setDeleteOpen} />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="focus:outline-none rounded-full" title="Account">
+            <Avatar className="w-8 h-8 ring-2 ring-white/30 hover:ring-white/70 transition-all">
+              {user?.profileImageUrl && (
+                <AvatarImage src={user.profileImageUrl} alt={user.firstName ?? "User"} />
               )}
-            </AvatarFallback>
-          </Avatar>
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-52">
-        <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col gap-0.5">
-            {(user?.firstName || user?.lastName) && (
-              <span className="font-semibold text-sm">
-                {[user.firstName, user.lastName].filter(Boolean).join(" ")}
-              </span>
-            )}
-            {user?.email && (
-              <span className="text-xs text-muted-foreground truncate">{user.email}</span>
-            )}
-          </div>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={handleLogout}
-          className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400 cursor-pointer"
-        >
-          <LogOut className="w-4 h-4 mr-2" />
-          Sign Out
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+              <AvatarFallback className="bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
+                {getInitials(
+                  user?.firstName && user?.lastName
+                    ? `${user.firstName} ${user.lastName}`
+                    : (user?.firstName ?? user?.email)
+                )}
+              </AvatarFallback>
+            </Avatar>
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-52">
+          <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col gap-0.5">
+              {(user?.firstName || user?.lastName) && (
+                <span className="font-semibold text-sm">
+                  {[user.firstName, user.lastName].filter(Boolean).join(" ")}
+                </span>
+              )}
+              {user?.email && (
+                <span className="text-xs text-muted-foreground truncate">{user.email}</span>
+              )}
+            </div>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={handleLogout}
+            className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400 cursor-pointer"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => setDeleteOpen(true)}
+            className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400 cursor-pointer"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Delete Account
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>
   );
 }
 
 function SidebarAccountSection() {
   const { user, isAuthenticated, login } = useAuth();
   const handleLogout = useAnimatedLogout();
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   if (!isAuthenticated) {
     return (
@@ -174,8 +226,16 @@ function SidebarAccountSection() {
             <LogOut className="w-4 h-4 mr-2" />
             Sign Out
           </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => setDeleteOpen(true)}
+            className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400 cursor-pointer"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Delete Account
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      <DeleteAccountDialog open={deleteOpen} onOpenChange={setDeleteOpen} />
     </div>
   );
 }
