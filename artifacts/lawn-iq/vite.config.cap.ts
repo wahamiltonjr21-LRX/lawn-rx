@@ -19,6 +19,9 @@ export default defineConfig({
     "import.meta.env.VITE_API_BASE": JSON.stringify(
       "https://lawn-rx.replit.app",
     ),
+    "import.meta.env.VITE_MAPBOX_TOKEN": JSON.stringify(
+      "pk.eyJ1IjoibGF3bnJ4MSIsImEiOiJjbXB2ZnU1NG0yNGQwMnBwb3lqOW5sdXBrIn0.1AfgvhTTdpGI-qpwdcdnYQ",
+    ),
   },
   resolve: {
     alias: {
