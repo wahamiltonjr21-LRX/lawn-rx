@@ -9,4 +9,6 @@
 export interface UserProfile {
   /** @nullable */
   lawnRxName: string | null;
+  /** @nullable */
+  yardSquareFeet: number | null;
 }

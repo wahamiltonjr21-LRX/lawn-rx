@@ -1,0 +1,2 @@
+- [Treatment log mark-done pattern](treatment-log-pattern.md) — scheduledDate must match event.date exactly for dedup; use isSameDay comparison, not string equality.
+- [Vite HMR circular import](vite-hmr-circular.md) — layout.tsx imports from App.tsx (LogoutContext) causing HMR circular-import errors; a full workflow restart (not hot reload) is required after touching both files in the same session.

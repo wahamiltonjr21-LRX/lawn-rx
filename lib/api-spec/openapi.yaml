@@ -274,7 +274,7 @@ paths:
     get:
       tags: [user]
       operationId: getUserProfile
-      summary: Get the current user's LawnRX display name
+      summary: Get the current user's profile (display name, yard size)
       responses:
         "200":
           description: Profile fetched
@@ -287,7 +287,7 @@ paths:
     put:
       tags: [user]
       operationId: updateUserProfile
-      summary: Set the current user's LawnRX display name
+      summary: Update the current user's profile
       requestBody:
         required: true
         content:
@@ -302,7 +302,60 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserProfile'
         "400":
-          description: Invalid name
+          description: Invalid data
+        "401":
+          description: Unauthorized
+  /treatments:
+    get:
+      tags: [treatments]
+      operationId: listTreatmentLogs
+      summary: List the current user's logged treatments
+      responses:
+        "200":
+          description: List of treatment logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TreatmentLog'
+        "401":
+          description: Unauthorized
+    post:
+      tags: [treatments]
+      operationId: logTreatment
+      summary: Log a completed treatment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogTreatmentBody'
+      responses:
+        "201":
+          description: Treatment logged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TreatmentLog'
+        "400":
+          description: Invalid request
+        "401":
+          description: Unauthorized
+  /treatments/{id}:
+    delete:
+      tags: [treatments]
+      operationId: deleteTreatmentLog
+      summary: Remove a treatment log entry
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
         "401":
           description: Unauthorized
   /auth/user:
@@ -726,18 +779,68 @@ components:
           maxLength: 500
     UserProfile:
       type: object
-      required: [lawnRxName]
+      required: [lawnRxName, yardSquareFeet]
       properties:
         lawnRxName:
           type: [string, 'null']
+        yardSquareFeet:
+          type: [integer, 'null']
     UpdateUserProfileBody:
       type: object
-      required: [lawnRxName]
       properties:
         lawnRxName:
           type: string
           minLength: 3
           maxLength: 30
+        yardSquareFeet:
+          type: integer
+          minimum: 100
+          maximum: 500000
+    TreatmentLog:
+      type: object
+      required: [id, userId, planTitle, stepTitle, treatmentType, completedAt]
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        planId:
+          type: [string, 'null']
+        planTitle:
+          type: string
+        stepTitle:
+          type: string
+        treatmentType:
+          type: string
+        scheduledDate:
+          type: [string, 'null']
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        notes:
+          type: [string, 'null']
+        productUsed:
+          type: [string, 'null']
+    LogTreatmentBody:
+      type: object
+      required: [planTitle, stepTitle, treatmentType]
+      properties:
+        planId:
+          type: string
+        planTitle:
+          type: string
+        stepTitle:
+          type: string
+        treatmentType:
+          type: string
+        scheduledDate:
+          type: string
+          format: date-time
+        notes:
+          type: string
+        productUsed:
+          type: string
     AuthUser:
       type: object
       required: [id, email, firstName, lastName, profileImageUrl]

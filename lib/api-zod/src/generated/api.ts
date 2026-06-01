@@ -770,27 +770,77 @@ export const DeleteCommunityCommentParams = zod.object({
 });
 
 /**
- * @summary Get the current user's LawnRX display name
+ * @summary Get the current user's profile (display name, yard size)
  */
 export const GetUserProfileResponse = zod.object({
   lawnRxName: zod.string().nullable(),
+  yardSquareFeet: zod.number().nullable(),
 });
 
 /**
- * @summary Set the current user's LawnRX display name
+ * @summary Update the current user's profile
  */
 export const updateUserProfileBodyLawnRxNameMin = 3;
 export const updateUserProfileBodyLawnRxNameMax = 30;
+
+export const updateUserProfileBodyYardSquareFeetMin = 100;
+export const updateUserProfileBodyYardSquareFeetMax = 500000;
 
 export const UpdateUserProfileBody = zod.object({
   lawnRxName: zod
     .string()
     .min(updateUserProfileBodyLawnRxNameMin)
-    .max(updateUserProfileBodyLawnRxNameMax),
+    .max(updateUserProfileBodyLawnRxNameMax)
+    .optional(),
+  yardSquareFeet: zod
+    .number()
+    .min(updateUserProfileBodyYardSquareFeetMin)
+    .max(updateUserProfileBodyYardSquareFeetMax)
+    .optional(),
 });
 
 export const UpdateUserProfileResponse = zod.object({
   lawnRxName: zod.string().nullable(),
+  yardSquareFeet: zod.number().nullable(),
+});
+
+/**
+ * @summary List the current user's logged treatments
+ */
+export const ListTreatmentLogsResponseItem = zod.object({
+  id: zod.string(),
+  userId: zod.string(),
+  planId: zod.string().nullish(),
+  planTitle: zod.string(),
+  stepTitle: zod.string(),
+  treatmentType: zod.string(),
+  scheduledDate: zod.coerce.date().nullish(),
+  completedAt: zod.coerce.date(),
+  notes: zod.string().nullish(),
+  productUsed: zod.string().nullish(),
+});
+export const ListTreatmentLogsResponse = zod.array(
+  ListTreatmentLogsResponseItem,
+);
+
+/**
+ * @summary Log a completed treatment
+ */
+export const LogTreatmentBody = zod.object({
+  planId: zod.string().optional(),
+  planTitle: zod.string(),
+  stepTitle: zod.string(),
+  treatmentType: zod.string(),
+  scheduledDate: zod.coerce.date().optional(),
+  notes: zod.string().optional(),
+  productUsed: zod.string().optional(),
+});
+
+/**
+ * @summary Remove a treatment log entry
+ */
+export const DeleteTreatmentLogParams = zod.object({
+  id: zod.coerce.string(),
 });
 
 /**

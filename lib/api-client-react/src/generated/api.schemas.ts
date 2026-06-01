@@ -186,6 +186,8 @@ export interface CreateCommunityCommentBody {
 export interface UserProfile {
   /** @nullable */
   lawnRxName: string | null;
+  /** @nullable */
+  yardSquareFeet: number | null;
 }
 
 export interface UpdateUserProfileBody {
@@ -193,7 +195,39 @@ export interface UpdateUserProfileBody {
    * @minLength 3
    * @maxLength 30
    */
-  lawnRxName: string;
+  lawnRxName?: string;
+  /**
+   * @minimum 100
+   * @maximum 500000
+   */
+  yardSquareFeet?: number;
+}
+
+export interface TreatmentLog {
+  id: string;
+  userId: string;
+  /** @nullable */
+  planId?: string | null;
+  planTitle: string;
+  stepTitle: string;
+  treatmentType: string;
+  /** @nullable */
+  scheduledDate?: string | null;
+  completedAt: string;
+  /** @nullable */
+  notes?: string | null;
+  /** @nullable */
+  productUsed?: string | null;
+}
+
+export interface LogTreatmentBody {
+  planId?: string;
+  planTitle: string;
+  stepTitle: string;
+  treatmentType: string;
+  scheduledDate?: string;
+  notes?: string;
+  productUsed?: string;
 }
 
 export interface AuthUser {

@@ -21,6 +21,7 @@ export const usersTable = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   analysisCount: integer("analysis_count").notNull().default(0),
   lawnRxName: varchar("lawn_rx_name", { length: 30 }),
+  yardSquareFeet: integer("yard_square_feet"),
   stripeCustomerId: varchar("stripe_customer_id"),
   stripeSubscriptionId: varchar("stripe_subscription_id"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

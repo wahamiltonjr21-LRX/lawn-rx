@@ -20,6 +20,7 @@ import Privacy from "@/pages/privacy";
 import Community from "@/pages/community";
 import Shop from "@/pages/shop";
 import Calendar from "@/pages/calendar";
+import YardMap from "@/pages/yard-map";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ function AnimatedRouter() {
           <Route path="/community" component={Community} />
           <Route path="/shop" component={Shop} />
           <Route path="/calendar" component={Calendar} />
+          <Route path="/yard-map" component={YardMap} />
           <Route component={NotFound} />
         </Switch>
       </motion.div>

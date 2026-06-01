@@ -11,5 +11,10 @@ export interface UpdateUserProfileBody {
    * @minLength 3
    * @maxLength 30
    */
-  lawnRxName: string;
+  lawnRxName?: string;
+  /**
+   * @minimum 100
+   * @maximum 500000
+   */
+  yardSquareFeet?: number;
 }

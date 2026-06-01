@@ -21,3 +21,4 @@ export * from "./diagnoses";
 export * from "./auth";
 export * from "./upgrade-requests";
 export * from "./community";
+export * from "./treatment-logs";

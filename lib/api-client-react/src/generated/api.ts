@@ -30,10 +30,12 @@ import type {
   ErrorEnvelope,
   HandleBrowserLoginCallbackParams,
   HealthStatus,
+  LogTreatmentBody,
   LogoutSuccess,
   MobileTokenExchangeRequest,
   MobileTokenExchangeSuccess,
   SaveDiagnosisBody,
+  TreatmentLog,
   UpdateUserProfileBody,
   UpgradeRequestBody,
   UpgradeRequestStatus,
@@ -1363,7 +1365,7 @@ export const useDeleteCommunityComment = <
 };
 
 /**
- * @summary Get the current user's LawnRX display name
+ * @summary Get the current user's profile (display name, yard size)
  */
 export const getGetUserProfileUrl = () => {
   return `/api/user/profile`;
@@ -1414,7 +1416,7 @@ export type GetUserProfileQueryResult = NonNullable<
 export type GetUserProfileQueryError = ErrorType<void>;
 
 /**
- * @summary Get the current user's LawnRX display name
+ * @summary Get the current user's profile (display name, yard size)
  */
 
 export function useGetUserProfile<
@@ -1438,7 +1440,7 @@ export function useGetUserProfile<
 }
 
 /**
- * @summary Set the current user's LawnRX display name
+ * @summary Update the current user's profile
  */
 export const getUpdateUserProfileUrl = () => {
   return `/api/user/profile`;
@@ -1501,7 +1503,7 @@ export type UpdateUserProfileMutationBody = BodyType<UpdateUserProfileBody>;
 export type UpdateUserProfileMutationError = ErrorType<void>;
 
 /**
- * @summary Set the current user's LawnRX display name
+ * @summary Update the current user's profile
  */
 export const useUpdateUserProfile = <
   TError = ErrorType<void>,
@@ -1521,6 +1523,251 @@ export const useUpdateUserProfile = <
   TContext
 > => {
   return useMutation(getUpdateUserProfileMutationOptions(options));
+};
+
+/**
+ * @summary List the current user's logged treatments
+ */
+export const getListTreatmentLogsUrl = () => {
+  return `/api/treatments`;
+};
+
+export const listTreatmentLogs = async (
+  options?: RequestInit,
+): Promise<TreatmentLog[]> => {
+  return customFetch<TreatmentLog[]>(getListTreatmentLogsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListTreatmentLogsQueryKey = () => {
+  return [`/api/treatments`] as const;
+};
+
+export const getListTreatmentLogsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listTreatmentLogs>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listTreatmentLogs>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListTreatmentLogsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listTreatmentLogs>>
+  > = ({ signal }) => listTreatmentLogs({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listTreatmentLogs>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListTreatmentLogsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listTreatmentLogs>>
+>;
+export type ListTreatmentLogsQueryError = ErrorType<void>;
+
+/**
+ * @summary List the current user's logged treatments
+ */
+
+export function useListTreatmentLogs<
+  TData = Awaited<ReturnType<typeof listTreatmentLogs>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listTreatmentLogs>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListTreatmentLogsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Log a completed treatment
+ */
+export const getLogTreatmentUrl = () => {
+  return `/api/treatments`;
+};
+
+export const logTreatment = async (
+  logTreatmentBody: LogTreatmentBody,
+  options?: RequestInit,
+): Promise<TreatmentLog> => {
+  return customFetch<TreatmentLog>(getLogTreatmentUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(logTreatmentBody),
+  });
+};
+
+export const getLogTreatmentMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof logTreatment>>,
+    TError,
+    { data: BodyType<LogTreatmentBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof logTreatment>>,
+  TError,
+  { data: BodyType<LogTreatmentBody> },
+  TContext
+> => {
+  const mutationKey = ["logTreatment"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof logTreatment>>,
+    { data: BodyType<LogTreatmentBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return logTreatment(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type LogTreatmentMutationResult = NonNullable<
+  Awaited<ReturnType<typeof logTreatment>>
+>;
+export type LogTreatmentMutationBody = BodyType<LogTreatmentBody>;
+export type LogTreatmentMutationError = ErrorType<void>;
+
+/**
+ * @summary Log a completed treatment
+ */
+export const useLogTreatment = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof logTreatment>>,
+    TError,
+    { data: BodyType<LogTreatmentBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof logTreatment>>,
+  TError,
+  { data: BodyType<LogTreatmentBody> },
+  TContext
+> => {
+  return useMutation(getLogTreatmentMutationOptions(options));
+};
+
+/**
+ * @summary Remove a treatment log entry
+ */
+export const getDeleteTreatmentLogUrl = (id: string) => {
+  return `/api/treatments/${id}`;
+};
+
+export const deleteTreatmentLog = async (
+  id: string,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteTreatmentLogUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteTreatmentLogMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteTreatmentLog>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteTreatmentLog>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["deleteTreatmentLog"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteTreatmentLog>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteTreatmentLog(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteTreatmentLogMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteTreatmentLog>>
+>;
+
+export type DeleteTreatmentLogMutationError = ErrorType<void>;
+
+/**
+ * @summary Remove a treatment log entry
+ */
+export const useDeleteTreatmentLog = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteTreatmentLog>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteTreatmentLog>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getDeleteTreatmentLogMutationOptions(options));
 };
 
 /**
