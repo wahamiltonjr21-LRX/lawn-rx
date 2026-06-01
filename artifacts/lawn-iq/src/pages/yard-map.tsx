@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { MapPin, Ruler, Package, Sprout, FlaskConical, Bug, Droplets, Leaf, Save, Check } from "lucide-react";
+import { Ruler, Package, Sprout, FlaskConical, Bug, Droplets, Leaf, Save, Check } from "lucide-react";
+import YardMapIcon from "@/components/icons/yard-map-icon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useGetUserProfile, useUpdateUserProfile } from "@workspace/api-client-react";
@@ -125,7 +126,7 @@ export default function YardMap() {
           </p>
         </div>
         <div className="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center shrink-0">
-          <MapPin className="w-6 h-6 text-emerald-700 dark:text-emerald-400" />
+          <YardMapIcon className="w-6 h-6 text-emerald-700 dark:text-emerald-400" />
         </div>
       </div>
 

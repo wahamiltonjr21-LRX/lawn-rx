@@ -1,5 +1,6 @@
 import { Link, useLocation } from "wouter";
-import { Home, List, Info, Leaf, Bell, Users, ShoppingBag, LogIn, LogOut, User, CalendarDays, MapPin } from "lucide-react";
+import { Home, List, Info, Leaf, Bell, Users, ShoppingBag, LogIn, LogOut, User, CalendarDays } from "lucide-react";
+import YardMapIcon from "@/components/icons/yard-map-icon";
 import { motion } from "framer-motion";
 import { useAuth } from "@workspace/replit-auth-web";
 import { useAnimatedLogout } from "@/App";
@@ -19,7 +20,7 @@ const allNavItems = [
   { href: "/calendar",    label: "Calendar",  icon: CalendarDays},
   { href: "/shop",        label: "Shop",      icon: ShoppingBag },
   { href: "/community",   label: "Community", icon: Users       },
-  { href: "/yard-map",    label: "Yard Map",  icon: MapPin      },
+  { href: "/yard-map",    label: "Yard Map",  icon: YardMapIcon },
   { href: "/care-alerts", label: "Alerts",    icon: Bell        },
   { href: "/about",       label: "About",     icon: Info        },
 ];
