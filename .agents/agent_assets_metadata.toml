@@ -161,3 +161,9 @@ id = "x4ovkup2XZWL2jJm8gZGL"
 uri = "file://attached_assets/screenshot-diagnose.jpg"
 type = "image"
 title = "Screenshot 1 — Sign In / Home screen"
+
+[[outputs]]
+id = "E-Cu8KJmAujhj62ZNEnVy"
+uri = "file://android-project-v11.zip"
+type = "unspecified"
+title = "android-project-v11.zip — LawnRX Android Project"
