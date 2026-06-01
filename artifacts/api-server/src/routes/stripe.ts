@@ -50,6 +50,10 @@ router.get("/stripe/subscription", async (req, res) => {
   }
   try {
     const user = await stripeStorage.getUser(req.user.id);
+    if ((user as any)?.isProOverride) {
+      res.json({ subscription: null, isPro: true });
+      return;
+    }
     if (!user?.stripeCustomerId) {
       res.json({ subscription: null, isPro: false });
       return;

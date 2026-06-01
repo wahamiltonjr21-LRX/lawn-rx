@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { index, integer, jsonb, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
+import { boolean, index, integer, jsonb, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
 
 // (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
 export const sessionsTable = pgTable(
@@ -22,6 +22,7 @@ export const usersTable = pgTable("users", {
   analysisCount: integer("analysis_count").notNull().default(0),
   lawnRxName: varchar("lawn_rx_name", { length: 30 }),
   yardSquareFeet: integer("yard_square_feet"),
+  isProOverride: boolean("is_pro_override").notNull().default(false),
   stripeCustomerId: varchar("stripe_customer_id"),
   stripeSubscriptionId: varchar("stripe_subscription_id"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
