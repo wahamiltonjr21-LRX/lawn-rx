@@ -203,3 +203,9 @@ id = "67HWHhvjc3fQxbfdLwe8r"
 uri = "file://android-project-v17.zip"
 type = "unspecified"
 title = "android-project-v17.zip — versionCode 17 (includes local.properties)"
+
+[[outputs]]
+id = "MSIoNVrMfE7fk07cfxg1k"
+uri = "file://android-project-v18.zip"
+type = "unspecified"
+title = "android-project-v18.zip — versionCode 18 (white bar fixed)"

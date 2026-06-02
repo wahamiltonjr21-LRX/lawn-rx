@@ -246,7 +246,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-[100dvh] bg-background flex flex-col md:flex-row">
       {/* ── Mobile Header ── */}
-      <header className="md:hidden sticky top-0 z-50 bg-emerald-800 px-4 py-3 flex items-center justify-between shadow-md">
+      <header className="md:hidden sticky top-0 z-50 bg-emerald-800 px-4 py-3 flex items-center justify-between shadow-md" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}>
         <Link href="/" className="flex items-center gap-2 text-white">
           <Leaf className="w-6 h-6 text-emerald-300" />
           <span className="font-bold text-lg tracking-tight text-white">LawnRX</span>
@@ -300,7 +300,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </main>
 
       {/* ── Mobile Bottom Nav ── */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-emerald-800 flex justify-around items-center pt-2 pb-safe z-50 shadow-[0_-2px_12px_rgba(0,0,0,0.25)]">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-emerald-800 flex justify-around items-center pt-2 z-50 shadow-[0_-2px_12px_rgba(0,0,0,0.25)]" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         {mobileNavItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href, location);
