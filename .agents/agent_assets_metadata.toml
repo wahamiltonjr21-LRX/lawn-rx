@@ -209,3 +209,9 @@ id = "MSIoNVrMfE7fk07cfxg1k"
 uri = "file://android-project-v18.zip"
 type = "unspecified"
 title = "android-project-v18.zip — versionCode 18 (white bar fixed)"
+
+[[outputs]]
+id = "OH9iEIwoK3XKGMsxIOq6k"
+uri = "file://android-project-v19.zip"
+type = "unspecified"
+title = "android-project-v19.zip — versionCode 19 (green status bar)"

@@ -26,8 +26,8 @@ router.use(userRouter);
 router.use(treatmentsRouter);
 
 router.get("/download/android", (_req, res) => {
-  const file = path.resolve(__dirname, "../../android-project-v18.zip");
-  res.download(file, "android-project-v18.zip");
+  const file = path.resolve(__dirname, "../../android-project-v19.zip");
+  res.download(file, "android-project-v19.zip");
 });
 
 export default router;
