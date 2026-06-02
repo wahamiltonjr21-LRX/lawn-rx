@@ -185,3 +185,9 @@ id = "fvg1-do3riBiBLJ-K5ry5"
 uri = "file://android-project-v14.zip"
 type = "unspecified"
 title = "android-project-v14.zip — versionCode 14 (fixed local Capacitor paths)"
+
+[[outputs]]
+id = "CI3Dei0gJhoRdlbhCm4Y1"
+uri = "file://android-project-v15.zip"
+type = "unspecified"
+title = "android-project-v15.zip — versionCode 15 (AD_ID permission added)"
