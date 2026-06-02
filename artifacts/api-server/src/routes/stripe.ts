@@ -140,7 +140,7 @@ router.post("/stripe/embedded-checkout", async (req, res) => {
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "subscription",
-      ui_mode: "embedded_page" as const,
+      ui_mode: "embedded" as const,
       return_url: `${baseUrl}/?checkout=success`,
     });
 

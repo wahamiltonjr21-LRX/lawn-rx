@@ -1,12 +1,11 @@
-import { useState } from "react";
 import { Sparkles, Check, Loader2, X, CreditCard, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStripeProducts, useStartCheckout } from "@/hooks/use-subscription";
 import { useToast } from "@/hooks/use-toast";
 import { EmbeddedCheckoutModal } from "@/components/embedded-checkout-modal";
+import { useState } from "react";
 
-const FALLBACK_MONTHLY_ID = "price_1TdWF5ERekY96iVD8SuQM7AQ";
-const FALLBACK_ANNUAL_ID  = "price_1TdWF6ERekY96iVDBUYJIeEu";
+const FALLBACK_MONTHLY_ID = "price_1TQwCDERekY96iVDsiq6N9Ol";
 
 interface UpgradeModalProps {
   onClose?: () => void;
@@ -16,7 +15,6 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
   const { data: productsData, isLoading } = useStripeProducts();
   const startCheckout = useStartCheckout();
   const { toast } = useToast();
-  const [billing, setBilling] = useState<"monthly" | "annual">("annual");
   const [showEmbedded, setShowEmbedded] = useState(false);
 
   const proProduct = productsData?.products?.find((p: any) =>
@@ -24,38 +22,31 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
   );
 
   const monthlyPrice = proProduct?.prices?.find(
-    (p: any) => p.recurring?.interval === "month" && p.unitAmount === 799,
-  );
-  const annualPrice = proProduct?.prices?.find(
-    (p: any) => p.recurring?.interval === "year",
+    (p: any) => p.recurring?.interval === "month",
   );
 
-  const selectedPriceId =
-    billing === "annual"
-      ? (annualPrice?.id ?? FALLBACK_ANNUAL_ID)
-      : (monthlyPrice?.id ?? FALLBACK_MONTHLY_ID);
-
-  const monthlyAmount = monthlyPrice ? (monthlyPrice.unitAmount / 100).toFixed(2) : "7.99";
-  const annualAmount  = annualPrice  ? (annualPrice.unitAmount  / 100).toFixed(2) : "59.99";
-  const annualMonthly = (parseFloat(annualAmount) / 12).toFixed(2);
-  const savings = Math.round((1 - parseFloat(annualMonthly) / parseFloat(monthlyAmount)) * 100);
-
-  const displayPrice  = billing === "annual" ? annualMonthly : monthlyAmount;
-  const displaySuffix = billing === "annual" ? "/mo · billed annually" : "/month";
+  const priceId = monthlyPrice?.id ?? FALLBACK_MONTHLY_ID;
+  const monthlyAmount = monthlyPrice
+    ? (monthlyPrice.unitAmount / 100).toFixed(2)
+    : "19.99";
 
   const handleRedirectCheckout = async () => {
     try {
-      const { url } = await startCheckout.mutateAsync(selectedPriceId);
+      const { url } = await startCheckout.mutateAsync(priceId);
       if (url) window.location.href = url;
     } catch {
-      toast({ title: "Checkout failed", description: "Please try again.", variant: "destructive" });
+      toast({
+        title: "Checkout failed",
+        description: "Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
   if (showEmbedded) {
     return (
       <EmbeddedCheckoutModal
-        priceId={selectedPriceId}
+        priceId={priceId}
         onClose={() => setShowEmbedded(false)}
         onSuccess={onClose}
       />
@@ -87,48 +78,19 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
 
         <div className="px-6 pb-6 space-y-5 -mt-4">
 
-          {/* Billing toggle */}
-          <div className="bg-muted rounded-2xl p-1 flex relative">
-            <button
-              onClick={() => setBilling("monthly")}
-              className={`flex-1 py-2 text-sm font-semibold rounded-xl transition-all ${
-                billing === "monthly"
-                  ? "bg-background shadow text-foreground"
-                  : "text-muted-foreground"
-              }`}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => setBilling("annual")}
-              className={`flex-1 py-2 text-sm font-semibold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
-                billing === "annual"
-                  ? "bg-background shadow text-foreground"
-                  : "text-muted-foreground"
-              }`}
-            >
-              Annual
-              <span className="bg-emerald-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                SAVE {savings}%
-              </span>
-            </button>
-          </div>
-
           {/* Price display */}
-          <div className="text-center">
+          <div className="text-center py-2">
             {isLoading ? (
               <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary" />
             ) : (
               <>
                 <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-5xl font-black text-foreground">${displayPrice}</span>
-                  <span className="text-muted-foreground text-sm">{displaySuffix}</span>
+                  <span className="text-5xl font-black text-foreground">${monthlyAmount}</span>
+                  <span className="text-muted-foreground text-sm">/month</span>
                 </div>
-                {billing === "annual" && (
-                  <p className="text-xs text-emerald-600 font-medium mt-1">
-                    ${annualAmount} billed once · save ${(parseFloat(monthlyAmount) * 12 - parseFloat(annualAmount)).toFixed(2)}/year
-                  </p>
-                )}
+                <p className="text-xs text-emerald-600 font-medium mt-1">
+                  Cancel anytime
+                </p>
               </>
             )}
           </div>
@@ -178,9 +140,7 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
               <><Loader2 className="w-4 h-4 animate-spin" /> Redirecting…</>
             ) : (
               <><CreditCard className="w-4 h-4" />
-                {billing === "annual"
-                  ? `Pay with Card — $${annualAmount}/year`
-                  : `Pay with Card — $${monthlyAmount}/mo`}
+                Pay with Card — ${monthlyAmount}/mo
               </>
             )}
           </Button>
