@@ -191,3 +191,9 @@ id = "CI3Dei0gJhoRdlbhCm4Y1"
 uri = "file://android-project-v15.zip"
 type = "unspecified"
 title = "android-project-v15.zip — versionCode 15 (AD_ID permission added)"
+
+[[outputs]]
+id = "86OV16wnL57v0-SCBWcxS"
+uri = "file://android-project-v16.zip"
+type = "unspecified"
+title = "android-project-v16.zip — versionCode 16 (edge-to-edge fix)"
