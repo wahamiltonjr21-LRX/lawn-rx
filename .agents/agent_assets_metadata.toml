@@ -227,3 +227,9 @@ id = "X4H4qGuMHLiE9O3LooOXl"
 uri = "file://android-project-v21.zip"
 type = "unspecified"
 title = "android-project-v21.zip — versionCode 21 (duplicate color fixed)"
+
+[[outputs]]
+id = "fWrQcZkITVeBxJLhwUk84"
+uri = "file://android-project-v22.zip"
+type = "unspecified"
+title = "android-project-v22.zip — versionCode 22 (reverted to v10 baseline)"
