@@ -8,8 +8,8 @@ import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 import { useQueryClient } from "@tanstack/react-query";
 
-const FALLBACK_MONTHLY_ID = "price_1TdzSRERekY96iVDhAScuU54";
-const FALLBACK_ANNUAL_ID  = "price_1TdzSRERekY96iVDYVsXahoL";
+const FALLBACK_MONTHLY_ID = "price_1TeGEwLXxFjrZzg4DJeb4qw9";
+const FALLBACK_ANNUAL_ID  = "price_1TeGEwLXxFjrZzg41VL3iN6k";
 
 interface UpgradeModalProps {
   onClose?: () => void;

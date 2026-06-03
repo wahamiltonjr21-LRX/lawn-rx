@@ -239,3 +239,9 @@ id = "04XBq0T2-TZmvXp4k0r6O"
 uri = "file://android-project-v23.zip"
 type = "unspecified"
 title = "android-project-v23.zip — versionCode 23 (Stripe Browser fix + modal safe area)"
+
+[[outputs]]
+id = "ZiyCX6eZzKnlzVOSHmbay"
+uri = "file://android-project-v24.zip"
+type = "unspecified"
+title = "android-project-v24.zip — versionCode 24 (live Stripe prices)"
