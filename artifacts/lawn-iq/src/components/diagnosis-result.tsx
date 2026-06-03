@@ -322,7 +322,7 @@ export function DiagnosisResult({ diagnosis, onSave, isSaving = false, showSaveB
                       className="rounded-xl gap-2 px-6"
                     >
                       <Sparkles className="w-4 h-4" />
-                      Upgrade to Pro — $9.99/mo
+                      Upgrade to Pro — $7.99/mo
                     </Button>
                   </div>
                 </div>

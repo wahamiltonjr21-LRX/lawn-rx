@@ -90,7 +90,7 @@ export default function Terms() {
               are consumed, you must upgrade to continue using the analysis feature.
             </li>
             <li>
-              <strong>Pro Membership:</strong> Priced at $9.99/month. Grants unlimited analyses and access to the
+              <strong>Pro Membership:</strong> Priced at $7.99/month. Grants unlimited analyses and access to the
               Care Alerts feature. Billed monthly through Stripe. Prices are subject to change with reasonable notice.
             </li>
             <li>

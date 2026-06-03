@@ -361,7 +361,7 @@ export default function Home() {
             onClick={() => setShowUpgradeModal(true)}
             className="rounded-xl px-8"
           >
-            <Sparkles className="w-4 h-4 mr-2" /> Upgrade to Pro — $9.99/month
+            <Sparkles className="w-4 h-4 mr-2" /> Upgrade to Pro — $7.99/month
           </Button>
         </div>
       )}
