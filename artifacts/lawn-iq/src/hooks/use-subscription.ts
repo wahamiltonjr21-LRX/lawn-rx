@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const BASE = ((import.meta.env.VITE_API_BASE as string | undefined) ?? "").replace(/\/$/, "");
 
 async function apiFetch(path: string, options?: RequestInit) {
   const res = await fetch(`${BASE}${path}`, {

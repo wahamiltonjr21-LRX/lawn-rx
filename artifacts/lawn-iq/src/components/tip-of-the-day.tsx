@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Lightbulb, RefreshCw, Loader2 } from "lucide-react";
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const BASE = ((import.meta.env.VITE_API_BASE as string | undefined) ?? "").replace(/\/$/, "");
 
 const FALLBACK_TIPS = [
   "Mow at the highest setting for your grass type — taller grass shades soil, reduces evaporation, and crowds out weeds naturally.",

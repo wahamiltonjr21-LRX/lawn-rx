@@ -3,7 +3,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { EmbeddedCheckout, Elements } from "@stripe/react-stripe-js";
 import { X, Loader2 } from "lucide-react";
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const BASE = ((import.meta.env.VITE_API_BASE as string | undefined) ?? "").replace(/\/$/, "");
 
 interface EmbeddedCheckoutModalProps {
   priceId: string;
