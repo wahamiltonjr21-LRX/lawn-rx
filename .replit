@@ -47,3 +47,4 @@ channel = "stable-25_05"
 
 [userenv.shared]
 ANALYSIS_LIMIT = "3"
+PRO_OVERRIDE_EMAILS = "wahamiltonjr21@gmail.com"

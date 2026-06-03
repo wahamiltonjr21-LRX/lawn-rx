@@ -50,7 +50,12 @@ router.get("/stripe/subscription", async (req, res) => {
   }
   try {
     const user = await stripeStorage.getUser(req.user.id);
-    if ((user as any)?.isProOverride) {
+    const proOverrideEmails = (process.env.PRO_OVERRIDE_EMAILS ?? "")
+      .split(",")
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+    const emailOverride = proOverrideEmails.includes((user?.email ?? "").toLowerCase());
+    if (user?.isProOverride || emailOverride) {
       res.json({ subscription: null, isPro: true });
       return;
     }
@@ -140,7 +145,8 @@ router.post("/stripe/embedded-checkout", async (req, res) => {
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "subscription",
-      ui_mode: "embedded" as const,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ui_mode: "embedded" as any,
       return_url: `${baseUrl}/?checkout=success`,
     });
 

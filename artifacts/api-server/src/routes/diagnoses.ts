@@ -166,25 +166,30 @@ router.post("/diagnoses", async (req, res) => {
   }
   const body = parsed.data;
 
-  const [[usageRow], proCheckResult] = await Promise.all([
-    db
-      .select({ analysisCount: usersTable.analysisCount, stripeCustomerId: usersTable.stripeCustomerId })
-      .from(usersTable)
-      .where(eq(usersTable.id, req.user.id))
-      .limit(1),
-    (async () => {
-      const [row] = await db
-        .select({ stripeCustomerId: usersTable.stripeCustomerId })
-        .from(usersTable)
-        .where(eq(usersTable.id, req.user.id))
-        .limit(1);
-      if (!row?.stripeCustomerId) return false;
-      const activeSub = await stripeStorage.getActiveSubscriptionForCustomer(row.stripeCustomerId);
-      return !!activeSub;
-    })(),
-  ]);
-  const used = usageRow?.analysisCount ?? 0;
-  const isPro = proCheckResult;
+  const [userRow] = await db
+    .select({
+      analysisCount: usersTable.analysisCount,
+      stripeCustomerId: usersTable.stripeCustomerId,
+      isProOverride: usersTable.isProOverride,
+      email: usersTable.email,
+    })
+    .from(usersTable)
+    .where(eq(usersTable.id, req.user.id))
+    .limit(1);
+
+  const used = userRow?.analysisCount ?? 0;
+
+  const proOverrideEmails = (process.env.PRO_OVERRIDE_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  const emailOverride = proOverrideEmails.includes((userRow?.email ?? "").toLowerCase());
+
+  let isPro = userRow?.isProOverride === true || emailOverride;
+  if (!isPro && userRow?.stripeCustomerId) {
+    const activeSub = await stripeStorage.getActiveSubscriptionForCustomer(userRow.stripeCustomerId);
+    isPro = !!activeSub;
+  }
 
   if (!isPro && used >= FREE_ANALYSIS_LIMIT) {
     res.status(403).json({

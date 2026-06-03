@@ -44,7 +44,7 @@ router.delete("/user/me", async (req, res) => {
   if (!req.isAuthenticated()) { res.status(401).json({ error: "Unauthorized" }); return; }
   const userId = req.user.id;
   await db.delete(usersTable).where(eq(usersTable.id, userId));
-  req.session.destroy(() => {
+  (req as any).session.destroy(() => {
     res.clearCookie("connect.sid");
     res.json({ success: true });
   });
