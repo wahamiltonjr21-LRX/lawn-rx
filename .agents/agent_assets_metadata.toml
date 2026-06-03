@@ -245,3 +245,9 @@ id = "ZiyCX6eZzKnlzVOSHmbay"
 uri = "file://android-project-v24.zip"
 type = "unspecified"
 title = "android-project-v24.zip — versionCode 24 (live Stripe prices)"
+
+[[outputs]]
+id = "aqBON-rrJB8PXmU9hOA7_"
+uri = "file://android-project-v25.zip"
+type = "unspecified"
+title = "android-project-v25.zip — versionCode 25 (self-contained, no pnpm paths)"
