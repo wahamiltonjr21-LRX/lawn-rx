@@ -221,3 +221,9 @@ id = "IkHV9HMCgOczTg4PIwoIP"
 uri = "file://android-project-v20.zip"
 type = "unspecified"
 title = "android-project-v20.zip — versionCode 20 (white bar fix)"
+
+[[outputs]]
+id = "X4H4qGuMHLiE9O3LooOXl"
+uri = "file://android-project-v21.zip"
+type = "unspecified"
+title = "android-project-v21.zip — versionCode 21 (duplicate color fixed)"
