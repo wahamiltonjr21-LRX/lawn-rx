@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { useStripeProducts, useStartCheckout } from "@/hooks/use-subscription";
 import { useToast } from "@/hooks/use-toast";
 import { EmbeddedCheckoutModal } from "@/components/embedded-checkout-modal";
+import { Capacitor } from "@capacitor/core";
+import { Browser } from "@capacitor/browser";
+import { useQueryClient } from "@tanstack/react-query";
 
 const FALLBACK_MONTHLY_ID = "price_1TdzSRERekY96iVDhAScuU54";
 const FALLBACK_ANNUAL_ID  = "price_1TdzSRERekY96iVDYVsXahoL";
@@ -16,6 +19,7 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
   const { data: productsData, isLoading } = useStripeProducts();
   const startCheckout = useStartCheckout();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [billing, setBilling] = useState<"monthly" | "annual">("annual");
   const [showEmbedded, setShowEmbedded] = useState(false);
 
@@ -46,7 +50,22 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
   const handleRedirectCheckout = async () => {
     try {
       const { url } = await startCheckout.mutateAsync(selectedPriceId);
-      if (url) window.location.href = url;
+      if (!url) return;
+
+      if (Capacitor.isNativePlatform()) {
+        // Open Stripe in a system browser (Chrome Custom Tabs on Android)
+        // so 3DS and redirects work correctly.
+        await Browser.open({ url, windowName: "_blank" });
+        // When the user closes the browser, refresh subscription status.
+        const listener = await Browser.addListener("browserFinished", async () => {
+          await listener.remove();
+          await queryClient.invalidateQueries({ queryKey: ["stripe-subscription"] });
+          await queryClient.invalidateQueries({ queryKey: ["usage"] });
+          onClose?.();
+        });
+      } else {
+        window.location.href = url;
+      }
     } catch {
       toast({ title: "Checkout failed", description: "Please try again.", variant: "destructive" });
     }
@@ -63,7 +82,15 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm"
+      style={{
+        paddingLeft: "1rem",
+        paddingRight: "1rem",
+        paddingTop: "1rem",
+        paddingBottom: "max(1rem, env(safe-area-inset-bottom))",
+      }}
+    >
       <div className="relative w-full max-w-md bg-background rounded-3xl shadow-2xl border border-border overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-300">
 
         {/* Green header band */}

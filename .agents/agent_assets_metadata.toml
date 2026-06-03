@@ -233,3 +233,9 @@ id = "fWrQcZkITVeBxJLhwUk84"
 uri = "file://android-project-v22.zip"
 type = "unspecified"
 title = "android-project-v22.zip — versionCode 22 (reverted to v10 baseline)"
+
+[[outputs]]
+id = "04XBq0T2-TZmvXp4k0r6O"
+uri = "file://android-project-v23.zip"
+type = "unspecified"
+title = "android-project-v23.zip — versionCode 23 (Stripe Browser fix + modal safe area)"
