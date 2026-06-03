@@ -257,3 +257,9 @@ id = "ODkCteCqVmmt3N_zKxdmt"
 uri = "file://android-project-v26.zip"
 type = "unspecified"
 title = "android-project-v26.zip — versionCode 26 (API calls fixed for Android)"
+
+[[outputs]]
+id = "KX4Kd2r2iAsZP0r5cN0Bn"
+uri = "file://android-project-v27.zip"
+type = "unspecified"
+title = "android-project-v27.zip — versionCode 27 (cookie fix + pro override)"
