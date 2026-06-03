@@ -1,8 +1,6 @@
 import { Router, type IRouter } from "express";
 import { getUncachableStripeClient, getStripePublishableKey } from "../stripeClient";
 import { stripeStorage } from "../stripeStorage";
-import { sql } from "drizzle-orm";
-import { db } from "@workspace/db";
 
 const router: IRouter = Router();
 
@@ -50,6 +48,7 @@ router.get("/stripe/subscription", async (req, res) => {
   }
   try {
     const user = await stripeStorage.getUser(req.user.id);
+
     const proOverrideEmails = (process.env.PRO_OVERRIDE_EMAILS ?? "")
       .split(",")
       .map((e) => e.trim().toLowerCase())
@@ -59,13 +58,37 @@ router.get("/stripe/subscription", async (req, res) => {
       res.json({ subscription: null, isPro: true });
       return;
     }
+
     if (!user?.stripeCustomerId) {
       res.json({ subscription: null, isPro: false });
       return;
     }
+
+    // Fast path: if we already have a stored subscriptionId, verify it's still active
+    if (user.stripeSubscriptionId) {
+      const stripe = await getUncachableStripeClient();
+      try {
+        const sub = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+        const isActive = sub.status === "active" || sub.status === "trialing";
+        if (isActive) {
+          res.json({ subscription: sub, isPro: true });
+          return;
+        }
+      } catch {
+        // subscription no longer exists — fall through to full lookup
+      }
+    }
+
+    // Full lookup via direct Stripe API (works regardless of local DB sync state)
     const subscription = await stripeStorage.getActiveSubscriptionForCustomer(
       user.stripeCustomerId,
     );
+    if (subscription) {
+      // Persist the found subscription ID for the fast path next time
+      await stripeStorage.updateUserStripeInfo(req.user.id, {
+        stripeSubscriptionId: subscription.id,
+      });
+    }
     res.json({ subscription, isPro: !!subscription });
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch subscription" });

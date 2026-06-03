@@ -1,6 +1,7 @@
 import { db } from "@workspace/db";
 import { usersTable } from "@workspace/db";
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
+import { getUncachableStripeClient } from "./stripeClient";
 
 export class StripeStorage {
   async getUser(id: string) {
@@ -20,38 +21,55 @@ export class StripeStorage {
     return user;
   }
 
-  async getSubscription(subscriptionId: string) {
-    const result = await db.execute(
-      sql`SELECT * FROM stripe.subscriptions WHERE id = ${subscriptionId}`,
-    );
-    return result.rows[0] ?? null;
-  }
-
   async getActiveSubscriptionForCustomer(customerId: string) {
-    const result = await db.execute(
-      sql`SELECT * FROM stripe.subscriptions WHERE customer = ${customerId} AND status = 'active' LIMIT 1`,
-    );
-    return result.rows[0] ?? null;
+    const stripe = await getUncachableStripeClient();
+    const subscriptions = await stripe.subscriptions.list({
+      customer: customerId,
+      status: "active",
+      limit: 1,
+    });
+    return subscriptions.data[0] ?? null;
   }
 
   async listProductsWithPrices() {
-    const result = await db.execute(sql`
-      SELECT
-        p.id as product_id,
-        p.name as product_name,
-        p.description as product_description,
-        p.active as product_active,
-        pr.id as price_id,
-        pr.unit_amount,
-        pr.currency,
-        pr.recurring,
-        pr.active as price_active
-      FROM stripe.products p
-      LEFT JOIN stripe.prices pr ON pr.product = p.id AND pr.active = true
-      WHERE p.active = true
-      ORDER BY pr.unit_amount
-    `);
-    return result.rows;
+    const stripe = await getUncachableStripeClient();
+    const [productsResp, pricesResp] = await Promise.all([
+      stripe.products.list({ active: true, limit: 100 }),
+      stripe.prices.list({ active: true, limit: 100 }),
+    ]);
+    const rows: any[] = [];
+    for (const product of productsResp.data) {
+      const prices = pricesResp.data.filter((p) => p.product === product.id);
+      if (prices.length === 0) {
+        rows.push({
+          product_id: product.id,
+          product_name: product.name,
+          product_description: product.description,
+          product_active: product.active,
+          price_id: null,
+          unit_amount: null,
+          currency: null,
+          recurring: null,
+          price_active: null,
+        });
+      } else {
+        for (const price of prices) {
+          rows.push({
+            product_id: product.id,
+            product_name: product.name,
+            product_description: product.description,
+            product_active: product.active,
+            price_id: price.id,
+            unit_amount: price.unit_amount,
+            currency: price.currency,
+            recurring: price.recurring,
+            price_active: price.active,
+          });
+        }
+      }
+    }
+    rows.sort((a, b) => (a.unit_amount ?? 0) - (b.unit_amount ?? 0));
+    return rows;
   }
 }
 
