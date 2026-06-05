@@ -269,3 +269,9 @@ id = "e0hHXG_2Hs3xxb8-BlL-4"
 uri = "file://exports/lawnrx-db-backup-20260605.tar.gz"
 type = "unspecified"
 title = "LawnRX Database Backup (Jun 5, 2026)"
+
+[[outputs]]
+id = "AZ63dDV-s_fEcwo0qLSK8"
+uri = "file://docs/TECHNICAL_REFERENCE.md"
+type = "text"
+title = "LawnRX Technical Reference"
