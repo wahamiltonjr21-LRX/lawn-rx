@@ -263,3 +263,9 @@ id = "KX4Kd2r2iAsZP0r5cN0Bn"
 uri = "file://android-project-v27.zip"
 type = "unspecified"
 title = "android-project-v27.zip — versionCode 27 (cookie fix + pro override)"
+
+[[outputs]]
+id = "e0hHXG_2Hs3xxb8-BlL-4"
+uri = "file://exports/lawnrx-db-backup-20260605.tar.gz"
+type = "unspecified"
+title = "LawnRX Database Backup (Jun 5, 2026)"
