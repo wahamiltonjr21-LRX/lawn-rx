@@ -275,3 +275,9 @@ id = "AZ63dDV-s_fEcwo0qLSK8"
 uri = "file://docs/TECHNICAL_REFERENCE.md"
 type = "text"
 title = "LawnRX Technical Reference"
+
+[[outputs]]
+id = "0jpdPeXZ75Urs6hbFNFUj"
+uri = "file://exports/lawnrx-privacy-policy.csv"
+type = "table"
+title = "LawnRX Privacy Policy (CSV)"

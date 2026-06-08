@@ -1,0 +1,27 @@
+Section,Topic,Details
+1. Introduction,Overview,"LawnRX is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our mobile and web application."
+1. Introduction,Last Updated,May 26 2026
+2. Information We Collect,Account Information,"Name and email address provided through Replit authentication (OAuth login)."
+2. Information We Collect,Photos,"Lawn images you upload for AI diagnosis. These are processed by OpenAI and not permanently stored on our servers."
+2. Information We Collect,Diagnosis Data,"Saved lawn diagnosis results including health scores and treatment plans stored in our secure database."
+2. Information We Collect,Location Data,"Approximate location (city/region) used to tailor lawn care advice to your climate zone. Precise GPS coordinates are not stored."
+2. Information We Collect,Payment Information,"Handled entirely by Stripe. Credit card numbers and payment details are not stored on our servers."
+2. Information We Collect,Usage Data,"Basic app usage information such as number of diagnoses performed used to enforce free-tier limits."
+3. How We Use Your Information,AI Diagnosis,To provide AI-powered lawn diagnosis and personalized treatment plans.
+3. How We Use Your Information,History,To save and display your diagnosis history.
+3. How We Use Your Information,Payments,To manage your subscription and process payments via Stripe.
+3. How We Use Your Information,Alerts,To send care alerts and seasonal lawn tips relevant to your region.
+3. How We Use Your Information,Improvement,To improve the accuracy and performance of our AI analysis.
+4. Third-Party Services,OpenAI,"Processes uploaded photos for lawn diagnosis. Subject to OpenAI's Privacy Policy (https://openai.com/policies/privacy-policy)."
+4. Third-Party Services,Stripe,"Handles all payment processing. Subject to Stripe's Privacy Policy (https://stripe.com/privacy)."
+4. Third-Party Services,Replit,Provides authentication and hosting infrastructure.
+5. Data Retention & Deletion,Retention,Data is retained for as long as your account is active. Individual plans can be deleted at any time from within the app.
+5. Data Retention & Deletion,Account Deletion,"Account and all associated data can be permanently deleted via the profile menu or at lawnrx.replit.app/delete-account. Data is permanently deleted within 90 days of request."
+5. Data Retention & Deletion,Payment Records,Payment records held by Stripe are subject to Stripe's own data retention policy.
+6. Data Security,Security Measures,"Industry-standard security measures including encrypted connections (HTTPS/TLS), secure session management, and scoped database access."
+6. Data Security,Access Control,Data is only accessible to the user when logged in.
+7. Children's Privacy,Age Restriction,LawnRX is not directed at children under 13. Personal information from children under 13 is not knowingly collected.
+8. Your Rights,Access & Correction,Users have the right to access and correct personal data at any time.
+8. Your Rights,Deletion,Users can delete saved plans directly in the app or request full account deletion.
+9. Changes to This Policy,Updates,"Policy may be updated from time to time. Significant changes will be noted by updating the date at the top of the page. Continued use constitutes acceptance."
+10. Contact Us,Contact,https://lawn-rx.replit.app
