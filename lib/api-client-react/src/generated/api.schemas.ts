@@ -289,6 +289,55 @@ export interface UpgradeRequestStatus {
   createdAt?: string | null;
 }
 
+export type LawnNoteEntryType =
+  (typeof LawnNoteEntryType)[keyof typeof LawnNoteEntryType];
+
+export const LawnNoteEntryType = {
+  completed: "completed",
+  scheduled: "scheduled",
+  note: "note",
+} as const;
+
+export interface LawnNote {
+  id: string;
+  userId: string;
+  /** Date in YYYY-MM-DD format */
+  date: string;
+  title: string;
+  /** @nullable */
+  body?: string | null;
+  entryType: LawnNoteEntryType;
+  /** @nullable */
+  treatmentType?: string | null;
+  /** @nullable */
+  productUsed?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type CreateLawnNoteBodyEntryType =
+  (typeof CreateLawnNoteBodyEntryType)[keyof typeof CreateLawnNoteBodyEntryType];
+
+export const CreateLawnNoteBodyEntryType = {
+  completed: "completed",
+  scheduled: "scheduled",
+  note: "note",
+} as const;
+
+export interface CreateLawnNoteBody {
+  /** Date in YYYY-MM-DD format */
+  date: string;
+  /** @maxLength 200 */
+  title: string;
+  /** @maxLength 2000 */
+  body?: string;
+  entryType?: CreateLawnNoteBodyEntryType;
+  /** @maxLength 50 */
+  treatmentType?: string;
+  /** @maxLength 200 */
+  productUsed?: string;
+}
+
 export interface ErrorEnvelope {
   error: string;
 }

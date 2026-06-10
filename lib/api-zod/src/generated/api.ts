@@ -844,6 +844,101 @@ export const DeleteTreatmentLogParams = zod.object({
 });
 
 /**
+ * @summary List the current user's lawn journal entries
+ */
+export const ListJournalEntriesResponseItem = zod.object({
+  id: zod.string(),
+  userId: zod.string(),
+  date: zod.string().describe("Date in YYYY-MM-DD format"),
+  title: zod.string(),
+  body: zod.string().nullish(),
+  entryType: zod.enum(["completed", "scheduled", "note"]),
+  treatmentType: zod.string().nullish(),
+  productUsed: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
+});
+export const ListJournalEntriesResponse = zod.array(
+  ListJournalEntriesResponseItem,
+);
+
+/**
+ * @summary Create a new journal entry
+ */
+export const createJournalEntryBodyTitleMax = 200;
+
+export const createJournalEntryBodyBodyMax = 2000;
+
+export const createJournalEntryBodyTreatmentTypeMax = 50;
+
+export const createJournalEntryBodyProductUsedMax = 200;
+
+export const CreateJournalEntryBody = zod.object({
+  date: zod.string().describe("Date in YYYY-MM-DD format"),
+  title: zod.string().max(createJournalEntryBodyTitleMax),
+  body: zod.string().max(createJournalEntryBodyBodyMax).optional(),
+  entryType: zod.enum(["completed", "scheduled", "note"]).optional(),
+  treatmentType: zod
+    .string()
+    .max(createJournalEntryBodyTreatmentTypeMax)
+    .optional(),
+  productUsed: zod
+    .string()
+    .max(createJournalEntryBodyProductUsedMax)
+    .optional(),
+});
+
+/**
+ * @summary Update a journal entry
+ */
+export const UpdateJournalEntryParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const updateJournalEntryBodyTitleMax = 200;
+
+export const updateJournalEntryBodyBodyMax = 2000;
+
+export const updateJournalEntryBodyTreatmentTypeMax = 50;
+
+export const updateJournalEntryBodyProductUsedMax = 200;
+
+export const UpdateJournalEntryBody = zod.object({
+  date: zod.string().describe("Date in YYYY-MM-DD format"),
+  title: zod.string().max(updateJournalEntryBodyTitleMax),
+  body: zod.string().max(updateJournalEntryBodyBodyMax).optional(),
+  entryType: zod.enum(["completed", "scheduled", "note"]).optional(),
+  treatmentType: zod
+    .string()
+    .max(updateJournalEntryBodyTreatmentTypeMax)
+    .optional(),
+  productUsed: zod
+    .string()
+    .max(updateJournalEntryBodyProductUsedMax)
+    .optional(),
+});
+
+export const UpdateJournalEntryResponse = zod.object({
+  id: zod.string(),
+  userId: zod.string(),
+  date: zod.string().describe("Date in YYYY-MM-DD format"),
+  title: zod.string(),
+  body: zod.string().nullish(),
+  entryType: zod.enum(["completed", "scheduled", "note"]),
+  treatmentType: zod.string().nullish(),
+  productUsed: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Delete a journal entry
+ */
+export const DeleteJournalEntryParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+/**
  * @summary Get the currently authenticated user
  */
 export const GetCurrentAuthUserHeader = zod.object({

@@ -10,6 +10,7 @@ import communityRouter from "./community";
 import tipRouter from "./tip";
 import userRouter from "./user";
 import treatmentsRouter from "./treatments";
+import journalRouter from "./journal";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -24,6 +25,7 @@ router.use(communityRouter);
 router.use(tipRouter);
 router.use(userRouter);
 router.use(treatmentsRouter);
+router.use(journalRouter);
 
 router.get("/download/android", (_req, res) => {
   const file = path.resolve(__dirname, "../../android-project-v27.zip");

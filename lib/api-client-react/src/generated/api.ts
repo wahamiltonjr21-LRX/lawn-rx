@@ -24,12 +24,14 @@ import type {
   CommunityPost,
   CreateCommunityCommentBody,
   CreateCommunityPostBody,
+  CreateLawnNoteBody,
   DiagnosesSummary,
   Diagnosis,
   DiagnosisUsage,
   ErrorEnvelope,
   HandleBrowserLoginCallbackParams,
   HealthStatus,
+  LawnNote,
   LogTreatmentBody,
   LogoutSuccess,
   MobileTokenExchangeRequest,
@@ -1768,6 +1770,338 @@ export const useDeleteTreatmentLog = <
   TContext
 > => {
   return useMutation(getDeleteTreatmentLogMutationOptions(options));
+};
+
+/**
+ * @summary List the current user's lawn journal entries
+ */
+export const getListJournalEntriesUrl = () => {
+  return `/api/journal`;
+};
+
+export const listJournalEntries = async (
+  options?: RequestInit,
+): Promise<LawnNote[]> => {
+  return customFetch<LawnNote[]>(getListJournalEntriesUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListJournalEntriesQueryKey = () => {
+  return [`/api/journal`] as const;
+};
+
+export const getListJournalEntriesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listJournalEntries>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listJournalEntries>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListJournalEntriesQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listJournalEntries>>
+  > = ({ signal }) => listJournalEntries({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listJournalEntries>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListJournalEntriesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listJournalEntries>>
+>;
+export type ListJournalEntriesQueryError = ErrorType<void>;
+
+/**
+ * @summary List the current user's lawn journal entries
+ */
+
+export function useListJournalEntries<
+  TData = Awaited<ReturnType<typeof listJournalEntries>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listJournalEntries>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListJournalEntriesQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Create a new journal entry
+ */
+export const getCreateJournalEntryUrl = () => {
+  return `/api/journal`;
+};
+
+export const createJournalEntry = async (
+  createLawnNoteBody: CreateLawnNoteBody,
+  options?: RequestInit,
+): Promise<LawnNote> => {
+  return customFetch<LawnNote>(getCreateJournalEntryUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createLawnNoteBody),
+  });
+};
+
+export const getCreateJournalEntryMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createJournalEntry>>,
+    TError,
+    { data: BodyType<CreateLawnNoteBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createJournalEntry>>,
+  TError,
+  { data: BodyType<CreateLawnNoteBody> },
+  TContext
+> => {
+  const mutationKey = ["createJournalEntry"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createJournalEntry>>,
+    { data: BodyType<CreateLawnNoteBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createJournalEntry(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateJournalEntryMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createJournalEntry>>
+>;
+export type CreateJournalEntryMutationBody = BodyType<CreateLawnNoteBody>;
+export type CreateJournalEntryMutationError = ErrorType<void>;
+
+/**
+ * @summary Create a new journal entry
+ */
+export const useCreateJournalEntry = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createJournalEntry>>,
+    TError,
+    { data: BodyType<CreateLawnNoteBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createJournalEntry>>,
+  TError,
+  { data: BodyType<CreateLawnNoteBody> },
+  TContext
+> => {
+  return useMutation(getCreateJournalEntryMutationOptions(options));
+};
+
+/**
+ * @summary Update a journal entry
+ */
+export const getUpdateJournalEntryUrl = (id: string) => {
+  return `/api/journal/${id}`;
+};
+
+export const updateJournalEntry = async (
+  id: string,
+  createLawnNoteBody: CreateLawnNoteBody,
+  options?: RequestInit,
+): Promise<LawnNote> => {
+  return customFetch<LawnNote>(getUpdateJournalEntryUrl(id), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createLawnNoteBody),
+  });
+};
+
+export const getUpdateJournalEntryMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateJournalEntry>>,
+    TError,
+    { id: string; data: BodyType<CreateLawnNoteBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateJournalEntry>>,
+  TError,
+  { id: string; data: BodyType<CreateLawnNoteBody> },
+  TContext
+> => {
+  const mutationKey = ["updateJournalEntry"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateJournalEntry>>,
+    { id: string; data: BodyType<CreateLawnNoteBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateJournalEntry(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateJournalEntryMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateJournalEntry>>
+>;
+export type UpdateJournalEntryMutationBody = BodyType<CreateLawnNoteBody>;
+export type UpdateJournalEntryMutationError = ErrorType<void>;
+
+/**
+ * @summary Update a journal entry
+ */
+export const useUpdateJournalEntry = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateJournalEntry>>,
+    TError,
+    { id: string; data: BodyType<CreateLawnNoteBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateJournalEntry>>,
+  TError,
+  { id: string; data: BodyType<CreateLawnNoteBody> },
+  TContext
+> => {
+  return useMutation(getUpdateJournalEntryMutationOptions(options));
+};
+
+/**
+ * @summary Delete a journal entry
+ */
+export const getDeleteJournalEntryUrl = (id: string) => {
+  return `/api/journal/${id}`;
+};
+
+export const deleteJournalEntry = async (
+  id: string,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteJournalEntryUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteJournalEntryMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteJournalEntry>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteJournalEntry>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["deleteJournalEntry"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteJournalEntry>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteJournalEntry(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteJournalEntryMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteJournalEntry>>
+>;
+
+export type DeleteJournalEntryMutationError = ErrorType<void>;
+
+/**
+ * @summary Delete a journal entry
+ */
+export const useDeleteJournalEntry = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteJournalEntry>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteJournalEntry>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getDeleteJournalEntryMutationOptions(options));
 };
 
 /**
