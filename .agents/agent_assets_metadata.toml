@@ -281,3 +281,9 @@ id = "0jpdPeXZ75Urs6hbFNFUj"
 uri = "file://exports/lawnrx-privacy-policy.csv"
 type = "table"
 title = "LawnRX Privacy Policy (CSV)"
+
+[[outputs]]
+id = "FC1mXnV7Do7xO-m-m-hoR"
+uri = "file://artifacts/api-server/android-project-v28.zip"
+type = "unspecified"
+title = "LawnRX Android Project v1.28"
