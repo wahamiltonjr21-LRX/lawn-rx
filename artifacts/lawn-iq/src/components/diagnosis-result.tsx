@@ -290,41 +290,44 @@ export function DiagnosisResult({ diagnosis, onSave, isSaving = false, showSaveB
 
             {/* Paywall blur for remaining steps */}
             {diagnosis.steps.length > 1 && (
-              <div className="relative">
-                <div className="pointer-events-none select-none px-5 pb-4 space-y-4 opacity-30 blur-[3px]">
-                  {diagnosis.steps.slice(1, 3).map((step, i) => (
-                    <div key={i} className="flex gap-4">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm flex items-center justify-center border border-primary/20 shrink-0">
-                        {i + 2}
+              <div>
+                {/* Blurred preview — fades out at the bottom */}
+                <div className="relative overflow-hidden" style={{ maxHeight: "7rem" }}>
+                  <div className="pointer-events-none select-none px-5 pb-4 space-y-4 opacity-30 blur-[3px]">
+                    {diagnosis.steps.slice(1, 3).map((step, i) => (
+                      <div key={i} className="flex gap-4">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm flex items-center justify-center border border-primary/20 shrink-0">
+                          {i + 2}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-sm">{step.title}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{step.detail}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-semibold text-sm">{step.title}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{step.detail}</p>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+                  {/* Fade-out gradient */}
+                  <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background to-transparent pointer-events-none" />
                 </div>
 
-                {/* Upgrade overlay */}
-                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-t from-background via-background/80 to-transparent">
-                  <div className="text-center px-6 py-4 space-y-3">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                      <Lock className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-base">Unlock {diagnosis.steps.length - 1} more steps</p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Upgrade to Pro for the full recovery plan.
-                      </p>
-                    </div>
-                    <Button
-                      onClick={onUpgrade}
-                      className="rounded-xl gap-2 px-6"
-                    >
-                      <Sparkles className="w-4 h-4" />
-                      Upgrade to Pro — $7.99/mo
-                    </Button>
+                {/* Upgrade CTA — in normal flow, always fully visible */}
+                <div className="text-center px-6 pt-4 pb-5 space-y-3">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                    <Lock className="w-5 h-5 text-primary" />
                   </div>
+                  <div>
+                    <p className="font-bold text-base">Unlock {diagnosis.steps.length - 1} more steps</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Upgrade to Pro for the full recovery plan.
+                    </p>
+                  </div>
+                  <Button
+                    onClick={onUpgrade}
+                    className="rounded-xl gap-2 px-6 w-full sm:w-auto"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Upgrade to Pro — $7.99/mo
+                  </Button>
                 </div>
               </div>
             )}
