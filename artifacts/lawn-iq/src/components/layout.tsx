@@ -1,10 +1,12 @@
 import { Link, useLocation } from "wouter";
-import { Home, List, Info, Leaf, Bell, Users, ShoppingBag, LogIn, LogOut, User, CalendarDays, Trash2 } from "lucide-react";
+import { Home, List, Info, Leaf, Bell, Users, ShoppingBag, LogIn, LogOut, User, CalendarDays, Trash2, CreditCard, Loader2 } from "lucide-react";
 import YardMapIcon from "@/components/icons/yard-map-icon";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useAuth } from "@workspace/replit-auth-web";
 import { useAnimatedLogout } from "@/App";
+import { useOpenPortal } from "@/hooks/use-subscription";
+import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
