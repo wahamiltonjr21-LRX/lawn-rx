@@ -92,6 +92,17 @@ function AccountButton() {
   const { user, isAuthenticated, login } = useAuth();
   const handleLogout = useAnimatedLogout();
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const openPortal = useOpenPortal();
+  const { toast } = useToast();
+
+  const handleBilling = async () => {
+    try {
+      const { url } = await openPortal.mutateAsync();
+      window.location.href = url;
+    } catch {
+      toast({ title: "No billing account found", description: "Subscribe to a plan to manage billing.", variant: "destructive" });
+    }
+  };
 
   if (!isAuthenticated) {
     return (
@@ -126,7 +137,7 @@ function AccountButton() {
             </Avatar>
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-52">
+        <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col gap-0.5">
               {(user?.firstName || user?.lastName) && (
@@ -139,6 +150,17 @@ function AccountButton() {
               )}
             </div>
           </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={handleBilling}
+            disabled={openPortal.isPending}
+            className="cursor-pointer"
+          >
+            {openPortal.isPending
+              ? <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              : <CreditCard className="w-4 h-4 mr-2" />}
+            Manage Billing
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={handleLogout}
@@ -164,6 +186,17 @@ function SidebarAccountSection() {
   const { user, isAuthenticated, login } = useAuth();
   const handleLogout = useAnimatedLogout();
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const openPortal = useOpenPortal();
+  const { toast } = useToast();
+
+  const handleBilling = async () => {
+    try {
+      const { url } = await openPortal.mutateAsync();
+      window.location.href = url;
+    } catch {
+      toast({ title: "No billing account found", description: "Subscribe to a plan to manage billing.", variant: "destructive" });
+    }
+  };
 
   if (!isAuthenticated) {
     return (
@@ -207,7 +240,7 @@ function SidebarAccountSection() {
             <User className="w-4 h-4 text-muted-foreground shrink-0" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" side="top" className="w-52">
+        <DropdownMenuContent align="end" side="top" className="w-56">
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col gap-0.5">
               {(user?.firstName || user?.lastName) && (
@@ -220,6 +253,17 @@ function SidebarAccountSection() {
               )}
             </div>
           </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={handleBilling}
+            disabled={openPortal.isPending}
+            className="cursor-pointer"
+          >
+            {openPortal.isPending
+              ? <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              : <CreditCard className="w-4 h-4 mr-2" />}
+            Manage Billing
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={handleLogout}
