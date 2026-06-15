@@ -147,7 +147,17 @@ export function useAuth(): AuthState {
 
             await Browser.close().catch(() => {});
 
-            const u = await fetchUser();
+            // Retry fetchUser up to 5 times with backoff — the session may
+            // not be immediately readable after the browser closes on slow
+            // connections.
+            let u: AuthUser | null = null;
+            for (let attempt = 0; attempt < 5; attempt++) {
+              if (attempt > 0) {
+                await new Promise((r) => setTimeout(r, 1000 * attempt));
+              }
+              u = await fetchUser();
+              if (u) break;
+            }
             if (u) {
               setUser(u);
               setIsLoading(false);
@@ -174,9 +184,12 @@ export function useAuth(): AuthState {
           }, 2000);
 
           await Browser.addListener("browserFinished", () => {
+            // Give the poll one last window to complete before giving up.
+            // 10 s covers slow connections where the OAuth callback and
+            // poll response are still in-flight when the browser closes.
             setTimeout(() => {
               if (!done && pollTimer) clearInterval(pollTimer);
-            }, 4000);
+            }, 10000);
           });
 
           await Browser.open({ url: authorizationUrl });
