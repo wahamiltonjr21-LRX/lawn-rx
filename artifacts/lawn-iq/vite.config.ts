@@ -87,6 +87,7 @@ export default defineConfig({
             "@radix-ui/react-switch",
           ],
           "vendor-misc": ["date-fns", "wouter", "lucide-react", "clsx", "class-variance-authority", "tailwind-merge"],
+          // vendor-mapbox intentionally omitted — loaded via lazy() only when /yard-map is visited
         },
       },
     },

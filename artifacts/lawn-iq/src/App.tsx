@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useAuth } from "@workspace/replit-auth-web";
 import { Camera, Sparkles, ListChecks, CheckCircle2, LogOut } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
@@ -20,8 +20,9 @@ import Privacy from "@/pages/privacy";
 import Community from "@/pages/community";
 import Shop from "@/pages/shop";
 import Calendar from "@/pages/calendar";
-import YardMap from "@/pages/yard-map";
 import DeleteAccount from "@/pages/delete-account";
+
+const YardMap = lazy(() => import("@/pages/yard-map"));
 
 const queryClient = new QueryClient();
 
@@ -54,7 +55,9 @@ function AnimatedRouter() {
           <Route path="/community" component={Community} />
           <Route path="/shop" component={Shop} />
           <Route path="/calendar" component={Calendar} />
-          <Route path="/yard-map" component={YardMap} />
+          <Route path="/yard-map">
+            {() => <Suspense fallback={<GrassLoader />}><YardMap /></Suspense>}
+          </Route>
           <Route path="/delete-account" component={DeleteAccount} />
           <Route component={NotFound} />
         </Switch>
