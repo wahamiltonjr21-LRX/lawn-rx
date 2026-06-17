@@ -23,6 +23,10 @@ publicDir = "artifacts/lawn-iq/dist/public"
 serve = "static"
 
 [[services.production.rewrites]]
+from = "/privacy-policy.html"
+to = "/privacy-policy.html"
+
+[[services.production.rewrites]]
 from = "/*"
 to = "/index.html"
 
