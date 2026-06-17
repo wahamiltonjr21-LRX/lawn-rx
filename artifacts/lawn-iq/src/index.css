@@ -379,3 +379,8 @@
     transform: translateY(0) scale(1);
   }
 }
+
+/* Hide bottom nav when the Android keyboard is open */
+body.keyboard-is-visible nav.fixed.bottom-0 {
+  display: none !important;
+}

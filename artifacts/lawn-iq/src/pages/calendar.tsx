@@ -205,13 +205,23 @@ function JournalModal({ defaultDate, entry, onClose, onSaved }: JournalModalProp
             <PenLine className="w-4 h-4 text-emerald-600" />
             <p className="font-bold text-sm">{entry ? "Edit Entry" : "Add Journal Entry"}</p>
           </div>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="submit"
+              form="journal-form"
+              disabled={pending || !title.trim()}
+              className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white font-semibold text-xs rounded-lg transition-colors"
+            >
+              {pending ? "Saving…" : entry ? "Save" : "Save Entry"}
+            </button>
+            <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Scrollable form body */}
-        <form onSubmit={handleSubmit} className="overflow-y-auto flex-1 px-5 py-4 space-y-3">
+        <form id="journal-form" onSubmit={handleSubmit} className="overflow-y-auto flex-1 px-5 py-4 space-y-3">
           {/* Entry type tabs */}
           <div className="flex gap-1.5 p-1 bg-muted/60 rounded-xl">
             {(Object.entries(ENTRY_TYPE_CONFIG) as [EntryType, typeof ENTRY_TYPE_CONFIG[EntryType]][]).map(([key, cfg]) => {
