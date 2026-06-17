@@ -194,12 +194,13 @@ function JournalModal({ defaultDate, entry, onClose, onSaved }: JournalModalProp
   const pending = create.isPending || update.isPending;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-4 pb-20 sm:pb-4" onClick={onClose}>
       <div
-        className="w-full max-w-md bg-card border border-border/60 rounded-2xl shadow-xl p-5 space-y-4"
+        className="w-full max-w-md bg-card border border-border/60 rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[80vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between">
+        {/* Sticky header */}
+        <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-border/40 shrink-0">
           <div className="flex items-center gap-2">
             <PenLine className="w-4 h-4 text-emerald-600" />
             <p className="font-bold text-sm">{entry ? "Edit Entry" : "Add Journal Entry"}</p>
@@ -209,7 +210,8 @@ function JournalModal({ defaultDate, entry, onClose, onSaved }: JournalModalProp
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
+        {/* Scrollable form body */}
+        <form onSubmit={handleSubmit} className="overflow-y-auto flex-1 px-5 py-4 space-y-3">
           {/* Entry type tabs */}
           <div className="flex gap-1.5 p-1 bg-muted/60 rounded-xl">
             {(Object.entries(ENTRY_TYPE_CONFIG) as [EntryType, typeof ENTRY_TYPE_CONFIG[EntryType]][]).map(([key, cfg]) => {
@@ -312,6 +314,7 @@ function JournalModal({ defaultDate, entry, onClose, onSaved }: JournalModalProp
       </div>
     </div>
   );
+
 }
 
 /* ── Mark Done button (plan treatments) ── */
