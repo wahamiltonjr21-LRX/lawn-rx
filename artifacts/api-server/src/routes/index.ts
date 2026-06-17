@@ -28,8 +28,8 @@ router.use(treatmentsRouter);
 router.use(journalRouter);
 
 router.get("/download/android", (_req, res) => {
-  const file = path.resolve(__dirname, "../android-project-v28.zip");
-  res.download(file, "android-project-v28.zip");
+  const file = path.resolve(__dirname, "../android-project-v29.zip");
+  res.download(file, "android-project-v29.zip");
 });
 
 router.get("/privacy-policy", (_req, res) => {
