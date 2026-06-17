@@ -179,35 +179,39 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
             ))}
           </ul>
 
-          {/* Apple/Google Pay */}
-          <Button
-            onClick={() => setShowEmbedded(true)}
-            disabled={isLoading}
-            className="w-full py-6 text-base rounded-xl bg-black hover:bg-black/80 dark:bg-white dark:hover:bg-white/90 dark:text-black text-white gap-2"
-          >
-            <Zap className="w-4 h-4" />
-            Pay with Apple Pay / Google Pay
-          </Button>
+          {/* Apple/Google Pay — only shown in browser (not in Capacitor WebView) */}
+          {!Capacitor.isNativePlatform() && (
+            <>
+              <Button
+                onClick={() => setShowEmbedded(true)}
+                disabled={isLoading}
+                className="w-full py-6 text-base rounded-xl bg-black hover:bg-black/80 dark:bg-white dark:hover:bg-white/90 dark:text-black text-white gap-2"
+              >
+                <Zap className="w-4 h-4" />
+                Pay with Apple Pay / Google Pay
+              </Button>
 
-          <div className="flex items-center gap-3">
-            <div className="h-px flex-1 bg-border" />
-            <span className="text-xs text-muted-foreground">or pay with card</span>
-            <div className="h-px flex-1 bg-border" />
-          </div>
+              <div className="flex items-center gap-3">
+                <div className="h-px flex-1 bg-border" />
+                <span className="text-xs text-muted-foreground">or pay with card</span>
+                <div className="h-px flex-1 bg-border" />
+              </div>
+            </>
+          )}
 
           <Button
-            variant="outline"
+            variant={Capacitor.isNativePlatform() ? "default" : "outline"}
             onClick={handleRedirectCheckout}
             disabled={startCheckout.isPending || isLoading}
-            className="w-full py-5 rounded-xl gap-2 border-emerald-600/40 hover:border-emerald-600"
+            className={`w-full rounded-xl gap-2 ${Capacitor.isNativePlatform() ? "py-6 text-base bg-emerald-700 hover:bg-emerald-800 text-white border-0" : "py-5 border-emerald-600/40 hover:border-emerald-600"}`}
           >
             {startCheckout.isPending ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> Redirecting…</>
+              <><Loader2 className="w-4 h-4 animate-spin" /> Opening checkout…</>
             ) : (
               <><CreditCard className="w-4 h-4" />
                 {billing === "annual"
-                  ? `Pay with Card — $${annualAmount}/year`
-                  : `Pay with Card — $${monthlyAmount}/mo`}
+                  ? `Subscribe — $${annualAmount}/year`
+                  : `Subscribe — $${monthlyAmount}/mo`}
               </>
             )}
           </Button>
