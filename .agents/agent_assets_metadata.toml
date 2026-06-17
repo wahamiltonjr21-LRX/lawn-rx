@@ -293,3 +293,9 @@ id = "QTQcUt9kAwxm1DgXyZPaI"
 uri = "file://artifacts/api-server/android-project-v29.zip"
 type = "unspecified"
 title = "android-project-v29.zip"
+
+[[outputs]]
+id = "hoUHgAzJuKNUc4pv4-Ipy"
+uri = "file://artifacts/api-server/android-project-v30.zip"
+type = "unspecified"
+title = "android-project-v30.zip"
