@@ -399,7 +399,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     logout();
   }, [logout]);
 
-  if (location === "/terms" || location === "/privacy") return <>{children}</>;
+  if (location === "/terms" || location === "/privacy" || location === "/delete-account") return <>{children}</>;
 
   if (isLoading) {
     return (
