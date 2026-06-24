@@ -46,6 +46,7 @@ router.get("/stripe/subscription", async (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
+  res.set("Cache-Control", "no-store");
   try {
     const user = await stripeStorage.getUser(req.user.id);
 

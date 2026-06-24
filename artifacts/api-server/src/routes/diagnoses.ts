@@ -300,6 +300,7 @@ router.get("/diagnoses/usage", async (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
+  res.set("Cache-Control", "no-store");
   const [row] = await db
     .select({
       analysisCount: usersTable.analysisCount,
