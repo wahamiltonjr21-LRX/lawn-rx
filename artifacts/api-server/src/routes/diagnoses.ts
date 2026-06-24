@@ -301,15 +301,34 @@ router.get("/diagnoses/usage", async (req, res) => {
     return;
   }
   const [row] = await db
-    .select({ analysisCount: usersTable.analysisCount })
+    .select({
+      analysisCount: usersTable.analysisCount,
+      isProOverride: usersTable.isProOverride,
+      email: usersTable.email,
+      stripeCustomerId: usersTable.stripeCustomerId,
+    })
     .from(usersTable)
     .where(eq(usersTable.id, req.user.id))
     .limit(1);
+
   const used = row?.analysisCount ?? 0;
+
+  const proOverrideEmails = (process.env.PRO_OVERRIDE_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  const emailOverride = proOverrideEmails.includes((row?.email ?? "").toLowerCase());
+  let isPro = row?.isProOverride === true || emailOverride;
+  if (!isPro && row?.stripeCustomerId) {
+    const activeSub = await stripeStorage.getActiveSubscriptionForCustomer(row.stripeCustomerId);
+    isPro = !!activeSub;
+  }
+
   res.json({
     used,
     limit: FREE_ANALYSIS_LIMIT,
-    remaining: Math.max(0, FREE_ANALYSIS_LIMIT - used),
+    remaining: isPro ? FREE_ANALYSIS_LIMIT : Math.max(0, FREE_ANALYSIS_LIMIT - used),
+    isPro,
   });
 });
 

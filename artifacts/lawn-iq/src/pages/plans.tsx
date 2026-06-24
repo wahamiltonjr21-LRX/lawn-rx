@@ -8,17 +8,20 @@ import { Skeleton } from "@/components/ui/skeleton";
 import emptyPlansImg from "@/assets/images/empty-plans.png";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { useSubscription } from "@/hooks/use-subscription";
 
 export default function Plans() {
   const { data: diagnoses, isLoading: isLoadingDiagnoses } = useListDiagnoses();
   const { data: summary, isLoading: isLoadingSummary } = useGetDiagnosesSummary();
   const { data: usage } = useGetDiagnosisUsage();
   const { data: upgradeRequest } = useGetUpgradeRequest();
+  const { data: subData } = useSubscription();
   const deleteDiagnosis = useDeleteDiagnosis();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const limitReached = usage !== undefined && usage.remaining <= 0;
+  const isPro = subData?.isPro === true;
+  const limitReached = !isPro && usage !== undefined && usage.remaining <= 0;
   const alreadyRequested = upgradeRequest?.submitted === true;
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
