@@ -16,7 +16,8 @@ export function useSubscription() {
   return useQuery({
     queryKey: ["stripe-subscription"],
     queryFn: () => apiFetch("/api/stripe/subscription"),
-    staleTime: 60_000,
+    staleTime: 0,
+    gcTime: 0,
   });
 }
 

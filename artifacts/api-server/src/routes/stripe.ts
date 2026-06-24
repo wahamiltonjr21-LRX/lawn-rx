@@ -56,11 +56,13 @@ router.get("/stripe/subscription", async (req, res) => {
       .filter(Boolean);
     const emailOverride = proOverrideEmails.includes((user?.email ?? "").toLowerCase());
     if (user?.isProOverride || emailOverride) {
+      req.log.info({ userId: req.user.id, reason: user?.isProOverride ? "db_override" : "email_override" }, "subscription isPro=true");
       res.json({ subscription: null, isPro: true });
       return;
     }
 
     if (!user?.stripeCustomerId) {
+      req.log.info({ userId: req.user.id }, "subscription isPro=false (no customer)");
       res.json({ subscription: null, isPro: false });
       return;
     }
