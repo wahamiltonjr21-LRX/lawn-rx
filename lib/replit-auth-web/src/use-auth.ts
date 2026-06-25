@@ -183,13 +183,27 @@ export function useAuth(): AuthState {
             }
           }, 2000);
 
-          await Browser.addListener("browserFinished", () => {
-            // Give the poll one last window to complete before giving up.
-            // 10 s covers slow connections where the OAuth callback and
-            // poll response are still in-flight when the browser closes.
-            setTimeout(() => {
-              if (!done && pollTimer) clearInterval(pollTimer);
-            }, 10000);
+          await Browser.addListener("browserFinished", async () => {
+            if (done) return;
+            // Stop the slow background poll — WebView is resuming now.
+            if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+            // Aggressively poll now that the app is foregrounded again.
+            let attempts = 0;
+            const finalPoll = setInterval(async () => {
+              attempts++;
+              if (done || attempts > 20) { clearInterval(finalPoll); return; }
+              try {
+                const pollRes = await authFetch(
+                  `/api/mobile-auth/poll?deviceCode=${encodeURIComponent(deviceCode)}`,
+                  { credentials: "include" },
+                );
+                const data = (await pollRes.json()) as { ready: boolean; sid?: string };
+                if (data.ready && data.sid) {
+                  clearInterval(finalPoll);
+                  await finish(data.sid);
+                }
+              } catch { /* keep trying */ }
+            }, 800);
           });
 
           await Browser.open({ url: authorizationUrl });

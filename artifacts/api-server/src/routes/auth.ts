@@ -421,10 +421,12 @@ router.get("/mobile-callback", async (req: Request, res: Response) => {
   res.setHeader("Content-Type", "text/html");
   res.send(
     `<!DOCTYPE html><html><head><title>Signed in – LawnRX</title></head>` +
-      `<body style="font-family:sans-serif;text-align:center;padding:60px;background:#f0fdf4">` +
-      `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>` +
-      `<h2 style="color:#15803d;margin-top:16px">Signed in successfully</h2>` +
-      `<p style="color:#4b5563">You can close this tab — LawnRX is ready.</p>` +
+      `<body style="font-family:sans-serif;text-align:center;padding:60px 24px;background:#f0fdf4">` +
+      `<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>` +
+      `<h2 style="color:#15803d;margin-top:16px;font-size:22px">Signed in successfully</h2>` +
+      `<p style="color:#374151;font-size:16px;margin-top:8px">Tap the <strong>✕ close button</strong> at the top of this screen to return to LawnRX.</p>` +
+      `<div style="margin-top:32px;padding:16px 20px;background:#dcfce7;border-radius:12px;color:#166534;font-size:14px">` +
+      `👆 Close this tab — your session is saved and ready.</div>` +
       `</body></html>`,
   );
 });
