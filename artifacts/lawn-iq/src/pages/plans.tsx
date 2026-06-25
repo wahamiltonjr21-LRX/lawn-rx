@@ -20,7 +20,7 @@ export default function Plans() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const isPro = subData?.isPro === true;
+  const isPro = usage?.isPro === true || subData?.isPro === true;
   const limitReached = !isPro && usage !== undefined && usage.remaining <= 0;
   const alreadyRequested = upgradeRequest?.submitted === true;
 

@@ -2,6 +2,7 @@ import { Bell, Droplets, Sun, Leaf, Calendar, Loader2, Sparkles, Lock } from "lu
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useSubscription, useStartCheckout, useStripeProducts } from "@/hooks/use-subscription";
+import { useGetDiagnosisUsage } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { UpgradeModal } from "@/components/upgrade-modal";
@@ -62,7 +63,8 @@ const badgeMap: Record<string, string> = {
 
 export default function CareAlerts() {
   const { data: subData, isLoading } = useSubscription();
-  const isPro = subData?.isPro === true;
+  const { data: usage } = useGetDiagnosisUsage();
+  const isPro = usage?.isPro === true || subData?.isPro === true;
   const [showUpgrade, setShowUpgrade] = useState(false);
 
   if (isLoading) {

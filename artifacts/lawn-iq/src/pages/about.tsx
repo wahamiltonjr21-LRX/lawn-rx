@@ -4,13 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import heroImg from "@/assets/images/about-hero.png";
 import { useSubscription, useOpenPortal } from "@/hooks/use-subscription";
+import { useGetDiagnosisUsage } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { UpgradeModal } from "@/components/upgrade-modal";
 
 export default function About() {
   const { data: subData, isLoading: subLoading } = useSubscription();
-  const isPro = subData?.isPro === true;
+  const { data: usage } = useGetDiagnosisUsage();
+  const isPro = usage?.isPro === true || subData?.isPro === true;
   const openPortal = useOpenPortal();
   const { toast } = useToast();
   const [showUpgrade, setShowUpgrade] = useState(false);

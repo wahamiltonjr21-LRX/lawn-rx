@@ -30,7 +30,7 @@ export default function Home() {
   const { data: usage } = useGetDiagnosisUsage();
   const { data: subData } = useSubscription();
   const isTestBuild = import.meta.env.VITE_TEST_BUILD === "true";
-  const isPro = isTestBuild || subData?.isPro === true;
+  const isPro = isTestBuild || usage?.isPro === true || subData?.isPro === true;
   const remaining = isTestBuild ? null : (usage?.remaining ?? null);
   const limitReached = !isTestBuild && !isPro && remaining !== null && remaining <= 0;
 
