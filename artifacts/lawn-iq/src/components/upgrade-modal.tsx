@@ -39,8 +39,8 @@ export function UpgradeModal({ onClose }: UpgradeModalProps) {
       ? (annualPrice?.id ?? FALLBACK_ANNUAL_ID)
       : (monthlyPrice?.id ?? FALLBACK_MONTHLY_ID);
 
-  const monthlyAmount = monthlyPrice ? (monthlyPrice.unitAmount / 100).toFixed(2) : "7.99";
-  const annualAmount  = annualPrice  ? (annualPrice.unitAmount  / 100).toFixed(2) : "59.99";
+  const monthlyAmount = monthlyPrice ? ((monthlyPrice.unitAmount ?? 0) / 100).toFixed(2) : "7.99";
+  const annualAmount  = annualPrice  ? ((annualPrice.unitAmount  ?? 0) / 100).toFixed(2) : "59.99";
   const annualMonthly = (parseFloat(annualAmount) / 12).toFixed(2);
   const savings = Math.round((1 - parseFloat(annualMonthly) / parseFloat(monthlyAmount)) * 100);
 

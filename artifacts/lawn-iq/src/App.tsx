@@ -1,5 +1,5 @@
 import { Switch, Route, Router as WouterRouter, Link, useLocation } from "wouter";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@workspace/replit-auth-web";
 import { Camera, Sparkles, ListChecks, CheckCircle2, LogOut } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -389,13 +389,16 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   const prevAuthed = useRef(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showSignOut, setShowSignOut] = useState(false);
+  const qc = useQueryClient();
 
   useEffect(() => {
     if (!prevAuthed.current && isAuthenticated) {
       setShowSuccess(true);
+      // Flush any stale cache (e.g. old isPro: false) so pages re-fetch with fresh auth.
+      qc.invalidateQueries();
     }
     prevAuthed.current = isAuthenticated;
-  }, [isAuthenticated]);
+  }, [isAuthenticated, qc]);
 
   const handleLogout = useCallback(() => {
     setShowSignOut(true);

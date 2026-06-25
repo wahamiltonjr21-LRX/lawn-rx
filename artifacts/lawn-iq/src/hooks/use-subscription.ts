@@ -1,30 +1,36 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-
-const BASE = ((import.meta.env.VITE_API_BASE as string | undefined) ?? "").replace(/\/$/, "");
-
-async function apiFetch(path: string, options?: RequestInit) {
-  const res = await fetch(`${BASE}${path}`, {
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    ...options,
-  });
-  if (!res.ok) throw Object.assign(new Error(await res.text()), { status: res.status });
-  return res.json();
-}
+import { customFetch } from "@workspace/api-client-react";
 
 export function useSubscription() {
   return useQuery({
     queryKey: ["stripe-subscription"],
-    queryFn: () => apiFetch("/api/stripe/subscription"),
+    queryFn: () => customFetch<{ subscription: unknown; isPro: boolean }>("/api/stripe/subscription"),
     staleTime: 0,
     gcTime: 0,
   });
 }
 
+interface StripePrice {
+  id: string;
+  recurring?: { interval: string };
+  unit_amount?: number;
+  unitAmount?: number;
+}
+
+interface StripeProduct {
+  id: string;
+  name: string;
+  prices?: StripePrice[];
+}
+
+interface StripeProductsResponse {
+  products?: StripeProduct[];
+}
+
 export function useStripeProducts() {
   return useQuery({
     queryKey: ["stripe-products"],
-    queryFn: () => apiFetch("/api/stripe/products"),
+    queryFn: () => customFetch<StripeProductsResponse>("/api/stripe/products"),
     staleTime: 5 * 60_000,
   });
 }
@@ -32,7 +38,7 @@ export function useStripeProducts() {
 export function useStartCheckout() {
   return useMutation({
     mutationFn: (priceId: string) =>
-      apiFetch("/api/stripe/checkout", {
+      customFetch<{ url: string }>("/api/stripe/checkout", {
         method: "POST",
         body: JSON.stringify({ priceId }),
       }),
@@ -42,6 +48,6 @@ export function useStartCheckout() {
 export function useOpenPortal() {
   return useMutation({
     mutationFn: () =>
-      apiFetch("/api/stripe/portal", { method: "POST" }),
+      customFetch<{ url: string }>("/api/stripe/portal", { method: "POST" }),
   });
 }
