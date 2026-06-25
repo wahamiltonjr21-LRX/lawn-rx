@@ -10,4 +10,5 @@ export interface DiagnosisUsage {
   used: number;
   limit: number;
   remaining: number;
+  isPro: boolean;
 }

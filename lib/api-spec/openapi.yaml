@@ -743,7 +743,7 @@ components:
           description: Optional friendly nickname for the saved plan
     DiagnosisUsage:
       type: object
-      required: [used, limit, remaining]
+      required: [used, limit, remaining, isPro]
       properties:
         used:
           type: integer
@@ -751,6 +751,8 @@ components:
           type: integer
         remaining:
           type: integer
+        isPro:
+          type: boolean
     DiagnosesSummary:
       type: object
       required:

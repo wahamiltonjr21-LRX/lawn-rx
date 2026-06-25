@@ -666,6 +666,7 @@ export const GetDiagnosisUsageResponse = zod.object({
   used: zod.number(),
   limit: zod.number(),
   remaining: zod.number(),
+  isPro: zod.boolean(),
 });
 
 /**
