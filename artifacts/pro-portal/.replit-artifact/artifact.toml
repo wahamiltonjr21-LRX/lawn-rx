@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/partners/"
+title = "LawnRX Partners"
+version = "1.0.0"
+id = "artifacts/pro-portal"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/partners/" ]
+localPort = 20802
+
+[services.development]
+run = "pnpm --filter @workspace/pro-portal run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/pro-portal", "run", "build" ]
+publicDir = "artifacts/pro-portal/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20802"
+BASE_PATH = "/partners/"
