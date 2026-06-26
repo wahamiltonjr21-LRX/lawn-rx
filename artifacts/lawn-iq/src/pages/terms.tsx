@@ -21,7 +21,7 @@ export default function Terms() {
       <main className="max-w-3xl mx-auto px-5 py-10 space-y-8">
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">Terms &amp; Conditions</h1>
-          <p className="text-sm text-muted-foreground">Effective date: April 30, 2026 · Last updated: April 30, 2026</p>
+          <p className="text-sm text-muted-foreground">Effective date: April 30, 2026 · Last updated: June 26, 2026</p>
         </div>
 
         <Section title="1. Acceptance of Terms">
@@ -73,8 +73,13 @@ export default function Terms() {
           <p>
             By uploading photographs or other content to LawnRX, you grant us a non-exclusive, royalty-free,
             worldwide license to store, process, and transmit that content solely for the purpose of providing the
-            App's services to you. We do not sell or share your photos with third parties, except as required to
-            operate the AI analysis service (e.g., transmission to our AI provider for processing).
+            App's services to you. Photos uploaded for AI lawn diagnosis are transmitted to our AI provider (OpenAI)
+            for analysis and are not permanently stored on our servers.
+          </p>
+          <p className="mt-3">
+            If you choose to attach a photo to a professional service quote request using the "Get a Quote" feature,
+            that photo may be shared with the matched lawn care professional to help them prepare an accurate quote.
+            This sharing occurs only with your explicit consent, obtained at the time of submission.
           </p>
           <p className="mt-3">
             You represent that you own or have the rights to any content you upload, and that your content does not
@@ -152,11 +157,18 @@ export default function Terms() {
 
         <Section title="11. Privacy">
           <p>
-            Your use of the App is subject to our privacy practices. We collect account information provided through
-            Replit authentication, photographs you upload for analysis, and usage data to operate and improve the
-            service. We use industry-standard security measures to protect your data. We do not sell personal
-            information to third parties. Photos are transmitted to our AI provider (OpenAI) solely to generate your
-            diagnosis and are not used to train AI models.
+            Your use of the App is subject to our{" "}
+            <a href="/privacy" className="text-emerald-600 underline">Privacy Policy</a>, which forms part of these
+            Terms. We collect account information provided through Replit authentication, photographs you upload for
+            analysis, and usage data to operate and improve the service. We use industry-standard security measures to
+            protect your data. We do not sell personal information to third parties and do not use your data for
+            advertising purposes.
+          </p>
+          <p className="mt-3">
+            When you submit a professional service quote request through the "Get a Quote" feature, your name, contact
+            details, location, lawn information, and any attached photos may be shared with a participating local lawn
+            care professional in order to fulfil your request. This sharing occurs only with your explicit consent and
+            only for the requested service. Full details are in our Privacy Policy, Section 4.
           </p>
         </Section>
 
@@ -168,9 +180,16 @@ export default function Terms() {
             <li><strong>Replit</strong> — authentication and hosting platform</li>
             <li><strong>OpenAI</strong> — AI vision analysis engine</li>
             <li><strong>Stripe</strong> — payment processing</li>
+            <li>
+              <strong>Participating Lawn Care Professionals</strong> — independent service providers on the LawnRX
+              Partners platform. Data is shared with them only when you explicitly request a service quote, as
+              described in Section 5 and the Privacy Policy, Section 4.
+            </li>
           </ul>
           <p className="mt-3">
-            We are not responsible for the practices or content of these third-party services.
+            We are not responsible for the practices, service quality, or content of these third-party services or
+            independent professionals. Any service agreement, quote, or work arrangement is solely between you and the
+            relevant professional.
           </p>
         </Section>
 
