@@ -343,6 +343,220 @@ export interface ErrorEnvelope {
   error: string;
 }
 
+export type LeadStatus = (typeof LeadStatus)[keyof typeof LeadStatus];
+
+export const LeadStatus = {
+  New: "New",
+  Accepted: "Accepted",
+  Contacted: "Contacted",
+  Quoted: "Quoted",
+  Completed: "Completed",
+  Closed: "Closed",
+} as const;
+
+export interface CaptureLeadBody {
+  /**
+   * @minLength 2
+   * @maxLength 200
+   */
+  name: string;
+  email: string;
+  /** @maxLength 30 */
+  phone?: string;
+  /** @maxLength 500 */
+  address?: string;
+  /**
+   * @minLength 5
+   * @maxLength 10
+   */
+  zipCode: string;
+  diagnosisId?: string;
+  /** @maxLength 1000 */
+  notes?: string;
+}
+
+export interface CaptureLeadResult {
+  id: string;
+  /**
+   * @minimum 0
+   * @maximum 100
+   */
+  leadScore: number;
+  matchedProfessional: boolean;
+  message: string;
+}
+
+export interface LeadSummary {
+  id: string;
+  /** @nullable */
+  diagnosisId?: string | null;
+  name: string;
+  email: string;
+  /** @nullable */
+  phone?: string | null;
+  zipCode: string;
+  status: LeadStatus;
+  leadScore: number;
+  createdAt: string;
+}
+
+export interface ProRegisterBody {
+  /**
+   * @minLength 2
+   * @maxLength 200
+   */
+  businessName: string;
+  /**
+   * @minLength 2
+   * @maxLength 200
+   */
+  ownerName: string;
+  email: string;
+  /**
+   * @minLength 8
+   * @maxLength 128
+   */
+  password: string;
+  /** @maxLength 30 */
+  phone?: string;
+  /**
+   * @minItems 1
+   * @maxItems 50
+   */
+  serviceZipCodes: string[];
+  /**
+   * @minItems 1
+   * @maxItems 20
+   */
+  servicesOffered: string[];
+}
+
+export interface ProRegisterResult {
+  id: string;
+  email: string;
+  businessName: string;
+  approved: boolean;
+  message: string;
+}
+
+export interface ProLoginBody {
+  email: string;
+  /** @minLength 1 */
+  password: string;
+}
+
+export type ProProfileSummarySubscriptionStatus =
+  (typeof ProProfileSummarySubscriptionStatus)[keyof typeof ProProfileSummarySubscriptionStatus];
+
+export const ProProfileSummarySubscriptionStatus = {
+  free: "free",
+  starter: "starter",
+  professional: "professional",
+  premium: "premium",
+} as const;
+
+export interface ProProfileSummary {
+  id: string;
+  email: string;
+  businessName: string;
+  ownerName: string;
+  subscriptionStatus: ProProfileSummarySubscriptionStatus;
+}
+
+export interface ProLoginResult {
+  token: string;
+  professional: ProProfileSummary;
+}
+
+export type ProProfileSubscriptionStatus =
+  (typeof ProProfileSubscriptionStatus)[keyof typeof ProProfileSubscriptionStatus];
+
+export const ProProfileSubscriptionStatus = {
+  free: "free",
+  starter: "starter",
+  professional: "professional",
+  premium: "premium",
+} as const;
+
+export interface ProProfile {
+  id: string;
+  email: string;
+  businessName: string;
+  ownerName: string;
+  /** @nullable */
+  phone?: string | null;
+  approved: boolean;
+  subscriptionStatus: ProProfileSubscriptionStatus;
+  serviceZipCodes: string[];
+  servicesOffered: string[];
+  /** @nullable */
+  rating?: number | null;
+  createdAt: string;
+}
+
+export interface UpdateProProfileBody {
+  /** @maxLength 30 */
+  phone?: string;
+  /**
+   * @minItems 1
+   * @maxItems 50
+   */
+  serviceZipCodes?: string[];
+  /**
+   * @minItems 1
+   * @maxItems 20
+   */
+  servicesOffered?: string[];
+}
+
+export interface ProLead {
+  id: string;
+  name: string;
+  email: string;
+  /** @nullable */
+  phone?: string | null;
+  /** @nullable */
+  address?: string | null;
+  zipCode: string;
+  status: LeadStatus;
+  leadScore: number;
+  /** @nullable */
+  diagnosisId?: string | null;
+  /** @nullable */
+  notes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProLeadNote {
+  id: string;
+  leadId: string;
+  professionalId: string;
+  note: string;
+  createdAt: string;
+}
+
+export type ProLeadDetail = ProLead & {
+  leadNotes: ProLeadNote[];
+};
+
+export interface UpdateLeadStatusBody {
+  status: LeadStatus;
+}
+
+export interface UpdateLeadStatusResult {
+  id: string;
+  status: LeadStatus;
+}
+
+export interface AddLeadNoteBody {
+  /**
+   * @minLength 1
+   * @maxLength 2000
+   */
+  note: string;
+}
+
 /**
  * Opaque session token — `Bearer <sid>`.
  */

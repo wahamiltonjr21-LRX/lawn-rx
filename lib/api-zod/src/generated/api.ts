@@ -940,6 +940,372 @@ export const DeleteJournalEntryParams = zod.object({
 });
 
 /**
+ * @summary Submit a lead request for a local lawn pro
+ */
+export const captureLeadBodyNameMin = 2;
+export const captureLeadBodyNameMax = 200;
+
+export const captureLeadBodyPhoneMax = 30;
+
+export const captureLeadBodyAddressMax = 500;
+
+export const captureLeadBodyZipCodeMin = 5;
+export const captureLeadBodyZipCodeMax = 10;
+
+export const captureLeadBodyNotesMax = 1000;
+
+export const CaptureLeadBody = zod.object({
+  name: zod.string().min(captureLeadBodyNameMin).max(captureLeadBodyNameMax),
+  email: zod.string().email(),
+  phone: zod.string().max(captureLeadBodyPhoneMax).optional(),
+  address: zod.string().max(captureLeadBodyAddressMax).optional(),
+  zipCode: zod
+    .string()
+    .min(captureLeadBodyZipCodeMin)
+    .max(captureLeadBodyZipCodeMax),
+  diagnosisId: zod.string().uuid().optional(),
+  notes: zod.string().max(captureLeadBodyNotesMax).optional(),
+});
+
+/**
+ * @summary List the current homeowner's submitted lead requests
+ */
+export const ListMyLeadsResponseItem = zod.object({
+  id: zod.string().uuid(),
+  diagnosisId: zod.string().uuid().nullish(),
+  name: zod.string(),
+  email: zod.string(),
+  phone: zod.string().nullish(),
+  zipCode: zod.string(),
+  status: zod.enum([
+    "New",
+    "Accepted",
+    "Contacted",
+    "Quoted",
+    "Completed",
+    "Closed",
+  ]),
+  leadScore: zod.number(),
+  createdAt: zod.coerce.date(),
+});
+export const ListMyLeadsResponse = zod.array(ListMyLeadsResponseItem);
+
+/**
+ * @summary Register a new professional account (pending approval)
+ */
+export const proRegisterBodyBusinessNameMin = 2;
+export const proRegisterBodyBusinessNameMax = 200;
+
+export const proRegisterBodyOwnerNameMin = 2;
+export const proRegisterBodyOwnerNameMax = 200;
+
+export const proRegisterBodyPasswordMin = 8;
+export const proRegisterBodyPasswordMax = 128;
+
+export const proRegisterBodyPhoneMax = 30;
+
+export const proRegisterBodyServiceZipCodesItemMax = 10;
+
+export const proRegisterBodyServiceZipCodesMax = 50;
+
+export const proRegisterBodyServicesOfferedItemMax = 100;
+
+export const proRegisterBodyServicesOfferedMax = 20;
+
+export const ProRegisterBody = zod.object({
+  businessName: zod
+    .string()
+    .min(proRegisterBodyBusinessNameMin)
+    .max(proRegisterBodyBusinessNameMax),
+  ownerName: zod
+    .string()
+    .min(proRegisterBodyOwnerNameMin)
+    .max(proRegisterBodyOwnerNameMax),
+  email: zod.string().email(),
+  password: zod
+    .string()
+    .min(proRegisterBodyPasswordMin)
+    .max(proRegisterBodyPasswordMax),
+  phone: zod.string().max(proRegisterBodyPhoneMax).optional(),
+  serviceZipCodes: zod
+    .array(zod.string().max(proRegisterBodyServiceZipCodesItemMax))
+    .min(1)
+    .max(proRegisterBodyServiceZipCodesMax),
+  servicesOffered: zod
+    .array(zod.string().max(proRegisterBodyServicesOfferedItemMax))
+    .min(1)
+    .max(proRegisterBodyServicesOfferedMax),
+});
+
+/**
+ * @summary Authenticate a professional and return a session token
+ */
+
+export const ProLoginBody = zod.object({
+  email: zod.string().email(),
+  password: zod.string().min(1),
+});
+
+export const ProLoginResponse = zod.object({
+  token: zod.string(),
+  professional: zod.object({
+    id: zod.string().uuid(),
+    email: zod.string(),
+    businessName: zod.string(),
+    ownerName: zod.string(),
+    subscriptionStatus: zod.enum([
+      "free",
+      "starter",
+      "professional",
+      "premium",
+    ]),
+  }),
+});
+
+/**
+ * @summary End the professional session
+ */
+export const ProLogoutResponse = zod.object({
+  success: zod.boolean(),
+});
+
+/**
+ * @summary Get the currently authenticated professional's profile
+ */
+export const ProGetMeHeader = zod.object({
+  Authorization: zod
+    .string()
+    .optional()
+    .describe("Opaque session token — `Bearer <sid>`."),
+});
+
+export const ProGetMeResponse = zod.object({
+  id: zod.string().uuid(),
+  email: zod.string(),
+  businessName: zod.string(),
+  ownerName: zod.string(),
+  phone: zod.string().nullish(),
+  approved: zod.boolean(),
+  subscriptionStatus: zod.enum(["free", "starter", "professional", "premium"]),
+  serviceZipCodes: zod.array(zod.string()),
+  servicesOffered: zod.array(zod.string()),
+  rating: zod.number().nullish(),
+  createdAt: zod.coerce.date(),
+});
+
+/**
+ * @summary List all leads assigned to this professional
+ */
+export const ProListLeadsHeader = zod.object({
+  Authorization: zod
+    .string()
+    .optional()
+    .describe("Opaque session token — `Bearer <sid>`."),
+});
+
+export const ProListLeadsResponseItem = zod.object({
+  id: zod.string().uuid(),
+  name: zod.string(),
+  email: zod.string(),
+  phone: zod.string().nullish(),
+  address: zod.string().nullish(),
+  zipCode: zod.string(),
+  status: zod.enum([
+    "New",
+    "Accepted",
+    "Contacted",
+    "Quoted",
+    "Completed",
+    "Closed",
+  ]),
+  leadScore: zod.number(),
+  diagnosisId: zod.string().uuid().nullish(),
+  notes: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
+});
+export const ProListLeadsResponse = zod.array(ProListLeadsResponseItem);
+
+/**
+ * @summary Get a single lead with full details and notes
+ */
+export const ProGetLeadParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ProGetLeadHeader = zod.object({
+  Authorization: zod
+    .string()
+    .optional()
+    .describe("Opaque session token — `Bearer <sid>`."),
+});
+
+export const ProGetLeadResponse = zod
+  .object({
+    id: zod.string().uuid(),
+    name: zod.string(),
+    email: zod.string(),
+    phone: zod.string().nullish(),
+    address: zod.string().nullish(),
+    zipCode: zod.string(),
+    status: zod.enum([
+      "New",
+      "Accepted",
+      "Contacted",
+      "Quoted",
+      "Completed",
+      "Closed",
+    ]),
+    leadScore: zod.number(),
+    diagnosisId: zod.string().uuid().nullish(),
+    notes: zod.string().nullish(),
+    createdAt: zod.coerce.date(),
+    updatedAt: zod.coerce.date(),
+  })
+  .and(
+    zod.object({
+      leadNotes: zod.array(
+        zod.object({
+          id: zod.string().uuid(),
+          leadId: zod.string().uuid(),
+          professionalId: zod.string().uuid(),
+          note: zod.string(),
+          createdAt: zod.coerce.date(),
+        }),
+      ),
+    }),
+  );
+
+/**
+ * @summary Update the status of a lead
+ */
+export const ProUpdateLeadStatusParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ProUpdateLeadStatusHeader = zod.object({
+  Authorization: zod
+    .string()
+    .optional()
+    .describe("Opaque session token — `Bearer <sid>`."),
+});
+
+export const ProUpdateLeadStatusBody = zod.object({
+  status: zod.enum([
+    "New",
+    "Accepted",
+    "Contacted",
+    "Quoted",
+    "Completed",
+    "Closed",
+  ]),
+});
+
+export const ProUpdateLeadStatusResponse = zod.object({
+  id: zod.string().uuid(),
+  status: zod.enum([
+    "New",
+    "Accepted",
+    "Contacted",
+    "Quoted",
+    "Completed",
+    "Closed",
+  ]),
+});
+
+/**
+ * @summary Add a note to a lead
+ */
+export const ProAddLeadNoteParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ProAddLeadNoteHeader = zod.object({
+  Authorization: zod
+    .string()
+    .optional()
+    .describe("Opaque session token — `Bearer <sid>`."),
+});
+
+export const proAddLeadNoteBodyNoteMax = 2000;
+
+export const ProAddLeadNoteBody = zod.object({
+  note: zod.string().min(1).max(proAddLeadNoteBodyNoteMax),
+});
+
+/**
+ * @summary Get the authenticated professional's profile
+ */
+export const ProGetProfileHeader = zod.object({
+  Authorization: zod
+    .string()
+    .optional()
+    .describe("Opaque session token — `Bearer <sid>`."),
+});
+
+export const ProGetProfileResponse = zod.object({
+  id: zod.string().uuid(),
+  email: zod.string(),
+  businessName: zod.string(),
+  ownerName: zod.string(),
+  phone: zod.string().nullish(),
+  approved: zod.boolean(),
+  subscriptionStatus: zod.enum(["free", "starter", "professional", "premium"]),
+  serviceZipCodes: zod.array(zod.string()),
+  servicesOffered: zod.array(zod.string()),
+  rating: zod.number().nullish(),
+  createdAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Update the professional's profile (service ZIPs, services)
+ */
+export const ProUpdateProfileHeader = zod.object({
+  Authorization: zod
+    .string()
+    .optional()
+    .describe("Opaque session token — `Bearer <sid>`."),
+});
+
+export const proUpdateProfileBodyPhoneMax = 30;
+
+export const proUpdateProfileBodyServiceZipCodesItemMax = 10;
+
+export const proUpdateProfileBodyServiceZipCodesMax = 50;
+
+export const proUpdateProfileBodyServicesOfferedItemMax = 100;
+
+export const proUpdateProfileBodyServicesOfferedMax = 20;
+
+export const ProUpdateProfileBody = zod.object({
+  phone: zod.string().max(proUpdateProfileBodyPhoneMax).optional(),
+  serviceZipCodes: zod
+    .array(zod.string().max(proUpdateProfileBodyServiceZipCodesItemMax))
+    .min(1)
+    .max(proUpdateProfileBodyServiceZipCodesMax)
+    .optional(),
+  servicesOffered: zod
+    .array(zod.string().max(proUpdateProfileBodyServicesOfferedItemMax))
+    .min(1)
+    .max(proUpdateProfileBodyServicesOfferedMax)
+    .optional(),
+});
+
+export const ProUpdateProfileResponse = zod.object({
+  id: zod.string().uuid(),
+  email: zod.string(),
+  businessName: zod.string(),
+  ownerName: zod.string(),
+  phone: zod.string().nullish(),
+  approved: zod.boolean(),
+  subscriptionStatus: zod.enum(["free", "starter", "professional", "premium"]),
+  serviceZipCodes: zod.array(zod.string()),
+  servicesOffered: zod.array(zod.string()),
+  rating: zod.number().nullish(),
+  createdAt: zod.coerce.date(),
+});
+
+/**
  * @summary Get the currently authenticated user
  */
 export const GetCurrentAuthUserHeader = zod.object({

@@ -16,6 +16,10 @@ tags:
     description: Community posts and comments
   - name: Auth
     description: Browser and mobile authentication endpoints.
+  - name: leads
+    description: Homeowner lead capture and management
+  - name: pro
+    description: Professional partner portal endpoints
 paths:
   /healthz:
     get:
@@ -436,6 +440,253 @@ paths:
       responses:
         "204":
           description: Deleted
+        "401":
+          description: Unauthorized
+  /leads:
+    post:
+      operationId: captureLead
+      tags: [leads]
+      summary: Submit a lead request for a local lawn pro
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CaptureLeadBody"
+      responses:
+        "201":
+          description: Lead captured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaptureLeadResult"
+        "400":
+          description: Invalid request
+        "401":
+          description: Unauthorized
+    get:
+      operationId: listMyLeads
+      tags: [leads]
+      summary: List the current homeowner's submitted lead requests
+      responses:
+        "200":
+          description: Array of lead summaries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LeadSummary"
+        "401":
+          description: Unauthorized
+  /pro/auth/register:
+    post:
+      operationId: proRegister
+      tags: [pro]
+      summary: Register a new professional account (pending approval)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProRegisterBody"
+      responses:
+        "201":
+          description: Registration submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProRegisterResult"
+        "400":
+          description: Invalid data
+        "409":
+          description: Email already registered
+  /pro/auth/login:
+    post:
+      operationId: proLogin
+      tags: [pro]
+      summary: Authenticate a professional and return a session token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProLoginBody"
+      responses:
+        "200":
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProLoginResult"
+        "401":
+          description: Invalid credentials
+        "403":
+          description: Account pending approval
+  /pro/auth/logout:
+    post:
+      operationId: proLogout
+      tags: [pro]
+      summary: End the professional session
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LogoutSuccess"
+  /pro/auth/me:
+    get:
+      operationId: proGetMe
+      tags: [pro]
+      summary: Get the currently authenticated professional's profile
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      responses:
+        "200":
+          description: Professional profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProProfile"
+        "401":
+          description: Unauthorized
+  /pro/leads:
+    get:
+      operationId: proListLeads
+      tags: [pro]
+      summary: List all leads assigned to this professional
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      responses:
+        "200":
+          description: Array of leads
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProLead"
+        "401":
+          description: Unauthorized
+  /pro/leads/{id}:
+    get:
+      operationId: proGetLead
+      tags: [pro]
+      summary: Get a single lead with full details and notes
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Lead detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProLeadDetail"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+  /pro/leads/{id}/status:
+    patch:
+      operationId: proUpdateLeadStatus
+      tags: [pro]
+      summary: Update the status of a lead
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateLeadStatusBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateLeadStatusResult"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+  /pro/leads/{id}/notes:
+    post:
+      operationId: proAddLeadNote
+      tags: [pro]
+      summary: Add a note to a lead
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddLeadNoteBody"
+      responses:
+        "201":
+          description: Note added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProLeadNote"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+  /pro/profile:
+    get:
+      operationId: proGetProfile
+      tags: [pro]
+      summary: Get the authenticated professional's profile
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      responses:
+        "200":
+          description: Profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProProfile"
+        "401":
+          description: Unauthorized
+    patch:
+      operationId: proUpdateProfile
+      tags: [pro]
+      summary: Update the professional's profile (service ZIPs, services)
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProProfileBody"
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProProfile"
+        "400":
+          description: Invalid data
         "401":
           description: Unauthorized
   /auth/user:
@@ -1059,3 +1310,294 @@ components:
       properties:
         error:
           type: string
+    LeadStatus:
+      type: string
+      enum: [New, Accepted, Contacted, Quoted, Completed, Closed]
+    CaptureLeadBody:
+      type: object
+      required: [name, email, zipCode]
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 200
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          maxLength: 30
+        address:
+          type: string
+          maxLength: 500
+        zipCode:
+          type: string
+          minLength: 5
+          maxLength: 10
+        diagnosisId:
+          type: string
+          format: uuid
+        notes:
+          type: string
+          maxLength: 1000
+    CaptureLeadResult:
+      type: object
+      required: [id, leadScore, matchedProfessional, message]
+      properties:
+        id:
+          type: string
+          format: uuid
+        leadScore:
+          type: integer
+          minimum: 0
+          maximum: 100
+        matchedProfessional:
+          type: boolean
+        message:
+          type: string
+    LeadSummary:
+      type: object
+      required: [id, name, email, zipCode, status, leadScore, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        diagnosisId:
+          type: [string, 'null']
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: [string, 'null']
+        zipCode:
+          type: string
+        status:
+          $ref: "#/components/schemas/LeadStatus"
+        leadScore:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+    ProRegisterBody:
+      type: object
+      required: [businessName, ownerName, email, password, serviceZipCodes, servicesOffered]
+      properties:
+        businessName:
+          type: string
+          minLength: 2
+          maxLength: 200
+        ownerName:
+          type: string
+          minLength: 2
+          maxLength: 200
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          maxLength: 128
+        phone:
+          type: string
+          maxLength: 30
+        serviceZipCodes:
+          type: array
+          items:
+            type: string
+            maxLength: 10
+          minItems: 1
+          maxItems: 50
+        servicesOffered:
+          type: array
+          items:
+            type: string
+            maxLength: 100
+          minItems: 1
+          maxItems: 20
+    ProRegisterResult:
+      type: object
+      required: [id, email, businessName, approved, message]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        businessName:
+          type: string
+        approved:
+          type: boolean
+        message:
+          type: string
+    ProLoginBody:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 1
+    ProLoginResult:
+      type: object
+      required: [token, professional]
+      properties:
+        token:
+          type: string
+        professional:
+          $ref: "#/components/schemas/ProProfileSummary"
+    ProProfileSummary:
+      type: object
+      required: [id, email, businessName, ownerName, subscriptionStatus]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        businessName:
+          type: string
+        ownerName:
+          type: string
+        subscriptionStatus:
+          type: string
+          enum: [free, starter, professional, premium]
+    ProProfile:
+      type: object
+      required: [id, email, businessName, ownerName, approved, subscriptionStatus, serviceZipCodes, servicesOffered, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        businessName:
+          type: string
+        ownerName:
+          type: string
+        phone:
+          type: [string, 'null']
+        approved:
+          type: boolean
+        subscriptionStatus:
+          type: string
+          enum: [free, starter, professional, premium]
+        serviceZipCodes:
+          type: array
+          items:
+            type: string
+        servicesOffered:
+          type: array
+          items:
+            type: string
+        rating:
+          type: [number, 'null']
+        createdAt:
+          type: string
+          format: date-time
+    UpdateProProfileBody:
+      type: object
+      properties:
+        phone:
+          type: string
+          maxLength: 30
+        serviceZipCodes:
+          type: array
+          items:
+            type: string
+            maxLength: 10
+          minItems: 1
+          maxItems: 50
+        servicesOffered:
+          type: array
+          items:
+            type: string
+            maxLength: 100
+          minItems: 1
+          maxItems: 20
+    ProLead:
+      type: object
+      required: [id, name, email, zipCode, status, leadScore, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: [string, 'null']
+        address:
+          type: [string, 'null']
+        zipCode:
+          type: string
+        status:
+          $ref: "#/components/schemas/LeadStatus"
+        leadScore:
+          type: integer
+        diagnosisId:
+          type: [string, 'null']
+          format: uuid
+        notes:
+          type: [string, 'null']
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ProLeadNote:
+      type: object
+      required: [id, leadId, professionalId, note, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        leadId:
+          type: string
+          format: uuid
+        professionalId:
+          type: string
+          format: uuid
+        note:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    ProLeadDetail:
+      allOf:
+        - $ref: "#/components/schemas/ProLead"
+        - type: object
+          required: [leadNotes]
+          properties:
+            leadNotes:
+              type: array
+              items:
+                $ref: "#/components/schemas/ProLeadNote"
+    UpdateLeadStatusBody:
+      type: object
+      required: [status]
+      properties:
+        status:
+          $ref: "#/components/schemas/LeadStatus"
+    UpdateLeadStatusResult:
+      type: object
+      required: [id, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          $ref: "#/components/schemas/LeadStatus"
+    AddLeadNoteBody:
+      type: object
+      required: [note]
+      properties:
+        note:
+          type: string
+          minLength: 1
+          maxLength: 2000

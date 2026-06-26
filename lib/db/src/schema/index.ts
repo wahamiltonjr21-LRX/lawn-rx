@@ -23,3 +23,5 @@ export * from "./upgrade-requests";
 export * from "./community";
 export * from "./treatment-logs";
 export * from "./lawn-notes";
+export * from "./professionals";
+export * from "./leads";

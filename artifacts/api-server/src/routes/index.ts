@@ -11,6 +11,9 @@ import tipRouter from "./tip";
 import userRouter from "./user";
 import treatmentsRouter from "./treatments";
 import journalRouter from "./journal";
+import proAuthRouter from "./proAuth";
+import leadsRouter from "./leads";
+import proLeadsRouter from "./proLeads";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -26,6 +29,9 @@ router.use(tipRouter);
 router.use(userRouter);
 router.use(treatmentsRouter);
 router.use(journalRouter);
+router.use(proAuthRouter);
+router.use(leadsRouter);
+router.use(proLeadsRouter);
 
 router.get("/download/android", (_req, res) => {
   const file = path.resolve(__dirname, "../android-project-v30.zip");

@@ -17,9 +17,12 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+  AddLeadNoteBody,
   AnalyzeLawnBody,
   AuthUserEnvelope,
   BeginBrowserLoginParams,
+  CaptureLeadBody,
+  CaptureLeadResult,
   CommunityComment,
   CommunityPost,
   CreateCommunityCommentBody,
@@ -32,12 +35,24 @@ import type {
   HandleBrowserLoginCallbackParams,
   HealthStatus,
   LawnNote,
+  LeadSummary,
   LogTreatmentBody,
   LogoutSuccess,
   MobileTokenExchangeRequest,
   MobileTokenExchangeSuccess,
+  ProLead,
+  ProLeadDetail,
+  ProLeadNote,
+  ProLoginBody,
+  ProLoginResult,
+  ProProfile,
+  ProRegisterBody,
+  ProRegisterResult,
   SaveDiagnosisBody,
   TreatmentLog,
+  UpdateLeadStatusBody,
+  UpdateLeadStatusResult,
+  UpdateProProfileBody,
   UpdateUserProfileBody,
   UpgradeRequestBody,
   UpgradeRequestStatus,
@@ -2102,6 +2117,982 @@ export const useDeleteJournalEntry = <
   TContext
 > => {
   return useMutation(getDeleteJournalEntryMutationOptions(options));
+};
+
+/**
+ * @summary Submit a lead request for a local lawn pro
+ */
+export const getCaptureLeadUrl = () => {
+  return `/api/leads`;
+};
+
+export const captureLead = async (
+  captureLeadBody: CaptureLeadBody,
+  options?: RequestInit,
+): Promise<CaptureLeadResult> => {
+  return customFetch<CaptureLeadResult>(getCaptureLeadUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(captureLeadBody),
+  });
+};
+
+export const getCaptureLeadMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof captureLead>>,
+    TError,
+    { data: BodyType<CaptureLeadBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof captureLead>>,
+  TError,
+  { data: BodyType<CaptureLeadBody> },
+  TContext
+> => {
+  const mutationKey = ["captureLead"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof captureLead>>,
+    { data: BodyType<CaptureLeadBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return captureLead(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CaptureLeadMutationResult = NonNullable<
+  Awaited<ReturnType<typeof captureLead>>
+>;
+export type CaptureLeadMutationBody = BodyType<CaptureLeadBody>;
+export type CaptureLeadMutationError = ErrorType<void>;
+
+/**
+ * @summary Submit a lead request for a local lawn pro
+ */
+export const useCaptureLead = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof captureLead>>,
+    TError,
+    { data: BodyType<CaptureLeadBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof captureLead>>,
+  TError,
+  { data: BodyType<CaptureLeadBody> },
+  TContext
+> => {
+  return useMutation(getCaptureLeadMutationOptions(options));
+};
+
+/**
+ * @summary List the current homeowner's submitted lead requests
+ */
+export const getListMyLeadsUrl = () => {
+  return `/api/leads`;
+};
+
+export const listMyLeads = async (
+  options?: RequestInit,
+): Promise<LeadSummary[]> => {
+  return customFetch<LeadSummary[]>(getListMyLeadsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListMyLeadsQueryKey = () => {
+  return [`/api/leads`] as const;
+};
+
+export const getListMyLeadsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listMyLeads>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listMyLeads>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListMyLeadsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listMyLeads>>> = ({
+    signal,
+  }) => listMyLeads({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listMyLeads>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListMyLeadsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listMyLeads>>
+>;
+export type ListMyLeadsQueryError = ErrorType<void>;
+
+/**
+ * @summary List the current homeowner's submitted lead requests
+ */
+
+export function useListMyLeads<
+  TData = Awaited<ReturnType<typeof listMyLeads>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listMyLeads>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListMyLeadsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Register a new professional account (pending approval)
+ */
+export const getProRegisterUrl = () => {
+  return `/api/pro/auth/register`;
+};
+
+export const proRegister = async (
+  proRegisterBody: ProRegisterBody,
+  options?: RequestInit,
+): Promise<ProRegisterResult> => {
+  return customFetch<ProRegisterResult>(getProRegisterUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(proRegisterBody),
+  });
+};
+
+export const getProRegisterMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof proRegister>>,
+    TError,
+    { data: BodyType<ProRegisterBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof proRegister>>,
+  TError,
+  { data: BodyType<ProRegisterBody> },
+  TContext
+> => {
+  const mutationKey = ["proRegister"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof proRegister>>,
+    { data: BodyType<ProRegisterBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return proRegister(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ProRegisterMutationResult = NonNullable<
+  Awaited<ReturnType<typeof proRegister>>
+>;
+export type ProRegisterMutationBody = BodyType<ProRegisterBody>;
+export type ProRegisterMutationError = ErrorType<void>;
+
+/**
+ * @summary Register a new professional account (pending approval)
+ */
+export const useProRegister = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof proRegister>>,
+    TError,
+    { data: BodyType<ProRegisterBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof proRegister>>,
+  TError,
+  { data: BodyType<ProRegisterBody> },
+  TContext
+> => {
+  return useMutation(getProRegisterMutationOptions(options));
+};
+
+/**
+ * @summary Authenticate a professional and return a session token
+ */
+export const getProLoginUrl = () => {
+  return `/api/pro/auth/login`;
+};
+
+export const proLogin = async (
+  proLoginBody: ProLoginBody,
+  options?: RequestInit,
+): Promise<ProLoginResult> => {
+  return customFetch<ProLoginResult>(getProLoginUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(proLoginBody),
+  });
+};
+
+export const getProLoginMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof proLogin>>,
+    TError,
+    { data: BodyType<ProLoginBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof proLogin>>,
+  TError,
+  { data: BodyType<ProLoginBody> },
+  TContext
+> => {
+  const mutationKey = ["proLogin"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof proLogin>>,
+    { data: BodyType<ProLoginBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return proLogin(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ProLoginMutationResult = NonNullable<
+  Awaited<ReturnType<typeof proLogin>>
+>;
+export type ProLoginMutationBody = BodyType<ProLoginBody>;
+export type ProLoginMutationError = ErrorType<void>;
+
+/**
+ * @summary Authenticate a professional and return a session token
+ */
+export const useProLogin = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof proLogin>>,
+    TError,
+    { data: BodyType<ProLoginBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof proLogin>>,
+  TError,
+  { data: BodyType<ProLoginBody> },
+  TContext
+> => {
+  return useMutation(getProLoginMutationOptions(options));
+};
+
+/**
+ * @summary End the professional session
+ */
+export const getProLogoutUrl = () => {
+  return `/api/pro/auth/logout`;
+};
+
+export const proLogout = async (
+  options?: RequestInit,
+): Promise<LogoutSuccess> => {
+  return customFetch<LogoutSuccess>(getProLogoutUrl(), {
+    ...options,
+    method: "POST",
+  });
+};
+
+export const getProLogoutMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof proLogout>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof proLogout>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ["proLogout"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof proLogout>>,
+    void
+  > = () => {
+    return proLogout(requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ProLogoutMutationResult = NonNullable<
+  Awaited<ReturnType<typeof proLogout>>
+>;
+
+export type ProLogoutMutationError = ErrorType<unknown>;
+
+/**
+ * @summary End the professional session
+ */
+export const useProLogout = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof proLogout>>,
+    TError,
+    void,
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof proLogout>>,
+  TError,
+  void,
+  TContext
+> => {
+  return useMutation(getProLogoutMutationOptions(options));
+};
+
+/**
+ * @summary Get the currently authenticated professional's profile
+ */
+export const getProGetMeUrl = () => {
+  return `/api/pro/auth/me`;
+};
+
+export const proGetMe = async (options?: RequestInit): Promise<ProProfile> => {
+  return customFetch<ProProfile>(getProGetMeUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getProGetMeQueryKey = () => {
+  return [`/api/pro/auth/me`] as const;
+};
+
+export const getProGetMeQueryOptions = <
+  TData = Awaited<ReturnType<typeof proGetMe>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof proGetMe>>, TError, TData>;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getProGetMeQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof proGetMe>>> = ({
+    signal,
+  }) => proGetMe({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof proGetMe>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ProGetMeQueryResult = NonNullable<
+  Awaited<ReturnType<typeof proGetMe>>
+>;
+export type ProGetMeQueryError = ErrorType<void>;
+
+/**
+ * @summary Get the currently authenticated professional's profile
+ */
+
+export function useProGetMe<
+  TData = Awaited<ReturnType<typeof proGetMe>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof proGetMe>>, TError, TData>;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getProGetMeQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary List all leads assigned to this professional
+ */
+export const getProListLeadsUrl = () => {
+  return `/api/pro/leads`;
+};
+
+export const proListLeads = async (
+  options?: RequestInit,
+): Promise<ProLead[]> => {
+  return customFetch<ProLead[]>(getProListLeadsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getProListLeadsQueryKey = () => {
+  return [`/api/pro/leads`] as const;
+};
+
+export const getProListLeadsQueryOptions = <
+  TData = Awaited<ReturnType<typeof proListLeads>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof proListLeads>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getProListLeadsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof proListLeads>>> = ({
+    signal,
+  }) => proListLeads({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof proListLeads>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ProListLeadsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof proListLeads>>
+>;
+export type ProListLeadsQueryError = ErrorType<void>;
+
+/**
+ * @summary List all leads assigned to this professional
+ */
+
+export function useProListLeads<
+  TData = Awaited<ReturnType<typeof proListLeads>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof proListLeads>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getProListLeadsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get a single lead with full details and notes
+ */
+export const getProGetLeadUrl = (id: string) => {
+  return `/api/pro/leads/${id}`;
+};
+
+export const proGetLead = async (
+  id: string,
+  options?: RequestInit,
+): Promise<ProLeadDetail> => {
+  return customFetch<ProLeadDetail>(getProGetLeadUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getProGetLeadQueryKey = (id: string) => {
+  return [`/api/pro/leads/${id}`] as const;
+};
+
+export const getProGetLeadQueryOptions = <
+  TData = Awaited<ReturnType<typeof proGetLead>>,
+  TError = ErrorType<void>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof proGetLead>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getProGetLeadQueryKey(id);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof proGetLead>>> = ({
+    signal,
+  }) => proGetLead(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof proGetLead>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ProGetLeadQueryResult = NonNullable<
+  Awaited<ReturnType<typeof proGetLead>>
+>;
+export type ProGetLeadQueryError = ErrorType<void>;
+
+/**
+ * @summary Get a single lead with full details and notes
+ */
+
+export function useProGetLead<
+  TData = Awaited<ReturnType<typeof proGetLead>>,
+  TError = ErrorType<void>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof proGetLead>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getProGetLeadQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Update the status of a lead
+ */
+export const getProUpdateLeadStatusUrl = (id: string) => {
+  return `/api/pro/leads/${id}/status`;
+};
+
+export const proUpdateLeadStatus = async (
+  id: string,
+  updateLeadStatusBody: UpdateLeadStatusBody,
+  options?: RequestInit,
+): Promise<UpdateLeadStatusResult> => {
+  return customFetch<UpdateLeadStatusResult>(getProUpdateLeadStatusUrl(id), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updateLeadStatusBody),
+  });
+};
+
+export const getProUpdateLeadStatusMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof proUpdateLeadStatus>>,
+    TError,
+    { id: string; data: BodyType<UpdateLeadStatusBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof proUpdateLeadStatus>>,
+  TError,
+  { id: string; data: BodyType<UpdateLeadStatusBody> },
+  TContext
+> => {
+  const mutationKey = ["proUpdateLeadStatus"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof proUpdateLeadStatus>>,
+    { id: string; data: BodyType<UpdateLeadStatusBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return proUpdateLeadStatus(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ProUpdateLeadStatusMutationResult = NonNullable<
+  Awaited<ReturnType<typeof proUpdateLeadStatus>>
+>;
+export type ProUpdateLeadStatusMutationBody = BodyType<UpdateLeadStatusBody>;
+export type ProUpdateLeadStatusMutationError = ErrorType<void>;
+
+/**
+ * @summary Update the status of a lead
+ */
+export const useProUpdateLeadStatus = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof proUpdateLeadStatus>>,
+    TError,
+    { id: string; data: BodyType<UpdateLeadStatusBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof proUpdateLeadStatus>>,
+  TError,
+  { id: string; data: BodyType<UpdateLeadStatusBody> },
+  TContext
+> => {
+  return useMutation(getProUpdateLeadStatusMutationOptions(options));
+};
+
+/**
+ * @summary Add a note to a lead
+ */
+export const getProAddLeadNoteUrl = (id: string) => {
+  return `/api/pro/leads/${id}/notes`;
+};
+
+export const proAddLeadNote = async (
+  id: string,
+  addLeadNoteBody: AddLeadNoteBody,
+  options?: RequestInit,
+): Promise<ProLeadNote> => {
+  return customFetch<ProLeadNote>(getProAddLeadNoteUrl(id), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(addLeadNoteBody),
+  });
+};
+
+export const getProAddLeadNoteMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof proAddLeadNote>>,
+    TError,
+    { id: string; data: BodyType<AddLeadNoteBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof proAddLeadNote>>,
+  TError,
+  { id: string; data: BodyType<AddLeadNoteBody> },
+  TContext
+> => {
+  const mutationKey = ["proAddLeadNote"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof proAddLeadNote>>,
+    { id: string; data: BodyType<AddLeadNoteBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return proAddLeadNote(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ProAddLeadNoteMutationResult = NonNullable<
+  Awaited<ReturnType<typeof proAddLeadNote>>
+>;
+export type ProAddLeadNoteMutationBody = BodyType<AddLeadNoteBody>;
+export type ProAddLeadNoteMutationError = ErrorType<void>;
+
+/**
+ * @summary Add a note to a lead
+ */
+export const useProAddLeadNote = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof proAddLeadNote>>,
+    TError,
+    { id: string; data: BodyType<AddLeadNoteBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof proAddLeadNote>>,
+  TError,
+  { id: string; data: BodyType<AddLeadNoteBody> },
+  TContext
+> => {
+  return useMutation(getProAddLeadNoteMutationOptions(options));
+};
+
+/**
+ * @summary Get the authenticated professional's profile
+ */
+export const getProGetProfileUrl = () => {
+  return `/api/pro/profile`;
+};
+
+export const proGetProfile = async (
+  options?: RequestInit,
+): Promise<ProProfile> => {
+  return customFetch<ProProfile>(getProGetProfileUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getProGetProfileQueryKey = () => {
+  return [`/api/pro/profile`] as const;
+};
+
+export const getProGetProfileQueryOptions = <
+  TData = Awaited<ReturnType<typeof proGetProfile>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof proGetProfile>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getProGetProfileQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof proGetProfile>>> = ({
+    signal,
+  }) => proGetProfile({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof proGetProfile>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ProGetProfileQueryResult = NonNullable<
+  Awaited<ReturnType<typeof proGetProfile>>
+>;
+export type ProGetProfileQueryError = ErrorType<void>;
+
+/**
+ * @summary Get the authenticated professional's profile
+ */
+
+export function useProGetProfile<
+  TData = Awaited<ReturnType<typeof proGetProfile>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof proGetProfile>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getProGetProfileQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Update the professional's profile (service ZIPs, services)
+ */
+export const getProUpdateProfileUrl = () => {
+  return `/api/pro/profile`;
+};
+
+export const proUpdateProfile = async (
+  updateProProfileBody: UpdateProProfileBody,
+  options?: RequestInit,
+): Promise<ProProfile> => {
+  return customFetch<ProProfile>(getProUpdateProfileUrl(), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updateProProfileBody),
+  });
+};
+
+export const getProUpdateProfileMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof proUpdateProfile>>,
+    TError,
+    { data: BodyType<UpdateProProfileBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof proUpdateProfile>>,
+  TError,
+  { data: BodyType<UpdateProProfileBody> },
+  TContext
+> => {
+  const mutationKey = ["proUpdateProfile"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof proUpdateProfile>>,
+    { data: BodyType<UpdateProProfileBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return proUpdateProfile(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ProUpdateProfileMutationResult = NonNullable<
+  Awaited<ReturnType<typeof proUpdateProfile>>
+>;
+export type ProUpdateProfileMutationBody = BodyType<UpdateProProfileBody>;
+export type ProUpdateProfileMutationError = ErrorType<void>;
+
+/**
+ * @summary Update the professional's profile (service ZIPs, services)
+ */
+export const useProUpdateProfile = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof proUpdateProfile>>,
+    TError,
+    { data: BodyType<UpdateProProfileBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof proUpdateProfile>>,
+  TError,
+  { data: BodyType<UpdateProProfileBody> },
+  TContext
+> => {
+  return useMutation(getProUpdateProfileMutationOptions(options));
 };
 
 /**
