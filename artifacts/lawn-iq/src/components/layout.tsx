@@ -347,7 +347,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </main>
 
       {/* ── Mobile Bottom Nav ── */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-emerald-800 flex justify-around items-center pt-2 z-50 shadow-[0_-2px_12px_rgba(0,0,0,0.25)]" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-emerald-800 flex items-center pt-2 z-50 shadow-[0_-2px_12px_rgba(0,0,0,0.25)]" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         {mobileNavItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href, location);
@@ -355,7 +355,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <Link
               key={item.href}
               href={item.href}
-              className="relative flex flex-col items-center gap-1 py-1.5 px-3 min-w-[3.8rem]"
+              className="relative flex-1 flex flex-col items-center gap-1 py-1.5 px-0.5"
             >
               {/* active pill */}
               {active && (
