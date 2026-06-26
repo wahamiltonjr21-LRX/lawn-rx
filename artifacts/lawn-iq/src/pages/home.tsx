@@ -405,6 +405,7 @@ export default function Home() {
       {currentDiagnosis && !analyzeLawn.isPending && (
         <DiagnosisResult
           diagnosis={currentDiagnosis}
+          diagnosisId={currentDiagnosis.id}
           onSave={handleSave}
           isSaving={saveDiagnosis.isPending}
           isPro={isPro}

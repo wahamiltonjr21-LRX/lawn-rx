@@ -4,15 +4,17 @@ import {
   Droplets, Sun, AlertTriangle, Activity, Save, Leaf,
   FlaskConical, ShieldCheck, Clock, Microscope, CloudSun,
   ArrowRight, ChevronDown, ChevronUp, TriangleAlert, Info,
-  CheckCircle2, Lock, Sparkles,
+  CheckCircle2, Lock, Sparkles, HardHat,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Diagnosis } from "@workspace/api-client-react";
 import { TipOfTheDay } from "./tip-of-the-day";
+import { ContactProModal } from "./contact-pro-modal";
 
 interface Props {
   diagnosis: Diagnosis;
+  diagnosisId?: string;
   onSave?: () => void;
   isSaving?: boolean;
   showSaveButton?: boolean;
@@ -101,9 +103,10 @@ function HealthRing({ score }: { score: number }) {
   );
 }
 
-export function DiagnosisResult({ diagnosis, onSave, isSaving = false, showSaveButton = true, isPro = false, onUpgrade }: Props) {
+export function DiagnosisResult({ diagnosis, diagnosisId, onSave, isSaving = false, showSaveButton = true, isPro = false, onUpgrade }: Props) {
   const sev = SEVERITY_CONFIG[diagnosis.severity];
   const [showDifferential, setShowDifferential] = useState(false);
+  const [showContactPro, setShowContactPro] = useState(false);
 
   return (
     <div className="space-y-5 animate-in fade-in slide-in-from-bottom-8 duration-500">
@@ -385,6 +388,35 @@ export function DiagnosisResult({ diagnosis, onSave, isSaving = false, showSaveB
           </div>
         </Card>
       )}
+
+      {/* ── Contact a Local Pro ── */}
+      <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50/60 dark:bg-emerald-950/20 p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center shrink-0">
+          <HardHat className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-sm text-foreground">Need hands-on help?</p>
+          <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+            Connect with a vetted lawn care professional in your area for a service estimate.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="rounded-xl shrink-0 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 gap-1.5"
+          onClick={() => setShowContactPro(true)}
+        >
+          <HardHat className="w-3.5 h-3.5" />
+          Contact a Pro
+        </Button>
+      </div>
+
+      <ContactProModal
+        open={showContactPro}
+        onOpenChange={setShowContactPro}
+        diagnosisId={diagnosisId}
+        diagnosisTitle={diagnosis.title}
+      />
 
       {/* ── Tip of the Day ── */}
       <TipOfTheDay />
