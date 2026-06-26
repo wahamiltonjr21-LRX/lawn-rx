@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Home, List, Info, Leaf, Bell, Users, ShoppingBag, LogIn, LogOut, User, CalendarDays, Trash2, CreditCard, Loader2 } from "lucide-react";
+import { Home, List, Info, Leaf, Bell, Users, ShoppingBag, LogIn, LogOut, User, CalendarDays, Trash2, CreditCard, Loader2, Wrench } from "lucide-react";
 import YardMapIcon from "@/components/icons/yard-map-icon";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -28,19 +28,20 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const allNavItems = [
-  { href: "/",            label: "Diagnose",  icon: Home        },
-  { href: "/plans",       label: "My Plans",  icon: List        },
-  { href: "/calendar",    label: "Calendar",  icon: CalendarDays},
-  { href: "/shop",        label: "Shop",      icon: ShoppingBag },
-  { href: "/community",   label: "Community", icon: Users       },
-  { href: "/yard-map",    label: "Yard Map",  icon: YardMapIcon },
-  { href: "/care-alerts", label: "Alerts",    icon: Bell        },
-  { href: "/about",       label: "About",     icon: Info        },
+  { href: "/",               label: "Diagnose",  icon: Home        },
+  { href: "/plans",          label: "My Plans",  icon: List        },
+  { href: "/request-quote",  label: "Get Quote", icon: Wrench      },
+  { href: "/calendar",       label: "Calendar",  icon: CalendarDays},
+  { href: "/shop",           label: "Shop",      icon: ShoppingBag },
+  { href: "/community",      label: "Community", icon: Users       },
+  { href: "/yard-map",       label: "Yard Map",  icon: YardMapIcon },
+  { href: "/care-alerts",    label: "Alerts",    icon: Bell        },
+  { href: "/about",          label: "About",     icon: Info        },
 ];
 
-// Mobile bottom nav: 6 tabs — hide About and Care Alerts only
+// Mobile bottom nav: show Diagnose, My Plans, Get Quote, Calendar, Shop, Community
 const mobileNavItems = allNavItems.filter(
-  (i) => i.href !== "/about" && i.href !== "/care-alerts"
+  (i) => i.href !== "/about" && i.href !== "/care-alerts" && i.href !== "/yard-map"
 );
 
 function isActive(href: string, location: string) {

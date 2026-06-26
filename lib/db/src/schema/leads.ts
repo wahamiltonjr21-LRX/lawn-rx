@@ -23,6 +23,7 @@ export const leadsTable = pgTable("leads", {
   address: text("address"),
   zipCode: varchar("zip_code", { length: 10 }).notNull(),
   status: leadStatusEnum("status").notNull().default("New"),
+  serviceType: varchar("service_type", { length: 100 }),
   leadScore: integer("lead_score").notNull().default(50),
   notes: text("notes"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

@@ -952,6 +952,8 @@ export const captureLeadBodyAddressMax = 500;
 export const captureLeadBodyZipCodeMin = 5;
 export const captureLeadBodyZipCodeMax = 10;
 
+export const captureLeadBodyServiceTypeMax = 100;
+
 export const captureLeadBodyNotesMax = 1000;
 
 export const CaptureLeadBody = zod.object({
@@ -964,6 +966,7 @@ export const CaptureLeadBody = zod.object({
     .min(captureLeadBodyZipCodeMin)
     .max(captureLeadBodyZipCodeMax),
   diagnosisId: zod.string().uuid().optional(),
+  serviceType: zod.string().max(captureLeadBodyServiceTypeMax).optional(),
   notes: zod.string().max(captureLeadBodyNotesMax).optional(),
 });
 
@@ -1120,6 +1123,7 @@ export const ProListLeadsResponseItem = zod.object({
   ]),
   leadScore: zod.number(),
   diagnosisId: zod.string().uuid().nullish(),
+  serviceType: zod.string().nullish(),
   notes: zod.string().nullish(),
   createdAt: zod.coerce.date(),
   updatedAt: zod.coerce.date(),
@@ -1158,6 +1162,7 @@ export const ProGetLeadResponse = zod
     ]),
     leadScore: zod.number(),
     diagnosisId: zod.string().uuid().nullish(),
+    serviceType: zod.string().nullish(),
     notes: zod.string().nullish(),
     createdAt: zod.coerce.date(),
     updatedAt: zod.coerce.date(),

@@ -21,6 +21,8 @@ export interface ProLead {
   /** @nullable */
   diagnosisId?: string | null;
   /** @nullable */
+  serviceType?: string | null;
+  /** @nullable */
   notes?: string | null;
   createdAt: Date;
   updatedAt: Date;

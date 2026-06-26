@@ -21,6 +21,7 @@ import Community from "@/pages/community";
 import Shop from "@/pages/shop";
 import Calendar from "@/pages/calendar";
 import DeleteAccount from "@/pages/delete-account";
+import RequestQuote from "@/pages/request-quote";
 
 const YardMap = lazy(() => import("@/pages/yard-map"));
 
@@ -58,6 +59,7 @@ function AnimatedRouter() {
           <Route path="/yard-map">
             {() => <Suspense fallback={<GrassLoader />}><YardMap /></Suspense>}
           </Route>
+          <Route path="/request-quote" component={RequestQuote} />
           <Route path="/delete-account" component={DeleteAccount} />
           <Route component={NotFound} />
         </Switch>

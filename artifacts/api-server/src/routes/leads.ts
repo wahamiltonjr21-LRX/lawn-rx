@@ -15,6 +15,7 @@ const CaptureLeadBody = z.object({
   address: z.string().max(500).optional(),
   zipCode: z.string().min(5).max(10),
   diagnosisId: z.string().uuid().optional(),
+  serviceType: z.string().max(100).optional(),
   notes: z.string().max(1000).optional(),
 });
 
@@ -70,6 +71,7 @@ router.post("/leads", async (req, res) => {
       phone: data.phone ?? null,
       address: data.address ?? null,
       zipCode: data.zipCode,
+      serviceType: data.serviceType ?? null,
       leadScore,
       notes: data.notes ?? null,
       status: "New",

@@ -23,6 +23,8 @@ export interface CaptureLeadBody {
    */
   zipCode: string;
   diagnosisId?: string;
+  /** @maxLength 100 */
+  serviceType?: string;
   /** @maxLength 1000 */
   notes?: string;
 }

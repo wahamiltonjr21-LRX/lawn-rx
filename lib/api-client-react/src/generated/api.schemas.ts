@@ -371,6 +371,8 @@ export interface CaptureLeadBody {
    */
   zipCode: string;
   diagnosisId?: string;
+  /** @maxLength 100 */
+  serviceType?: string;
   /** @maxLength 1000 */
   notes?: string;
 }
@@ -524,6 +526,8 @@ export interface ProLead {
   leadScore: number;
   /** @nullable */
   diagnosisId?: string | null;
+  /** @nullable */
+  serviceType?: string | null;
   /** @nullable */
   notes?: string | null;
   createdAt: string;

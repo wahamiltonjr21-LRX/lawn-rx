@@ -1336,6 +1336,9 @@ components:
         diagnosisId:
           type: string
           format: uuid
+        serviceType:
+          type: string
+          maxLength: 100
         notes:
           type: string
           maxLength: 1000
@@ -1542,6 +1545,8 @@ components:
         diagnosisId:
           type: [string, 'null']
           format: uuid
+        serviceType:
+          type: [string, 'null']
         notes:
           type: [string, 'null']
         createdAt:
