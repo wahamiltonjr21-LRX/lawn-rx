@@ -13,7 +13,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { 
   ArrowLeft, Mail, Phone, MapPin, Calendar, 
-  Activity, ExternalLink, Send, CheckCircle2
+  Activity, ExternalLink, Send, CheckCircle2, Wrench
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -122,11 +122,17 @@ export default function LeadDetail() {
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{lead.name}</h1>
-            <div className="flex items-center gap-3 mt-2 text-muted-foreground text-sm">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-muted-foreground text-sm">
               <span className="flex items-center">
                 <Calendar className="mr-1 h-4 w-4" />
                 Received {format(new Date(lead.createdAt), "MMM d, yyyy h:mm a")}
               </span>
+              {lead.serviceType && (
+                <span className="flex items-center font-medium text-primary">
+                  <Wrench className="mr-1 h-4 w-4" />
+                  {lead.serviceType}
+                </span>
+              )}
             </div>
           </div>
           

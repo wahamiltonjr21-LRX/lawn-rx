@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, MapPin, Activity, CalendarIcon, Inbox } from "lucide-react";
+import { Search, MapPin, Activity, CalendarIcon, Inbox, Wrench } from "lucide-react";
 import { format } from "date-fns";
 
 const statusColors: Record<LeadStatus, string> = {
@@ -108,7 +108,7 @@ export default function Leads() {
                             <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
                               {lead.name}
                             </h3>
-                            <div className="flex items-center text-sm text-muted-foreground mt-1 space-x-4">
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mt-1">
                               <span className="flex items-center">
                                 <MapPin className="w-3.5 h-3.5 mr-1" />
                                 {lead.zipCode}
@@ -117,6 +117,12 @@ export default function Leads() {
                                 <CalendarIcon className="w-3.5 h-3.5 mr-1" />
                                 {format(new Date(lead.createdAt), "MMM d, yyyy")}
                               </span>
+                              {lead.serviceType && (
+                                <span className="flex items-center text-primary font-medium">
+                                  <Wrench className="w-3.5 h-3.5 mr-1" />
+                                  {lead.serviceType}
+                                </span>
+                              )}
                             </div>
                           </div>
                           <Badge variant="secondary" className={`${statusColors[lead.status]} border-0`}>
