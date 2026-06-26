@@ -33,6 +33,7 @@ router.post("/leads", async (req, res) => {
 
   let diagnosisTitle: string | null = null;
   let severity = "Medium";
+  let resolvedDiagnosisId: string | null = null;
 
   if (data.diagnosisId) {
     const [diag] = await db
@@ -44,6 +45,7 @@ router.post("/leads", async (req, res) => {
     if (diag && diag.userId === req.user.id) {
       diagnosisTitle = diag.title;
       severity = diag.severity;
+      resolvedDiagnosisId = data.diagnosisId;
     }
   }
 
@@ -61,7 +63,7 @@ router.post("/leads", async (req, res) => {
     .insert(leadsTable)
     .values({
       userId: req.user.id,
-      diagnosisId: data.diagnosisId ?? null,
+      diagnosisId: resolvedDiagnosisId,
       professionalId,
       name: data.name,
       email: data.email,
@@ -105,6 +107,12 @@ router.post("/leads", async (req, res) => {
         businessName: pro.businessName,
       });
     }
+  } else {
+    void sendLeadConfirmationEmail({
+      toHomeownerEmail: lead.email,
+      homeownerName: lead.name,
+      businessName: "a local LawnRX partner",
+    });
   }
 
   res.status(201).json({

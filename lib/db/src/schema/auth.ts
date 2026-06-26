@@ -1,5 +1,7 @@
 import { sql } from "drizzle-orm";
-import { boolean, index, integer, jsonb, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
+import { boolean, index, integer, jsonb, pgEnum, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
+
+export const userRoleEnum = pgEnum("user_role", ["customer", "professional", "admin"]);
 
 // (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
 export const sessionsTable = pgTable(
@@ -22,6 +24,7 @@ export const usersTable = pgTable("users", {
   analysisCount: integer("analysis_count").notNull().default(0),
   lawnRxName: varchar("lawn_rx_name", { length: 30 }),
   yardSquareFeet: integer("yard_square_feet"),
+  role: userRoleEnum("role").notNull().default("customer"),
   isProOverride: boolean("is_pro_override").notNull().default(false),
   stripeCustomerId: varchar("stripe_customer_id"),
   stripeSubscriptionId: varchar("stripe_subscription_id"),

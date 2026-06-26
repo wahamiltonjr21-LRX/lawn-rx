@@ -211,19 +211,38 @@ router.patch("/pro/profile", async (req, res) => {
     return;
   }
 
-  const [updated] = await db
+  await db
     .update(professionalsTable)
     .set(updateData)
-    .where(eq(professionalsTable.id, req.professional!.id))
-    .returning({
+    .where(eq(professionalsTable.id, req.professional!.id));
+
+  const [updated] = await db
+    .select({
       id: professionalsTable.id,
+      email: professionalsTable.email,
       businessName: professionalsTable.businessName,
+      ownerName: professionalsTable.ownerName,
       phone: professionalsTable.phone,
+      approved: professionalsTable.approved,
+      subscriptionStatus: professionalsTable.subscriptionStatus,
       serviceZipCodes: professionalsTable.serviceZipCodes,
       servicesOffered: professionalsTable.servicesOffered,
-    });
+      rating: professionalsTable.rating,
+      createdAt: professionalsTable.createdAt,
+    })
+    .from(professionalsTable)
+    .where(eq(professionalsTable.id, req.professional!.id))
+    .limit(1);
 
-  res.json(updated);
+  if (!updated) {
+    res.status(404).json({ error: "Profile not found" });
+    return;
+  }
+
+  res.json({
+    ...updated,
+    createdAt: updated.createdAt.toISOString(),
+  });
 });
 
 export default router;
