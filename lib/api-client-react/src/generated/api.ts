@@ -2764,7 +2764,7 @@ export function useProGetLead<
  * @summary Update the status of a lead
  */
 export const getProUpdateLeadStatusUrl = (id: string) => {
-  return `/api/pro/leads/${id}/status`;
+  return `/api/pro/leads/${id}`;
 };
 
 export const proUpdateLeadStatus = async (

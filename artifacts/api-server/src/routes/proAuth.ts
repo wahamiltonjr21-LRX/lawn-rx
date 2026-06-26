@@ -64,12 +64,31 @@ router.post("/pro/auth/register", async (req, res) => {
     })
     .returning();
 
-  req.log.info({ professionalId: pro.id }, "Professional registered");
-  res.status(201).json({
-    id: pro.id,
+  const sid = await createProSession({
+    professionalId: pro.id,
     email: pro.email,
     businessName: pro.businessName,
-    approved: pro.approved,
+  });
+
+  res.cookie(PRO_SESSION_COOKIE, sid, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: PRO_SESSION_TTL,
+    path: "/",
+  });
+
+  req.log.info({ professionalId: pro.id }, "Professional registered");
+  res.status(201).json({
+    token: sid,
+    professional: {
+      id: pro.id,
+      email: pro.email,
+      businessName: pro.businessName,
+      ownerName: pro.ownerName,
+      approved: pro.approved,
+      subscriptionStatus: pro.subscriptionStatus,
+    },
     message: "Registration submitted. Your account is pending approval.",
   });
 });

@@ -592,7 +592,6 @@ paths:
           description: Unauthorized
         "404":
           description: Not found
-  /pro/leads/{id}/status:
     patch:
       operationId: proUpdateLeadStatus
       tags: [pro]
@@ -1418,17 +1417,18 @@ components:
           maxItems: 20
     ProRegisterResult:
       type: object
-      required: [id, email, businessName, approved, message]
+      required: [token, professional, message]
       properties:
-        id:
+        token:
           type: string
-          format: uuid
-        email:
-          type: string
-        businessName:
-          type: string
-        approved:
-          type: boolean
+        professional:
+          allOf:
+            - $ref: "#/components/schemas/ProProfileSummary"
+            - type: object
+              required: [approved]
+              properties:
+                approved:
+                  type: boolean
         message:
           type: string
     ProLoginBody:

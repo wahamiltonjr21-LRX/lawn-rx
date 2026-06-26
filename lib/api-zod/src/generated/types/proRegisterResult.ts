@@ -5,11 +5,10 @@
  * LawnIQ API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { ProRegisterResultProfessional } from "./proRegisterResultProfessional";
 
 export interface ProRegisterResult {
-  id: string;
-  email: string;
-  businessName: string;
-  approved: boolean;
+  token: string;
+  professional: ProRegisterResultProfessional;
   message: string;
 }

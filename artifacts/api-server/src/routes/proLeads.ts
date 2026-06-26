@@ -87,7 +87,7 @@ router.get("/pro/leads/:id", async (req, res) => {
   });
 });
 
-router.patch("/pro/leads/:id/status", async (req, res) => {
+router.patch("/pro/leads/:id", async (req, res) => {
   if (!requirePro(req, res)) return;
 
   const { id } = req.params;

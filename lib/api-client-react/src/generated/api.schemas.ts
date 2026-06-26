@@ -431,20 +431,6 @@ export interface ProRegisterBody {
   servicesOffered: string[];
 }
 
-export interface ProRegisterResult {
-  id: string;
-  email: string;
-  businessName: string;
-  approved: boolean;
-  message: string;
-}
-
-export interface ProLoginBody {
-  email: string;
-  /** @minLength 1 */
-  password: string;
-}
-
 export type ProProfileSummarySubscriptionStatus =
   (typeof ProProfileSummarySubscriptionStatus)[keyof typeof ProProfileSummarySubscriptionStatus];
 
@@ -461,6 +447,22 @@ export interface ProProfileSummary {
   businessName: string;
   ownerName: string;
   subscriptionStatus: ProProfileSummarySubscriptionStatus;
+}
+
+export type ProRegisterResultProfessional = ProProfileSummary & {
+  approved: boolean;
+};
+
+export interface ProRegisterResult {
+  token: string;
+  professional: ProRegisterResultProfessional;
+  message: string;
+}
+
+export interface ProLoginBody {
+  email: string;
+  /** @minLength 1 */
+  password: string;
 }
 
 export interface ProLoginResult {

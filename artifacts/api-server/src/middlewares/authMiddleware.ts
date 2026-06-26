@@ -63,7 +63,7 @@ export async function authMiddleware(
   } as Request["isAuthenticated"];
 
   const sid = getSessionId(req);
-  if (!sid) {
+  if (!sid || sid.startsWith("pro_")) {
     next();
     return;
   }

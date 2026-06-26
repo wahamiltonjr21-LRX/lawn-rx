@@ -50,6 +50,7 @@ export * from "./proProfileSummary";
 export * from "./proProfileSummarySubscriptionStatus";
 export * from "./proRegisterBody";
 export * from "./proRegisterResult";
+export * from "./proRegisterResultProfessional";
 export * from "./saveDiagnosisBody";
 export * from "./severity";
 export * from "./treatmentLog";
