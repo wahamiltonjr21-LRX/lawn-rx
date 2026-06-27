@@ -54,9 +54,15 @@ router.get("/stripe/subscription", async (req, res) => {
       .split(",")
       .map((e) => e.trim().toLowerCase())
       .filter(Boolean);
+    const devUserIds = (process.env.DEV_USER_IDS ?? "")
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean);
     const emailOverride = proOverrideEmails.includes((user?.email ?? "").toLowerCase());
-    if (user?.isProOverride || emailOverride) {
-      req.log.info({ userId: req.user.id, reason: user?.isProOverride ? "db_override" : "email_override" }, "subscription isPro=true");
+    const userIdOverride = devUserIds.includes(req.user.id);
+    if (user?.isProOverride || emailOverride || userIdOverride) {
+      const reason = user?.isProOverride ? "db_override" : userIdOverride ? "user_id_override" : "email_override";
+      req.log.info({ userId: req.user.id, reason }, "subscription isPro=true");
       res.json({ subscription: null, isPro: true });
       return;
     }

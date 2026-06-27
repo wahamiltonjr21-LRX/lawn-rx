@@ -183,9 +183,14 @@ router.post("/diagnoses", async (req, res) => {
     .split(",")
     .map((e) => e.trim().toLowerCase())
     .filter(Boolean);
+  const devUserIds = (process.env.DEV_USER_IDS ?? "")
+    .split(",")
+    .map((id) => id.trim())
+    .filter(Boolean);
   const emailOverride = proOverrideEmails.includes((userRow?.email ?? "").toLowerCase());
+  const userIdOverride = devUserIds.includes(req.user.id);
 
-  let isPro = userRow?.isProOverride === true || emailOverride;
+  let isPro = userRow?.isProOverride === true || emailOverride || userIdOverride;
   if (!isPro && userRow?.stripeCustomerId) {
     const activeSub = await stripeStorage.getActiveSubscriptionForCustomer(userRow.stripeCustomerId);
     isPro = !!activeSub;
@@ -318,8 +323,13 @@ router.get("/diagnoses/usage", async (req, res) => {
     .split(",")
     .map((e) => e.trim().toLowerCase())
     .filter(Boolean);
+  const devUserIds = (process.env.DEV_USER_IDS ?? "")
+    .split(",")
+    .map((id) => id.trim())
+    .filter(Boolean);
   const emailOverride = proOverrideEmails.includes((row?.email ?? "").toLowerCase());
-  let isPro = row?.isProOverride === true || emailOverride;
+  const userIdOverride = devUserIds.includes(req.user.id);
+  let isPro = row?.isProOverride === true || emailOverride || userIdOverride;
   if (!isPro && row?.stripeCustomerId) {
     const activeSub = await stripeStorage.getActiveSubscriptionForCustomer(row.stripeCustomerId);
     isPro = !!activeSub;
